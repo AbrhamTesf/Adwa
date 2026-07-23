@@ -1,0 +1,63 @@
+# Adwa AI Companion — Coding Guidelines
+
+## Monorepo Boundaries
+
+- `shared/` is the single source of truth for API contracts (TypeScript interfaces + Pydantic models).
+- `frontend/` consumes `shared/types/api.ts` — never duplicate type definitions in the frontend.
+- `backend/` consumes `shared/schemas/schemas.py` — keep request/response shapes in sync with TypeScript.
+- When changing an API contract, update both `shared/types/api.ts` and `shared/schemas/schemas.py` in the same commit.
+
+## Next.js 14 (App Router)
+
+- Use the App Router (`app/` directory). Default to Server Components; add `"use client"` only when needed (hooks, browser APIs, Three.js, WebXR).
+- Co-locate route-specific components under `app/`; shared UI under `components/`.
+- Use `NEXT_PUBLIC_*` env vars only for values safe to expose to the browser.
+- Prefer `fetch` with Next.js caching semantics; call the backend via `NEXT_PUBLIC_BACKEND_URL`.
+- Keep pages thin — delegate logic to `lib/` utilities and custom hooks.
+
+## TypeScript
+
+- Strict mode enabled. No `any` unless absolutely necessary (document why).
+- Import shared types via `@/types/api` (path alias maps to `../shared/types/api`).
+- Export named interfaces/types; avoid default exports for shared contracts.
+- Use `interface` for object shapes, `type` for unions and utility types.
+
+## Tailwind CSS
+
+- Use utility classes; extract repeated patterns into `@apply` in `globals.css` only when a pattern repeats 3+ times.
+- Mobile-first responsive design (`sm:`, `md:`, `lg:`).
+- Use semantic color tokens defined in `tailwind.config.ts` (heritage palette: gold, earth, stone).
+
+## Three.js / React Three Fiber
+
+- All 3D components must be Client Components (`"use client"`).
+- Lazy-load heavy `.glb` models with `@react-three/drei` `<Suspense>` and `<useGLTF>`.
+- Dispose geometries/materials on unmount to prevent memory leaks.
+- Keep the R3F canvas in dedicated components (`components/ar/`); do not mix DOM and canvas in the same file unnecessarily.
+- Place `.glb` assets in `public/models/`; reference via `/models/<filename>.glb`.
+
+## FastAPI / Python
+
+- Use `async def` for all route handlers and I/O-bound operations.
+- All request/response models come from `shared/schemas/schemas.py` — do not redefine Pydantic models in routers.
+- Load secrets via `backend/config.py` (`pydantic-settings`); never hardcode API keys.
+- Structure: `main.py` (app init) → `routers/` (endpoints) → `services/` (business logic, add during hackathon).
+- Return proper HTTP status codes; use `HTTPException` for client errors.
+
+## Pydantic v2
+
+- Use `model_config = ConfigDict(...)` instead of v1 `class Config`.
+- Prefer `Field(...)` with descriptions for API documentation.
+- Use `model_validate` / `model_dump` (not v1 `parse_obj` / `dict()`).
+
+## Async Python
+
+- Use `httpx.AsyncClient` for external HTTP calls (OpenAI, ElevenLabs).
+- Use `asyncio.gather` for parallel independent I/O.
+- Do not block the event loop with synchronous file I/O in hot paths — use `aiofiles` if needed.
+
+## General
+
+- Keep stubs minimal with inline `# TODO:` comments for hackathon implementation.
+- Write commit messages in imperative mood ("Add itinerary router", not "Added...").
+- Prefer small, focused files over monoliths.

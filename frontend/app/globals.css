@@ -1,0 +1,14 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --heritage-gold: #c4a035;
+  --heritage-earth: #8b4513;
+  --heritage-stone: #4a4a4a;
+  --heritage-sand: #f5e6d3;
+}
+
+body {
+  @apply bg-heritage-sand text-heritage-stone antialiased;
+}

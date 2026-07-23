@@ -1,0 +1,46 @@
+# ─── Environment Variables & Secrets ─────────────────────────────────────────
+
+.env
+.env*.local
+.env.production
+
+# ─── Python & Backend ────────────────────────────────────────────────────────
+
+__pycache__/
+*.py[cod]
+*$py.class
+
+.venv/
+venv/
+env/
+ENV/
+
+*.sqlite3
+
+# Local ChromaDB persistence
+.chroma/
+chroma_data/
+
+# ─── Node.js & Next.js (frontend/) ───────────────────────────────────────────
+
+node_modules/
+.next/
+out/
+build/
+
+*.log
+.pnpm-debug.log*
+yarn-debug.log*
+npm-debug.log*
+
+# ─── IDE & OS ────────────────────────────────────────────────────────────────
+
+.DS_Store
+Thumbs.db
+.idea/
+
+.vscode/*
+!.vscode/settings.json
+
+# ─── Notes ───────────────────────────────────────────────────────────────────
+# frontend/public/models/*.glb — keep tracked when compressed and under 10 MB

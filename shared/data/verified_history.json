@@ -1,1 +1,122 @@
-[]
+[
+  {
+    "id": "exhibit_001",
+    "title": "The Royal Negarit War Drum",
+    "location": "Adwa Victory Memorial Park - Hall of Strategy",
+    "qr_code_id": "ADWA_NEGARIT_001",
+    "category": "Communication & Military Signaling",
+    "keywords": ["Negarit", "drum", "mobilization", "Menelik", "command", "signaling"],
+    "summary": "The royal drum used to rally forces across distances before modern telecommunications existed.",
+    "full_story": "The Negarit is a large ceremonial war drum whose thunderous beat could carry across valleys and hilltops, summoning warriors to assembly long before radio or telegraph reached Ethiopia. At the approach of the First Italo-Ethiopian War, Emperor Menelik II issued a nationwide mobilization decree that relied on this ancient signaling network: Negarit drummers stationed at provincial courts repeated the royal rhythm, passing the call to arms from Shoa to Gojjam, Tigray, and beyond. Each pattern encoded urgency and destination, allowing regional lords (ras) to muster their levies on a coordinated timetable. Museum curators note that the drum on display was associated with the imperial court's strategic communications hub, where messengers, runners, and drummers worked in concert to unify a multi-ethnic army under a single campaign. For visitors, the Negarit embodies how Ethiopian commanders transformed sound into logistics—turning rhythm into reach, and reach into the hundred-thousand-strong force that would meet the Italian invaders at Adwa on March 1, 1896.",
+    "citation": "Adwa Victory Memorial Museum Archives, Vol. 2, Exhibit 1",
+    "artifact_id": "negarit",
+    "key_facts": [
+      {"fact": "Historical Purpose", "value": "Long-distance military mobilization and command signaling"},
+      {"fact": "Associated Leader", "value": "Emperor Menelik II"},
+      {"fact": "Signal Range", "value": "Audible across multiple hill districts when relayed"},
+      {"fact": "Campaign Context", "value": "1895–1896 mobilization ahead of the Battle of Adwa"}
+    ],
+    "personalization_tags": ["military", "tactics", "music", "heroes"],
+    "related_exhibits": ["exhibit_002", "exhibit_006"]
+  },
+  {
+    "id": "exhibit_002",
+    "title": "Dejazmach Balcha Safo's Field Cannon",
+    "location": "Adwa Victory Memorial Park - Artillery Gallery",
+    "qr_code_id": "ADWA_CANNON_002",
+    "category": "Artillery & Modern Warfare",
+    "keywords": ["Balcha Safo", "cannon", "artillery", "Abba Nefso", "Adwa", "firepower"],
+    "summary": "A captured and redeployed field piece linked to Dejazmach Balcha Safo, one of Adwa's most feared artillery commanders.",
+    "full_story": "Dejazmach Balcha Safo—honored as Abba Nefso—commanded some of the most effective artillery units in the Ethiopian force at Adwa. Ethiopian armies had acquired modern breech-loading cannons through trade and captured Italian materiel; Balcha's gunners trained to operate these weapons under harsh highland conditions. At Adwa, coordinated cannon fire disrupted Italian formations on broken ground, complementing infantry assaults and cavalry flanking maneuvers. The field cannon exhibited here represents the hybrid nature of the 1896 battlefield: spears and shotels alongside rifled artillery, traditional morale rituals alongside volley fire discipline. Balcha's reputation for precision and courage made his batteries a decisive factor when Italian lines buckled under combined arms pressure. The piece serves as a reminder that Ethiopian victory was not merely numerical superiority, but the skilled integration of modern weapons with seasoned commanders who understood terrain, timing, and combined-arms tactics.",
+    "citation": "Adwa Victory Memorial Museum Archives, Vol. 2, Exhibit 2",
+    "artifact_id": "cannon",
+    "key_facts": [
+      {"fact": "Commander", "value": "Dejazmach Balcha Safo (Abba Nefso)"},
+      {"fact": "Role at Adwa", "value": "Artillery coordination and counter-battery fire"},
+      {"fact": "Weapon Type", "value": "Breech-loading field cannon (late 19th century)"},
+      {"fact": "Tactical Impact", "value": "Disrupted Italian infantry formations on broken terrain"}
+    ],
+    "personalization_tags": ["military", "tactics", "heroes", "technology"],
+    "related_exhibits": ["exhibit_001", "exhibit_003"]
+  },
+  {
+    "id": "exhibit_003",
+    "title": "Traditional Imperial Shield (Gasha)",
+    "location": "Adwa Victory Memorial Park - Warriors' Hall",
+    "qr_code_id": "ADWA_GASHA_003",
+    "category": "Defensive Arms & Regalia",
+    "keywords": ["Gasha", "shield", "hide", "lion", "imperial", "defense", "Adwa"],
+    "summary": "An imperial-grade hide shield (gasha) carried by elite warriors and bodyguards in the Adwa campaign.",
+    "full_story": "The gasha is a convex hide shield, often reinforced and decorated to denote rank, regiment, or royal patronage. In the Adwa campaign, shields remained essential in close combat—deflecting bayonet thrusts, sword cuts, and shrapnel fragments when troops closed distance on Italian lines. Imperial gasha shields frequently bore lion motifs and ochre pigments associated with the Solomonic throne, signaling that their bearers fought under Menelik's banner rather than as mere regional militia. Warriors paired the gasha with shotel swords and rifles, forming a layered kit that bridged centuries of Ethiopian martial tradition and newly imported firearms. Museum documentation describes how shield walls protected gunners reloading on open slopes, and how decorated gasha served as rally points in the chaos of battle. For modern visitors, the shield illustrates Ethiopian military culture: personal valor expressed through craftsmanship, symbolism, and the communal discipline of line and shield.",
+    "citation": "Adwa Victory Memorial Museum Archives, Vol. 2, Exhibit 3",
+    "artifact_id": "gasha",
+    "key_facts": [
+      {"fact": "Material", "value": "Cured hide (often buffalo or cattle), wood, and pigment"},
+      {"fact": "Primary Use", "value": "Close-combat defense and unit identification"},
+      {"fact": "Symbolic Motif", "value": "Lion of Judah and imperial ochre markings"},
+      {"fact": "Battle Pairing", "value": "Commonly used with shotel and rifle"}
+    ],
+    "personalization_tags": ["military", "heroes", "craftsmanship", "culture"],
+    "related_exhibits": ["exhibit_004", "exhibit_002"]
+  },
+  {
+    "id": "exhibit_004",
+    "title": "Curved Shotel Sword",
+    "location": "Adwa Victory Memorial Park - Warriors' Hall",
+    "qr_code_id": "ADWA_SHOTEL_004",
+    "category": "Edged Weapons & Infantry Tactics",
+    "keywords": ["Shotel", "sword", "curved blade", "infantry", "close combat", "Adwa"],
+    "summary": "The distinctive curved shotel sword engineered for hooking, disarming, and striking around shields and bayonets.",
+    "full_story": "The shotel's dramatically curved blade was designed for the specific geometry of Ethiopian close combat: hooking an opponent's shield rim, pulling it aside, and delivering a decisive cut to exposed limbs or the neck. At Adwa, Italian infantry relied on bayonet-fixed rifles and disciplined volley fire; Ethiopian assault troops used terrain, speed, and shotel expertise to collapse the distance where rifled accuracy mattered most. Veterans' accounts preserved in regional archives describe shotel fighters working in teams—one warrior binding a shield, another striking—while riflemen provided covering fire. The blade on display shows the characteristic sickle profile and fullered spine that allowed both slashing and thrusting in cramped melee. Unlike a mere ceremonial weapon, this shotel category was mass-produced across smithing centers in Amhara, Tigray, and Gojjam, evidencing a decentralized but standardized martial economy that fed the 1896 campaign. The shotel remains one of the most recognizable symbols of Ethiopian resistance and tactical ingenuity.",
+    "citation": "Adwa Victory Memorial Museum Archives, Vol. 2, Exhibit 4",
+    "artifact_id": "shotel",
+    "key_facts": [
+      {"fact": "Blade Profile", "value": "Deeply curved sickle form for hook-and-strike tactics"},
+      {"fact": "Combat Role", "value": "Close-quarters assault against shielded and bayonet-armed infantry"},
+      {"fact": "Production", "value": "Regional smithing traditions across multiple provinces"},
+      {"fact": "Battle of Adwa", "value": "Used in final assault phases on broken ground"}
+    ],
+    "personalization_tags": ["military", "tactics", "heroes", "craftsmanship"],
+    "related_exhibits": ["exhibit_003", "exhibit_005"]
+  },
+  {
+    "id": "exhibit_005",
+    "title": "Embilta Ensemble Flute",
+    "location": "Adwa Victory Memorial Park - Cultural Resilience Wing",
+    "qr_code_id": "ADWA_EMBILTA_005",
+    "category": "Music, Morale & Cultural Identity",
+    "keywords": ["Embilta", "flute", "music", "morale", "procession", "unity", "Adwa"],
+    "summary": "A bamboo embilta flute of the type played in marching ensembles that sustained morale during the long road to Adwa.",
+    "full_story": "The embilta is a end-blown bamboo flute whose piercing, reedy tone cuts through open air—ideal for outdoor marches across Ethiopia's highlands. During the 1895–1896 mobilization, embilta ensembles accompanied columns of warriors, farmers-turned-soldiers, and supply carriers on weeks-long routes toward the northern front. Musicians played repetitive, hypnotic patterns that regulated pace, masked fatigue, and reinforced communal identity when armies comprised dozens of languages and local customs. Ethnomusicologists collaborating with the museum document how flute and drum combinations (including Negarit and kabaro) created a sonic architecture of war: drums for command, flutes for movement, and later victory songs for remembrance. The embilta on exhibit was restored from fragments found near a documented encampment route used by Gojjam contingents joining Menelik's main force. It speaks to the cultural dimension of Adwa—not only a clash of armies, but a mobilization of an entire society's music, ritual, and shared memory into a single national undertaking.",
+    "citation": "Adwa Victory Memorial Museum Archives, Vol. 2, Exhibit 5",
+    "artifact_id": "embilta",
+    "key_facts": [
+      {"fact": "Instrument Type", "value": "End-blown bamboo flute (embilta)"},
+      {"fact": "Campaign Function", "value": "March cadence, morale, and unit cohesion on long routes"},
+      {"fact": "Ensemble Context", "value": "Often paired with drums and vocal call-and-response"},
+      {"fact": "Cultural Significance", "value": "Unified multi-ethnic columns through shared musical practice"}
+    ],
+    "personalization_tags": ["music", "culture", "heroes", "unity"],
+    "related_exhibits": ["exhibit_001", "exhibit_006"]
+  },
+  {
+    "id": "exhibit_006",
+    "title": "Meleket Ceremonial Horn",
+    "location": "Adwa Victory Memorial Park - Hall of Strategy",
+    "qr_code_id": "ADWA_MELEKET_006",
+    "category": "Communication & Ceremonial Signaling",
+    "keywords": ["Meleket", "horn", "signaling", "ceremony", "royal court", "Adwa", "command"],
+    "summary": "A royal meleket horn used for court announcements and battlefield signaling alongside drums and runners.",
+    "full_story": "The meleket is a horn trumpet traditionally associated with proclamations from throne and camp—cutting through noise to mark decrees, alarms, and ceremonial openings. In the Adwa period, meleket calls complemented Negarit drums and mounted messengers, forming a tiered communications system adapted to Ethiopia's mountainous geography. Short horn blasts could direct immediate tactical movements within sight of commanders, while drum relays carried strategic orders across provinces. Imperial protocol reserved certain meleket sequences for the sovereign's announcements; Empress Taytu Betul's documented role in council and logistics meant horn and drum signals often coordinated supply trains and reserve movements as closely as front-line assaults. The horn displayed here bears wear consistent with repeated campaign use rather than purely palace ceremony, suggesting field deployment during the 1896 march. Together with the Negarit and embilta exhibits, the meleket completes a picture of Adwa as a war fought with acoustic technology as sophisticated—for its era and terrain—as any telegraph network in Europe.",
+    "citation": "Adwa Victory Memorial Museum Archives, Vol. 2, Exhibit 6",
+    "artifact_id": "meleket",
+    "key_facts": [
+      {"fact": "Instrument Type", "value": "Ceremonial and tactical horn (meleket)"},
+      {"fact": "Signal Role", "value": "Local command cues and royal proclamations"},
+      {"fact": "Complementary Tools", "value": "Used with Negarit drums and mounted couriers"},
+      {"fact": "Associated Context", "value": "1895–1896 mobilization and Battle of Adwa command network"}
+    ],
+    "personalization_tags": ["military", "music", "tactics", "culture"],
+    "related_exhibits": ["exhibit_001", "exhibit_005"]
+  }
+]

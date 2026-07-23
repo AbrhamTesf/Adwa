@@ -1,0 +1,50 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html, body, #root {
+    height: 100%;
+  }
+  body {
+    @apply bg-obsidian bg-adwa-geometry font-body text-parchment antialiased;
+  }
+  h1, h2, h3 {
+    @apply font-display;
+  }
+}
+
+@layer components {
+  /* Warm metallic glassmorphism overlay — used for chat/voice drawers, bottom sheets */
+  .adwa-glass {
+    @apply bg-metallic-glass backdrop-blur-xl border border-imperial-gold/20 rounded-xl2 shadow-gold-glow;
+  }
+
+  .adwa-card {
+    @apply bg-obsidian-raised/80 border border-wanza-wood rounded-xl2 p-4;
+  }
+
+  .adwa-btn-primary {
+    @apply bg-imperial-gold text-obsidian font-semibold rounded-full px-6 py-3
+           shadow-gold-glow active:scale-95 transition-transform;
+  }
+
+  .adwa-btn-secondary {
+    @apply bg-transparent border border-adwa-emerald text-adwa-emerald font-semibold
+           rounded-full px-6 py-3 active:scale-95 transition-transform;
+  }
+
+  .adwa-chip {
+    @apply bg-obsidian-overlay border border-imperial-gold/30 rounded-full px-4 py-2 text-sm;
+  }
+  .adwa-chip[data-active="true"] {
+    @apply bg-imperial-gold/20 border-imperial-gold text-imperial-gold-light;
+  }
+
+  /* Cultural geometry accent — subtle triangular motif divider */
+  .adwa-divider {
+    height: 3px;
+    background: linear-gradient(90deg, #D4AF37 0%, #009A44 50%, #E00000 100%);
+    border-radius: 999px;
+  }
+}

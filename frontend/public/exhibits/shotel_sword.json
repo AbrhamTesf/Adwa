@@ -1,0 +1,15 @@
+{
+  "exhibit_id": "shotel_sword",
+  "category": "weapon",
+  "glb_url": "/models/shotel_sword.glb",
+  "hotspot_json": {
+    "hilt": { "position": "0 0.1 0", "normal": "0 1 0", "tab": "craft" },
+    "blade": { "position": "0 0.4 0", "normal": "0 1 0", "tab": "material" }
+  },
+  "persona_scripts": {
+    "material": "Hand-forged iron blade paired with a wanza hardwood hilt.",
+    "craft": "The curved blade was shaped through repeated forging and quenching by highland smiths.",
+    "usage": "Its crescent curve let warriors strike around an opponent's shield in close formation."
+  },
+  "audio_profile": { "ambient": "/audio/forge-ambience.mp3" }
+}

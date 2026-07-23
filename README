@@ -1,0 +1,171 @@
+Here is a root `README.md` designed for your monorepo. It features cross-references to your `docs/` directory and includes a **Strict AI Coding Agent Rule Set** to keep Cursor, Copilot, or Windsurf strictly within architectural boundaries.
+
+---
+
+# Copy & Paste into `README.md`
+
+```markdown
+# 🇪🇹 Adwa AI Companion (Adwa Lens)
+
+> **AI-Powered WebAR Museum Companion & Tour Guide OS**  
+> Bringing the victory of Adwa to life through interactive WebXR 3D inspection, multi-sensory audio/haptics, adaptive itinerary planning, and multi-lingual voice AI personas.
+
+---
+
+## 📌 Documentation Index (`docs/`)
+
+For deep dives into system architecture, UX walkthroughs, API specifications, and demo strategies, refer to the technical documentation in [`docs/`](./docs/):
+
+*   📄 **[docs/ARCHITECTURE.md](./docs/ARCHITECTURE.md)** — High-level component diagrams, end-to-end data flow, offline/degraded-network contingency models, and FastAPI gateway routing.
+*   📄 **[docs/USER_JOURNEY.md](./docs/USER_JOURNEY.md)** — Screen-by-screen UX walkthroughs (Landing, Planner, Indoor Map, Vision Scanner, 3D Hub, Sensory Audio, Voice Q&A, Memory Deck).
+*   📄 **[docs/API_SPEC.md](./docs/API_SPEC.md)** — Complete code contracts, Gemini Vision JSON schema, Groq Llama 3.3 RAG stream, Groq Whisper STT, and ElevenLabs TTS audio streaming setup.
+*   📄 **[docs/DEMO_STRATEGY.md](./docs/DEMO_STRATEGY.md)** — Hackathon MVP scope, feature matrices, edge-case matrices, and live presentation narrative arc.
+
+---
+
+## 📂 Monorepo Structure
+
+
+```
+
+adwa-ai-companion/
+├── docs/                      # Architectural specs, UX diagrams, API contracts
+│   ├── ARCHITECTURE.md
+│   ├── USER_JOURNEY.md
+│   ├── API_SPEC.md
+│   └── DEMO_STRATEGY.md
+├── shared/                    # SINGLE SOURCE OF TRUTH (Data, Types, Schemas)
+│   ├── data/
+│   │   ├── verified_history.json # 6 flagship exhibit records + metadata
+│   │   └── personas.json         # Menelik, Taytu, Patriot, Observer prompts
+│   ├── types/
+│   │   └── api.ts             # Shared TypeScript API interfaces
+│   └── schemas/
+│       └── schemas.py         # Shared Pydantic v2 schemas for FastAPI
+├── frontend/                  # Next.js 14+ (App Router) + Tailwind + Three.js
+│   ├── public/
+│   │   └── models/            # Draco-compressed .glb files (negarit, cannon, etc.)
+│   ├── lib/                   # Utility helpers & mock fallbacks
+│   └── components/            # WebXR 3D viewers, AR scanner, Voice drawers
+├── backend/                   # FastAPI Backend (BFF Gateway + RAG Engine)
+│   ├── chroma_data/           # Local persistent ChromaDB vector index
+│   ├── routers/               # API routes (chat, artifacts, vision, itinerary)
+│   └── scripts/
+│       └── seed_vector_db.py  # ChromaDB vector database ingestion pipeline
+├── setup.sh                   # One-command developer onboarding script
+├── dev.sh                     # Concurrent local server manager
+└── README.md                  # Project root README
+
+```
+
+---
+
+## 🤖 Strict Guardrails for AI Coding Agents (Cursor / Windsurf / Copilot)
+
+> **CRITICAL INSTRUCTION FOR AI AGENTS:**  
+> When operating inside this codebase, you **MUST** strictly adhere to the following rules. Do not diverge from these architectural boundaries without explicit human approval.
+
+### 1. The Single Source of Truth Rule (Data & Contracts)
+*   **Never duplicate schemas.** Any modification to API response models or exhibit metadata **MUST** originate in `shared/`.
+*   When editing data contracts:
+    1. Update `shared/types/api.ts` (TypeScript interfaces).
+    2. Synchronize `shared/schemas/schemas.py` (Pydantic v2 models).
+    3. Cross-check against [`docs/API_SPEC.md`](./docs/API_SPEC.md).
+
+### 2. Zero Client-Side Secret Exposure (BFF Pattern)
+*   **NEVER** make direct client-side calls to third-party LLMs or APIs (`OpenAI`, `Groq`, `Gemini`, or `ElevenLabs`).
+*   All requests **MUST** route through the FastAPI Backend (`backend/routers/`), which acts as a secure BFF (Backend-For-Frontend) proxy layer. API keys belong solely in `backend/.env`.
+
+### 3. Required Fallback Pattern Implementation
+*   **Vision Scans:** If Gemini confidence is below `0.85`, agent logic **MUST** gracefully fallback to the QR code selection UI ([`docs/USER_JOURNEY.md#screen-4`](./docs/USER_JOURNEY.md)).
+*   **Voice TTS:** If ElevenLabs streaming fails or hits quota limits, automatically fallback to `window.speechSynthesis` in the frontend ([`docs/API_SPEC.md#45-elevenlabs-streaming-tts`](./docs/API_SPEC.md)).
+*   **Vector Search:** If `OPENAI_API_KEY` is absent, `backend/scripts/seed_vector_db.py` **MUST** fallback to offline `paraphrase-multilingual-MiniLM-L12-v2` embeddings.
+
+### 4. 3D & Asset Optimization Discipline
+*   Do not load uncompressed 3D models. All 3D assets placed in `frontend/public/models/` **MUST** be Draco-compressed `.glb` files under 10MB.
+*   Component pivots in Three.js (`frontend/components/ar/`) **MUST** maintain centered origin points `(0,0,0)`.
+
+---
+
+## ⚡️ Quick Start & Development Setup
+
+### Option 1: Automated Script Setup (Recommended)
+
+Run the one-command setup script to configure virtual environments, install dependencies, copy environment templates, and seed ChromaDB:
+
+```bash
+# 1. Make scripts executable
+chmod +x dev.sh
+
+# 3. Launch both Next.js and FastAPI servers concurrently
+./dev.sh
+
+
+```
+
+* **Frontend UI:** `http://localhost:3000`
+* **FastAPI Docs:** `http://localhost:8000/docs`
+
+---
+
+### Option 2: Manual Step-by-Step Setup
+
+#### 1. Backend Setup (FastAPI & Vector DB)
+
+```bash
+cd backend
+python3 -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
+cp .env.example .env
+
+# Populate local ChromaDB vector storage
+python -m scripts.seed_vector_db
+
+# Start backend server
+uvicorn main:app --reload --port 8000
+
+```
+
+#### 2. Frontend Setup (Next.js 14)
+
+```bash
+cd frontend
+npm install
+cp .env.example .env.local
+
+# Start Next.js development server
+npm run dev
+
+```
+
+---
+
+## 🛠️ Core Tech Stack
+
+| Domain | Technology | Key Implementation |
+| --- | --- | --- |
+| **Frontend Framework** | **Next.js 14+ (App Router)** | TypeScript, Tailwind CSS, Lucide Icons |
+| **WebXR / 3D Engine** | **Three.js / React Three Fiber** | `@react-three/fiber`, `@react-three/drei`, `<model-viewer>` |
+| **Backend API** | **FastAPI (Python 3.11+)** | Uvicorn, Pydantic v2, CORS Middleware |
+| **Vector Database (RAG)** | **ChromaDB** | Local persistent storage, Cosine distance matching |
+| **Vision AI** | **Gemini Flash 2.0** | Base64 frame capture, Structured JSON classification |
+| **Voice & Speech** | **Groq Whisper + ElevenLabs** | `whisper-large-v3-turbo` STT, Streaming TTS |
+| **Persona Intelligence** | **Groq Llama 3.3 70B** | Persona-conditioned system prompts + RAG ground context |
+
+---
+
+## 🏆 Hackathon Flagship Artifacts
+
+The system indexes and renders 6 primary historical artifacts from the Adwa Victory Memorial Park:
+
+1. `negarit.glb` — **Royal War Drum** (Multi-zone tap detection & Web Audio haptics)
+2. `cannon.glb` — **Dejazmach Balcha’s Cannon** (Sub-mesh exploded view transformation)
+3. `gasha.glb` — **Ethiopian Shield** (Front crown & hide backing material inspection)
+4. `shotel.glb` — **Curved Sword** (Blade & scabbard separation)
+5. `embilta.glb` — **Traditional Flute/Pipe** (Microphone breath & pitch detection)
+6. `meleket.glb` — **Royal Bugle/Horn** (Hollow bell opening & audio synthesis)
+
+```
+
+```

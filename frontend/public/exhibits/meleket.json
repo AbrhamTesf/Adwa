@@ -1,0 +1,34 @@
+{
+  "exhibit_id": "meleket",
+  "name": "Meleket Royal Trumpet",
+  "category": "instrument",
+  "glb_url": "/models/meleket.glb",
+  "hotspot_json": {
+    "mouthpiece": {
+      "position": "0 0.9 0",
+      "normal": "0 1 0",
+      "tab": "material",
+      "label": "Tapered Wooden Mouthpiece"
+    },
+    "shaft": {
+      "position": "0 0.1 0",
+      "normal": "0 0 1",
+      "tab": "craft",
+      "label": "Bound Cane & Leather Shaft"
+    },
+    "bell_flare": {
+      "position": "0 -0.8 0",
+      "normal": "0 -1 0",
+      "tab": "usage",
+      "label": "Flared Gourd / Metal Bell"
+    }
+  },
+  "persona_scripts": {
+    "material": "Long ceremonial horn made from bamboo/cane bound tightly with leather and fitted with a flared bell.",
+    "craft": "Designed for maximum acoustic projection over long distances across mountain valleys.",
+    "usage": "Sounded by royal heralds to signal military troop assembly, herald arrival of leaders, and signal battle commands."
+  },
+  "audio_profile": {
+    "call_sample": "/audio/meleket-call.mp3"
+  }
+}

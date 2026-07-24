@@ -1,0 +1,34 @@
+{
+  "exhibit_id": "embilta",
+  "name": "Embilta Ceremonial Flute",
+  "category": "instrument",
+  "glb_url": "/models/embilta.glb",
+  "hotspot_json": {
+    "blowhole": {
+      "position": "0 0.8 0",
+      "normal": "0 1 0",
+      "tab": "material",
+      "label": "Notched Beveled Blowhole"
+    },
+    "body_length": {
+      "position": "0 0 0",
+      "normal": "0 0 1",
+      "tab": "craft",
+      "label": "Natural Bamboo Shaft"
+    },
+    "acoustic_chamber": {
+      "position": "0 -0.7 0",
+      "normal": "0 -1 0",
+      "tab": "usage",
+      "label": "Resonant Open End"
+    }
+  },
+  "persona_scripts": {
+    "material": "Crafted from selected hollow bamboo or hammered brass tubing without finger holes.",
+    "craft": "Tuned to a single precise pitch through length calibration; played in interlocking hocket sets of three.",
+    "usage": "Played during royal processions, victory parades, and sacred ceremonies to produce rich harmonic polyphony."
+  },
+  "audio_profile": {
+    "tone_sample": "/audio/embilta-tone.mp3"
+  }
+}

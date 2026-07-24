@@ -386,7 +386,7 @@ import { normalizeError } from "../lib/errors.js";
 
 const SYSTEM_PROMPT_VISION = `You are a museum artifact classifier for an Ethiopian history museum.
 Given an image frame, identify the closest matching exhibit from this
-known catalog: [shotel_sword, wanza_drum, embilta_horn, meleket_horn, adwa_war_map, royal_regalia].
+known catalog: [shotel_sword, menelik_taytu_statue, negarit_drum, embilta, meleket].
 Respond ONLY with the JSON schema provided. If no confident match exists,
 set exhibit_id to 'unknown' and confidence below 0.5. Never include any
 text outside the JSON object.`;
@@ -1339,7 +1339,7 @@ async function generateItinerary({ interests }) {
     { exhibit_id: "adwa_war_map", name: "Adwa War Room", minutes: 8, tags: ["War Strategy"] },
     { exhibit_id: "shotel_sword", name: "Metallurgy Hall", minutes: 12, tags: ["Metallurgy", "War Strategy"] },
     { exhibit_id: "royal_regalia", name: "Royal History Wing", minutes: 10, tags: ["Royal History"] },
-    { exhibit_id: "wanza_drum", name: "Music & Culture Gallery", minutes: 9, tags: ["Music & Culture"] }
+    { exhibit_id: "negarit_drum", name: "Music & Culture Gallery", minutes: 9, tags: ["Music & Culture"] }
   ];
   const matched = CATALOG.filter((c) => interests.length === 0 || c.tags.some((t) => interests.includes(t)));
   return (matched.length ? matched : CATALOG).map((c, i) => ({ ...c, stopNumber: i + 1 }));
@@ -1777,18 +1777,19 @@ cat << 'EOF' > frontend/public/exhibits/shotel_sword.json
 }
 EOF
 
-cat << 'EOF' > frontend/public/exhibits/wanza_drum.json
+cat << 'EOF' > frontend/public/exhibits/negarit_drum.json
 {
-  "exhibit_id": "wanza_drum",
+  "exhibit_id": "negarit_drum",
+  "name": "Negarit Ceremonial Royal Drum",
   "category": "instrument",
-  "glb_url": "/models/wanza_drum.glb",
+  "glb_url": "/models/negarit_drum.glb",
   "hotspot_json": {
-    "skin": { "position": "0 0.3 0", "normal": "0 1 0", "tab": "material" }
+    "drum_skin": { "position": "0 0.35 0", "normal": "0 1 0", "tab": "material", "label": "Tensioned Ox Hide Skin" }
   },
   "persona_scripts": {
-    "material": "A hollowed wanza wood body topped with a stretched hide drumhead.",
-    "craft": "Carved from a single log, then fitted and tensioned with rawhide lacing.",
-    "usage": "Played at ceremonial gatherings to set rhythm for communal dance."
+    "material": "Hollowed wanza hardwood body topped with a sun-cured rawhide drumhead.",
+    "craft": "Hand-carved from a single tree trunk, fitted with twisted leather tension cables.",
+    "usage": "The Negarit was the voice of the Sovereign — struck to proclaim war mobilization, imperial decrees, and victory celebrations."
   }
 }
 EOF

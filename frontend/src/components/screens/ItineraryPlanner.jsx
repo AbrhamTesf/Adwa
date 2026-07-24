@@ -133,7 +133,7 @@ async function generateItinerary({ interests }) {
     { exhibit_id: "adwa_war_map", name: "Adwa War Room", minutes: 8, tags: ["War Strategy"] },
     { exhibit_id: "shotel_sword", name: "Metallurgy Hall", minutes: 12, tags: ["Metallurgy", "War Strategy"] },
     { exhibit_id: "royal_regalia", name: "Royal History Wing", minutes: 10, tags: ["Royal History"] },
-    { exhibit_id: "wanza_drum", name: "Music & Culture Gallery", minutes: 9, tags: ["Music & Culture"] }
+    { exhibit_id: "negarit_drum", name: "Music & Culture Gallery", minutes: 9, tags: ["Music & Culture"] }
   ];
   const matched = CATALOG.filter((c) => interests.length === 0 || c.tags.some((t) => interests.includes(t)));
   return (matched.length ? matched : CATALOG).map((c, i) => ({ ...c, stopNumber: i + 1 }));

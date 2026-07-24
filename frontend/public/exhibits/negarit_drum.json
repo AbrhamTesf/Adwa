@@ -5,20 +5,20 @@
   "glb_url": "/models/negarit_drum.glb",
   "hotspot_json": {
     "drum_skin": {
-      "position": "0 0.35 0",
-      "normal": "0 1 0",
+      "position": "-0.0146 0.6661 -0.0028",
+      "normal": "-0.0324 0.9989 0.0345",
       "tab": "material",
       "label": "Tensioned Ox Hide Skin"
     },
     "tension_ropes": {
-      "position": "0.2 0.1 0",
-      "normal": "1 0 0",
+      "position": "-0.4481 0.4240 0.1552",
+      "normal": "-0.8141 0.0301 -0.5799",
       "tab": "craft",
       "label": "Rawhide Lacing Ropes"
     },
     "wooden_base": {
-      "position": "0 -0.2 0",
-      "normal": "0 -1 0",
+      "position": "-0.0413 0.0024 0.0560",
+      "normal": "-0.0674 -0.9957 0.0642",
       "tab": "usage",
       "label": "Carved Wanza Wood Base"
     }

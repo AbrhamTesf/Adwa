@@ -5,20 +5,20 @@
   "glb_url": "/models/embilta.glb",
   "hotspot_json": {
     "blowhole": {
-      "position": "0 0.8 0",
-      "normal": "0 1 0",
+      "position": "-0.0025 0.1548 -0.4819",
+      "normal": "0.5719 -0.3567 -0.7387",
       "tab": "material",
       "label": "Notched Beveled Blowhole"
     },
     "body_length": {
-      "position": "0 0 0",
-      "normal": "0 0 1",
+      "position": "-0.0401 0.1101 -0.0535",
+      "normal": "-0.9936 -0.0726 0.0866",
       "tab": "craft",
       "label": "Natural Bamboo Shaft"
     },
     "acoustic_chamber": {
-      "position": "0 -0.7 0",
-      "normal": "0 -1 0",
+      "position": "0.0087 0.0387 0.4315",
+      "normal": "0.0110 0.1188 0.9929",
       "tab": "usage",
       "label": "Resonant Open End"
     }

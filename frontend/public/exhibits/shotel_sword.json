@@ -5,20 +5,20 @@
   "glb_url": "/models/shotel_sword.glb",
   "hotspot_json": {
     "blade": {
-      "position": "0 0.4 0",
-      "normal": "0 1 0",
+      "position": "-0.1834 0.4800 -0.0163",
+      "normal": "0.5961 -0.0965 0.7971",
       "tab": "material",
       "label": "Curved Iron Blade"
     },
     "hilt": {
-      "position": "0 0.1 0",
-      "normal": "0 1 0",
+      "position": "-0.0465 0.9222 -0.0017",
+      "normal": "0.2986 -0.0114 0.9543",
       "tab": "craft",
       "label": "Wanza Hardwood Hilt"
     },
     "sheath": {
-      "position": "0 -0.2 0",
-      "normal": "0 1 0",
+      "position": "0.0591 0.6455 0.0350",
+      "normal": "0.2560 0.4565 0.8521",
       "tab": "usage",
       "label": "Embossed Leather Sheath"
     }

@@ -107,7 +107,7 @@ Network check (navigator.onLine + periodic ping)
 - **Interactions:**
   - Primary CTA button: **"Start My Tour"** (large, thumb-reachable bottom third).
   - Secondary link: **"I have a ticket QR"** (skips planner, jumps to Screen 3 with pre-loaded party data from ticketing system).
-  - Language toggle (Amharic / English / Tigrinya) — persists to session state.
+  - Language toggle (English / Amharic / Spanish) — persists to session state.
 - **Permissions Priming:** Before the OS permission dialogs fire, a soft in-app modal explains *why* camera/mic access is needed ("See exhibits come alive and ask questions by voice") — improves grant rates.
 
 ### Screen 2 — Adaptive AI Itinerary Planner

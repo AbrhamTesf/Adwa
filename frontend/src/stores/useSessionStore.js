@@ -1,11 +1,17 @@
 import { create } from "zustand";
 
+export const SUPPORTED_LANGUAGES = [
+  { code: "en", label: "English", flag: "EN", ttsVoiceId: "default" },
+  { code: "am", label: "አማርኛ (Amharic)", flag: "AM", ttsVoiceId: "browser_fallback" },
+  { code: "es", label: "Español (Spanish)", flag: "ES", ttsVoiceId: "multilingual" }
+];
+
 /**
  * App State Manager — session context, tour history, offline queue.
  * (mirrors "App State Manager (Zustand/Redux)" in the architecture diagram)
  */
 export const useSessionStore = create((set, get) => ({
-  language: "en", // en | am | ti
+  language: "en", // en | am | es
   partyType: null, // individual | family | scholar
   timeBudgetMinutes: null, // 20 | 45 | 120 | null (no limit)
   interests: [],

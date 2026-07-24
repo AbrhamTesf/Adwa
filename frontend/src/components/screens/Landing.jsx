@@ -1,6 +1,6 @@
 import React from "react";
 import PrimaryButton from "../ui/PrimaryButton.jsx";
-import { useSessionStore } from "../../stores/useSessionStore";
+import { useSessionStore, SUPPORTED_LANGUAGES } from "../../stores/useSessionStore";
 
 /** Screen 1 — Landing / Onboarding */
 export default function Landing({ navigate }) {
@@ -39,14 +39,14 @@ export default function Landing({ navigate }) {
         </button>
 
         <div className="flex justify-center gap-2 mt-6">
-          {["en", "am", "ti"].map((lng) => (
+          {SUPPORTED_LANGUAGES.map((lang) => (
             <button
-              key={lng}
-              onClick={() => setLanguage(lng)}
-              className={`adwa-chip ${language === lng ? "border-imperial-gold" : ""}`}
-              data-active={language === lng}
+              key={lang.code}
+              onClick={() => setLanguage(lang.code)}
+              className={`adwa-chip ${language === lang.code ? "border-imperial-gold" : ""}`}
+              data-active={language === lang.code}
             >
-              {lng.toUpperCase()}
+              {lang.code.toUpperCase()}
             </button>
           ))}
         </div>

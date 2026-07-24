@@ -121,7 +121,7 @@
       "priority_rank": 6,
       "stream": "Stream C — Adwa UI/UX",
       "name": "Landing Screen & Onboarding Permission Priming Modal",
-      "description": "Build full-bleed landing screen with hero video/model loop, Amharic/English/Tigrinya language toggle, and soft in-app permission priming modal.",
+      "description": "Build full-bleed landing screen with hero video/model loop, English, Amharic, and supported foreign languages (e.g., Spanish) language toggle, and soft in-app permission priming modal.",
       "spec_reference": "docs/adwa_lens_architecture.md Section 2 'Screen 1 — Landing / Onboarding'",
       "status": "unlocked",
       "claimed_by": null,
@@ -135,7 +135,8 @@
         "frontend/src/components/screens/Landing.jsx"
       ],
       "verification_criteria": [
-        "Landing screen renders Start My Tour CTA and language selector",
+        "Landing screen renders Start My Tour CTA and language selector (EN, AM, ES)",
+        "Switching language alters UI text and Voice AI system prompt/TTS language parameters cleanly without runtime audio stream errors",
         "Permission priming modal triggers before browser media permission dialogs"
       ]
     },

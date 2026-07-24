@@ -7,7 +7,7 @@ import { normalizeError } from "../lib/errors.js";
 
 const SYSTEM_PROMPT_VISION = `You are a museum artifact classifier for an Ethiopian history museum.
 Given an image frame, identify the closest matching exhibit from this
-known catalog: [shotel_sword, wanza_drum, embilta_horn, meleket_horn, adwa_war_map, royal_regalia].
+known catalog: [shotel_sword, menelik_taytu_statue, negarit_drum, embilta, meleket].
 Respond ONLY with the JSON schema provided. If no confident match exists,
 set exhibit_id to 'unknown' and confidence below 0.5. Never include any
 text outside the JSON object.`;

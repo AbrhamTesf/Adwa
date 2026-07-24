@@ -1,0 +1,40 @@
+{
+  "exhibit_id": "menelik_taytu_statue",
+  "name": "Emperor Menelik II & Empress Taytu Monument",
+  "category": "monument",
+  "glb_url": "/models/menelik_taytu_statue.glb",
+  "hotspot_json": {
+    "kaba_robe": {
+      "position": "0 0.5 0.1",
+      "normal": "0 0 1",
+      "tab": "material",
+      "label": "Imperial Velvet Kaba (Robe)"
+    },
+    "royal_crown": {
+      "position": "0 1.2 0",
+      "normal": "0 1 0",
+      "tab": "craft",
+      "label": "Royal Crown & Headdress"
+    },
+    "weaponry": {
+      "position": "-0.3 0.2 0.1",
+      "normal": "-1 0 0",
+      "tab": "usage",
+      "label": "Shotel & Ceremonial Shield"
+    },
+    "taytu_banner": {
+      "position": "0.3 0.8 -0.1",
+      "normal": "1 0 0",
+      "tab": "usage",
+      "label": "Empress Taytu's Banner & Sunshade"
+    }
+  },
+  "persona_scripts": {
+    "material": "Cast bronze monument adorned with gold-embroidered velvet imperial robes (Kaba).",
+    "craft": "Commissioned to honor the diplomatic, strategic, and military leadership of Emperor Menelik II and Empress Taytu Betul.",
+    "usage": "Empress Taytu led her own 6,000-strong force at Adwa and devised the vital strategy to cut off the enemy's water supply at Meqele."
+  },
+  "audio_profile": {
+    "ambient": "/audio/royal-hymn.mp3"
+  }
+}

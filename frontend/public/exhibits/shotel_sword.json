@@ -1,15 +1,35 @@
 {
   "exhibit_id": "shotel_sword",
+  "name": "Shotel Curved Sword",
   "category": "weapon",
   "glb_url": "/models/shotel_sword.glb",
   "hotspot_json": {
-    "hilt": { "position": "0 0.1 0", "normal": "0 1 0", "tab": "craft" },
-    "blade": { "position": "0 0.4 0", "normal": "0 1 0", "tab": "material" }
+    "blade": {
+      "position": "-0.1834 0.4800 -0.0163",
+      "normal": "0.5961 -0.0965 0.7971",
+      "tab": "material",
+      "label": "Curved Iron Blade"
+    },
+    "hilt": {
+      "position": "-0.0465 0.9222 -0.0017",
+      "normal": "0.2986 -0.0114 0.9543",
+      "tab": "craft",
+      "label": "Wanza Hardwood Hilt"
+    },
+    "sheath": {
+      "position": "0.0591 0.6455 0.0350",
+      "normal": "0.2560 0.4565 0.8521",
+      "tab": "usage",
+      "label": "Embossed Leather Sheath"
+    }
   },
   "persona_scripts": {
-    "material": "Hand-forged iron blade paired with a wanza hardwood hilt.",
-    "craft": "The curved blade was shaped through repeated forging and quenching by highland smiths.",
-    "usage": "Its crescent curve let warriors strike around an opponent's shield in close formation."
+    "material": "Hand-forged high-carbon iron blade paired with a polished wanza hardwood grip.",
+    "craft": "Forged by highland blacksmiths using traditional charcoal hearths and quenching techniques.",
+    "usage": "Its semi-circular crescent curve enabled Ethiopian warriors to reach around enemy shields during close-quarters combat at Adwa."
   },
-  "audio_profile": { "ambient": "/audio/forge-ambience.mp3" }
+  "audio_profile": {
+    "ambient": "/audio/forge-ambience.mp3",
+    "clash_sfx": "/audio/blade-clash.mp3"
+  }
 }

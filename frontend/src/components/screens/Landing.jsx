@@ -1,19 +1,54 @@
-import React from "react";
+import React, { useState } from "react";
 import PrimaryButton from "../ui/PrimaryButton.jsx";
-import { useSessionStore } from "../../stores/useSessionStore";
+import AdwaDivider from "../ui/AdwaDivider.jsx";
+import { useSessionStore, SUPPORTED_LANGUAGES } from "../../stores/useSessionStore";
 
-/** Screen 1 — Landing / Onboarding */
+/**
+ * Screen 1 — Landing / Onboarding with Soft Permission Priming Modal
+ * Adheres strictly to docs/adwa_lens_architecture.md Section 2
+ */
 export default function Landing({ navigate }) {
   const language = useSessionStore((s) => s.language);
   const setLanguage = useSessionStore((s) => s.setLanguage);
+  const [showPrimingModal, setShowPrimingModal] = useState(false);
+  const [isRequestingPermission, setIsRequestingPermission] = useState(false);
+
+  /**
+   * Soft permission grant handler.
+   * Explains intent before OS permission dialogs fire to maximize grant rates.
+   */
+  async function handleGrantPermissions() {
+    setIsRequestingPermission(true);
+    try {
+      if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+        await navigator.mediaDevices.getUserMedia({ video: true, audio: true }).catch(() => {
+          // Fall back gracefully if user rejects or device lacks inputs
+        });
+      }
+    } catch (e) {
+      console.warn("Permission priming skipped or unavailable:", e);
+    } finally {
+      setIsRequestingPermission(false);
+      setShowPrimingModal(false);
+      navigate("planner");
+    }
+  }
+
+  function handleSkipPermissions() {
+    setShowPrimingModal(false);
+    navigate("planner");
+  }
 
   return (
-    <div className="relative flex flex-col items-center justify-end min-h-screen px-6 pb-16 overflow-hidden">
+    <div className="relative flex flex-col items-center justify-end min-h-screen px-6 pb-12 overflow-hidden bg-obsidian">
+      {/* Background 3D Model Showcase Loop */}
       <model-viewer
         src="/models/shotel_sword.glb"
         auto-rotate
         camera-controls
         disable-zoom
+        shadow-intensity="1"
+        exposure="1.2"
         style={{
           position: "absolute",
           inset: 0,
@@ -23,34 +58,128 @@ export default function Landing({ navigate }) {
         }}
       />
 
-      <div className="relative z-10 text-center adwa-glass p-6 w-full max-w-md">
-        <h1 className="text-4xl mb-1 text-imperial-gold">Adwa Lens</h1>
-        <p className="text-parchment/80 mb-6">Your museum, brought to life.</p>
+      {/* Subtle Overlay Gradient */}
+      <div className="absolute inset-0 bg-gradient-to-t from-obsidian via-obsidian/40 to-transparent pointer-events-none" />
 
-        <PrimaryButton onClick={() => navigate("planner")} className="w-full mb-3">
+      {/* Main Glassmorphic Branding Panel */}
+      <div className="relative z-10 text-center adwa-glass p-6 w-full max-w-md border border-imperial-gold/30 rounded-xl2 shadow-gold-glow backdrop-blur-md">
+        <div className="inline-block px-3 py-1 mb-2 rounded-full text-xs font-semibold uppercase tracking-widest text-adwa-emerald bg-adwa-emerald/10 border border-adwa-emerald/30">
+          Victory of Adwa Centenary Companion
+        </div>
+
+        <h1 className="text-4xl font-display font-bold mb-1 text-imperial-gold tracking-wide">
+          Adwa Lens
+        </h1>
+        <p className="text-parchment/80 text-sm mb-6">Your museum, brought to life.</p>
+
+        {/* Primary Action Button */}
+        <PrimaryButton
+          id="btn-start-tour"
+          onClick={() => setShowPrimingModal(true)}
+          className="w-full mb-3 py-3 text-base shadow-gold-glow"
+        >
           Start My Tour
         </PrimaryButton>
 
+        {/* Secondary Navigation Link */}
         <button
-          className="text-adwa-emerald underline text-sm"
+          id="btn-ticket-qr"
+          className="text-adwa-emerald hover:text-adwa-emerald-light underline text-sm font-medium transition-colors"
           onClick={() => navigate("navigation")}
         >
           I have a ticket QR
         </button>
 
-        <div className="flex justify-center gap-2 mt-6">
-          {["en", "am", "ti"].map((lng) => (
-            <button
-              key={lng}
-              onClick={() => setLanguage(lng)}
-              className={`adwa-chip ${language === lng ? "border-imperial-gold" : ""}`}
-              data-active={language === lng}
-            >
-              {lng.toUpperCase()}
-            </button>
-          ))}
+        <AdwaDivider className="my-5 opacity-40" />
+
+        {/* Supported Languages Selector */}
+        <div className="flex flex-col items-center gap-2">
+          <span className="text-xs text-parchment/60 uppercase tracking-wider font-semibold">
+            Select Language / ቋንቋ ይምረጡ
+          </span>
+          <div className="flex justify-center gap-2">
+            {SUPPORTED_LANGUAGES.map((lang) => {
+              const active = language === lang.code;
+              return (
+                <button
+                  key={lang.code}
+                  id={`lang-btn-${lang.code}`}
+                  onClick={() => setLanguage(lang.code)}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+                    active
+                      ? "bg-imperial-gold text-obsidian font-bold shadow-gold-glow border border-imperial-gold-light"
+                      : "bg-obsidian-raised/80 text-parchment/80 hover:text-parchment border border-parchment/20"
+                  }`}
+                  data-active={active}
+                >
+                  {lang.flag} {lang.label}
+                </button>
+              );
+            })}
+          </div>
         </div>
       </div>
+
+      {/* In-App Soft Permission Priming Modal */}
+      {showPrimingModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-obsidian/85 backdrop-blur-md animate-fade-in">
+          <div className="w-full max-w-sm p-6 text-left adwa-glass border border-imperial-gold/40 rounded-xl2 shadow-gold-glow">
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="text-lg font-bold text-imperial-gold">
+                Unlock Interactive Experience
+              </h3>
+              <button
+                onClick={handleSkipPermissions}
+                className="text-parchment/60 hover:text-parchment text-lg p-1"
+                aria-label="Close modal"
+              >
+                ✕
+              </button>
+            </div>
+
+            <p className="text-xs text-parchment/80 mb-4 leading-relaxed">
+              To experience WebAR 3D exhibit scanning and real-time Voice AI guide answers, Adwa Lens requires device permissions.
+            </p>
+
+            <div className="space-y-3 mb-6 text-xs">
+              <div className="flex items-start gap-3 p-2.5 rounded-lg bg-obsidian-overlay/60 border border-parchment/10">
+                <span className="text-lg">📷</span>
+                <div>
+                  <span className="font-semibold text-parchment block">Camera Access</span>
+                  <span className="text-parchment/70">Scan historical exhibits and view 3D AR overlays</span>
+                </div>
+              </div>
+
+              <div className="flex items-start gap-3 p-2.5 rounded-lg bg-obsidian-overlay/60 border border-parchment/10">
+                <span className="text-lg">🎙️</span>
+                <div>
+                  <span className="font-semibold text-parchment block">Microphone Access</span>
+                  <span className="text-parchment/70">Ask your AI voice guide questions hands-free</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex flex-col gap-2">
+              <PrimaryButton
+                id="btn-grant-permissions"
+                onClick={handleGrantPermissions}
+                disabled={isRequestingPermission}
+                className="w-full text-sm"
+              >
+                {isRequestingPermission ? "Requesting Access..." : "Grant Access & Continue"}
+              </PrimaryButton>
+
+              <button
+                id="btn-skip-permissions"
+                onClick={handleSkipPermissions}
+                className="w-full py-2 text-xs text-parchment/60 hover:text-parchment text-center underline"
+              >
+                Continue without media permissions
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

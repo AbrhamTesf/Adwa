@@ -224,9 +224,9 @@
       "name": "Negarit Drum Direct Mesh Tap, Strike Button & Haptics",
       "description": "Build Negarit Drum interactive audio mechanics: direct 3D mesh raycast tap, Strike UI mallet button, Web Audio synth tones, and navigator.vibrate haptic sync.",
       "spec_reference": "docs/adwa_lens_architecture.md Section 2 'Screen 6' & docs/GOVERNANCE.md Section 4.3",
-      "status": "unlocked",
-      "claimed_by": null,
-      "claimed_at": null,
+      "status": "completed",
+      "claimed_by": "Stream D",
+      "claimed_at": "2026-07-24T14:25:45Z",
       "estimated_hours": 4,
       "dependencies": [
         "FEAT-004",

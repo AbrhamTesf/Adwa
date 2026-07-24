@@ -1,11 +1,12 @@
 /**
- * navigator.vibrate() wrapper with a visual-pulse fallback for
- * platforms without haptics support (iOS Safari).
+ * Trigger device haptics when available and always notify the caller so a
+ * visual fallback can keep the interaction perceptible on unsupported devices.
  */
-export function pulse(patternMs = 40, onNoSupport) {
-  if (navigator.vibrate) {
-    navigator.vibrate(patternMs);
-  } else if (onNoSupport) {
-    onNoSupport(); // caller triggers a CSS pulse animation instead
-  }
+export function pulse(patternMs = 40, onPulse) {
+  const supported =
+    typeof navigator !== "undefined" && typeof navigator.vibrate === "function";
+
+  if (supported) navigator.vibrate(patternMs);
+  onPulse?.({ supported, patternMs });
+  return supported;
 }

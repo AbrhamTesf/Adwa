@@ -47,4 +47,17 @@
     background: linear-gradient(90deg, #D4AF37 0%, #009A44 50%, #E00000 100%);
     border-radius: 999px;
   }
+
+  .animate-float {
+    animation: float 5s ease-in-out infinite;
+  }
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
 }

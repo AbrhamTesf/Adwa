@@ -4,7 +4,7 @@ import AdwaDivider from "../ui/AdwaDivider.jsx";
 import { useSessionStore, SUPPORTED_LANGUAGES } from "../../stores/useSessionStore";
 
 /**
- * Screen 1 — Landing / Onboarding with Soft Permission Priming Modal
+ * Screen 1 — Landing / Onboarding with Gasha Shield Oscillating Hero Model
  * Adheres strictly to docs/adwa_lens_architecture.md Section 2
  */
 export default function Landing({ navigate }) {
@@ -40,38 +40,59 @@ export default function Landing({ navigate }) {
   }
 
   return (
-    <div className="relative flex flex-col items-center justify-end min-h-screen px-6 pb-12 overflow-hidden bg-obsidian">
-      {/* Background 3D Model Showcase Loop */}
-      <model-viewer
-        src="/models/shotel_sword.glb"
-        auto-rotate
-        camera-controls
-        disable-zoom
-        shadow-intensity="1"
-        exposure="1.2"
-        style={{
-          position: "absolute",
-          inset: 0,
-          width: "100%",
-          height: "100%",
-          "--poster-color": "transparent"
-        }}
-      />
+    <div className="relative flex flex-col items-center justify-between min-h-screen px-6 py-8 overflow-hidden bg-obsidian">
+      {/* Background Radial Geometry Overlay */}
+      <div className="absolute inset-0 bg-gradient-to-t from-obsidian via-obsidian/60 to-transparent pointer-events-none z-0" />
 
-      {/* Subtle Overlay Gradient */}
-      <div className="absolute inset-0 bg-gradient-to-t from-obsidian via-obsidian/40 to-transparent pointer-events-none" />
-
-      {/* Main Glassmorphic Branding Panel */}
-      <div className="relative z-10 text-center adwa-glass p-6 w-full max-w-md border border-imperial-gold/30 rounded-xl2 shadow-gold-glow backdrop-blur-md">
+      {/* Header Branding */}
+      <div className="relative z-10 text-center pt-2">
         <div className="inline-block px-3 py-1 mb-2 rounded-full text-xs font-semibold uppercase tracking-widest text-adwa-emerald bg-adwa-emerald/10 border border-adwa-emerald/30">
           Victory of Adwa Centenary Companion
         </div>
-
-        <h1 className="text-4xl font-display font-bold mb-1 text-imperial-gold tracking-wide">
+        <h1 className="text-4xl font-display font-bold text-imperial-gold tracking-wide">
           Adwa Lens
         </h1>
-        <p className="text-parchment/80 text-sm mb-6">Your museum, brought to life.</p>
+        <p className="text-parchment/80 text-sm">Your museum, brought to life.</p>
+      </div>
 
+      {/* 3D Gasha Shield Hero Section with Constrained Oscillation & Floating Halo */}
+      <div className="relative z-10 w-full max-w-md aspect-square mx-auto flex items-center justify-center animate-float my-auto">
+        {/* Ambient gold glow halo */}
+        <div className="absolute inset-4 bg-gradient-to-tr from-amber-500/25 via-imperial-gold/15 to-transparent blur-3xl rounded-full pointer-events-none" />
+
+        {/* 3D Canvas wrapper */}
+        <div className="relative z-10 w-full h-full">
+          <model-viewer
+            src="/models/gasha.glb"
+            alt="Adwa Imperial Victory Gasha Shield"
+            auto-rotate
+            auto-rotate-delay="0"
+            rotation-per-second="8deg"
+            camera-orbit="0deg 75deg auto"
+            min-camera-orbit="-45deg 60deg auto"
+            max-camera-orbit="45deg 90deg auto"
+            camera-controls
+            touch-action="pan-y"
+            shadow-intensity="1.8"
+            shadow-softness="0.8"
+            exposure="1.15"
+            tone-mapping="neutral"
+            interaction-prompt="none"
+            style={{
+              width: "100%",
+              height: "100%",
+              "--poster-color": "transparent"
+            }}
+          >
+            <div slot="poster" className="w-full h-full flex items-center justify-center">
+              <div className="w-12 h-12 border-4 border-imperial-gold/30 border-t-imperial-gold rounded-full animate-spin" />
+            </div>
+          </model-viewer>
+        </div>
+      </div>
+
+      {/* Main Glassmorphic Action Panel */}
+      <div className="relative z-10 text-center adwa-glass p-6 w-full max-w-md border border-imperial-gold/30 rounded-xl2 shadow-gold-glow backdrop-blur-md">
         {/* Primary Action Button */}
         <PrimaryButton
           id="btn-start-tour"
@@ -90,7 +111,7 @@ export default function Landing({ navigate }) {
           I have a ticket QR
         </button>
 
-        <AdwaDivider className="my-5 opacity-40" />
+        <AdwaDivider className="my-4 opacity-40" />
 
         {/* Supported Languages Selector */}
         <div className="flex flex-col items-center gap-2">

@@ -2,7 +2,7 @@
   "project_name": "Adwa Lens — AI-Powered WebAR Museum Companion",
   "last_updated": "2026-07-24T12:26:17+03:00",
   "total_features": 25,
-  "completed_count": 5,
+  "completed_count": 6,
   "features": [
     {
       "id": "FEAT-001",
@@ -270,9 +270,9 @@
       "name": "Adaptive Itinerary Planner Wizard & Crowd Feed",
       "description": "Build card-stack wizard with time budget, interest chips, party type, accessibility options, and route generator with simulated crowd density.",
       "spec_reference": "docs/adwa_lens_architecture.md Section 2 'Screen 2 — Itinerary Planner'",
-      "status": "unlocked",
-      "claimed_by": null,
-      "claimed_at": null,
+      "status": "completed",
+      "claimed_by": "Antigravity",
+      "claimed_at": "2026-07-24T17:22:42+03:00",
       "estimated_hours": 4,
       "dependencies": [
         "FEAT-002"

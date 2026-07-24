@@ -58,7 +58,7 @@ cat << 'EOF' > package.json
     "dev:backend": "npm --prefix backend run dev",
     "dev:all": "concurrently \"npm:dev:frontend\" \"npm:dev:backend\"",
     "build": "npm --prefix frontend run build",
-    "install:all": "npm --prefix frontend install && npm --prefix backend install"
+    "install:all": "npm install && npm --prefix frontend install && npm --prefix backend install"
   },
   "devDependencies": {
     "concurrently": "^8.2.2"

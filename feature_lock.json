@@ -173,9 +173,9 @@
       "name": "3D WebGL Inspection Hub with Dynamic Hotspots",
       "description": "Build InspectionHub.jsx using model-viewer/Three.js with auto-rotate handoff, pinch-zoom orbit, and multi-tab hotspot drawer.",
       "spec_reference": "docs/adwa_lens_architecture.md Section 2 'Screen 5 — 3D WebGL Inspection'",
-      "status": "unlocked",
-      "claimed_by": null,
-      "claimed_at": null,
+      "status": "completed",
+      "claimed_by": "Codex / Stream A",
+      "claimed_at": "2026-07-24T13:08:04Z",
       "estimated_hours": 4,
       "dependencies": [
         "FEAT-004",
@@ -580,5 +580,33 @@
         "Full demo flow runs smoothly: Landing -> Planner -> LiveNav -> CameraScan -> InspectionHub -> VoiceGuide -> SensoryHub -> MemoryDeck"
       ]
     }
-  ]
+  ],
+  "phase_feature_locks": {"_comment": "Feature claiming system. Before building any feature, an agent or developer MUST claim it here via a PR that updates this file. Prevents two agents building the same thing. Claimed features show agent_id and branch. Released = merged to develop.",
+  "_instructions": "To claim: set status='claimed', add your agent_id, branch, and claimed_at. To release: set status='released', add released_at after your PR merges. Allowed status values are only unclaimed, claimed, or released.",
+  "phase_1": {
+    "auth_and_bff_proxy_foundation": {"description": "Establish Fastify BFF authentication boundaries, environment configuration, provider-key protection, and normalized API error responses.", "status": "unclaimed", "agent_id": null, "branch": null, "claimed_at": null, "released_at": null, "plan_ref": "docs/phases/PHASE_1_MVP.md § 1.1"},
+    "frontend_application_shell_and_routing": {"description": "Create the React application shell, screen routing model, navigation layout, and shared loading and error states.", "status": "unclaimed", "agent_id": null, "branch": null, "claimed_at": null, "released_at": null, "plan_ref": "docs/phases/PHASE_1_MVP.md § 1.2"},
+    "shared_contracts_and_personas": {"description": "Define shared contracts for exhibits, personas, API errors, and request-response payloads.", "status": "unclaimed", "agent_id": null, "branch": null, "claimed_at": null, "released_at": null, "plan_ref": "docs/phases/PHASE_1_MVP.md § 1.3"},
+    "core_health_and_developer_documentation": {"description": "Add health endpoints, local development instructions, architecture references, and contract-change documentation.", "status": "unclaimed", "agent_id": null, "branch": null, "claimed_at": null, "released_at": null, "plan_ref": "docs/phases/PHASE_1_MVP.md § 1.4"}
+  },
+  "phase_2": {
+    "gemini_vision_scan_pipeline": {"description": "Implement camera image submission from the frontend through Fastify to Gemini Vision and return validated exhibit identification.", "status": "unclaimed", "agent_id": null, "branch": null, "claimed_at": null, "released_at": null, "plan_ref": "docs/phases/PHASE_2_AI.md § 2.1"},
+    "webgl_artifact_viewer": {"description": "Implement model-viewer and Three.js artifact inspection with hotspot metadata and graceful rendering states.", "status": "unclaimed", "agent_id": null, "branch": null, "claimed_at": null, "released_at": null, "plan_ref": "docs/phases/PHASE_2_AI.md § 2.2"},
+    "voice_guide_stt_and_llm_pipeline": {"description": "Implement browser audio capture, Groq speech-to-text, persona-conditioned guide prompting, and streamed assistant responses.", "status": "unclaimed", "agent_id": null, "branch": null, "claimed_at": null, "released_at": null, "plan_ref": "docs/phases/PHASE_2_AI.md § 2.3"},
+    "elevenlabs_audio_streaming": {"description": "Implement Fastify-proxied ElevenLabs text-to-speech streaming, caption synchronization, and audio playback controls.", "status": "unclaimed", "agent_id": null, "branch": null, "claimed_at": null, "released_at": null, "plan_ref": "docs/phases/PHASE_2_AI.md § 2.4"},
+    "rag_retrieval_contract_and_ingestion": {"description": "Implement verified-history ingestion, local retrieval chunk contracts, and BFF prompt augmentation for grounded guide responses.", "status": "unclaimed", "agent_id": null, "branch": null, "claimed_at": null, "released_at": null, "plan_ref": "docs/phases/PHASE_2_AI.md § 2.5"}
+  },
+  "phase_3": {
+    "indexeddb_exhibit_and_session_cache": {"description": "Cache exhibit metadata, visited exhibits, and essential session state in IndexedDB for degraded-network operation.", "status": "unclaimed", "agent_id": null, "branch": null, "claimed_at": null, "released_at": null, "plan_ref": "docs/phases/PHASE_3_POLISH.md § 3.1"},
+    "offline_voice_and_tts_fallback": {"description": "Add fallback guide scripts and browser speech synthesis when streaming speech or network services are unavailable.", "status": "unclaimed", "agent_id": null, "branch": null, "claimed_at": null, "released_at": null, "plan_ref": "docs/phases/PHASE_3_POLISH.md § 3.2"},
+    "cultural_theme_and_accessibility": {"description": "Apply the Adwa cultural design system, responsive layouts, captions, contrast checks, and keyboard accessibility.", "status": "unclaimed", "agent_id": null, "branch": null, "claimed_at": null, "released_at": null, "plan_ref": "docs/phases/PHASE_3_POLISH.md § 3.3"},
+    "sensory_haptics_and_memory_deck": {"description": "Implement instrument interactions, haptic and visual fallbacks, quiz logic, badges, and post-tour memory recap.", "status": "unclaimed", "agent_id": null, "branch": null, "claimed_at": null, "released_at": null, "plan_ref": "docs/phases/PHASE_3_POLISH.md § 3.4"}
+  },
+  "phase_4": {
+    "docker_multi_service_containerization": {"description": "Provide pinned, reproducible frontend, backend, and local RAG service containers with persistent named volumes.", "status": "unclaimed", "agent_id": null, "branch": null, "claimed_at": null, "released_at": null, "plan_ref": "docs/phases/PHASE_4_SCALE.md § 4.1"},
+    "performance_and_load_testing": {"description": "Define and execute load tests for BFF routes, streaming behavior, retrieval latency, and browser rendering performance.", "status": "unclaimed", "agent_id": null, "branch": null, "claimed_at": null, "released_at": null, "plan_ref": "docs/phases/PHASE_4_SCALE.md § 4.2"},
+    "monitoring_and_observability": {"description": "Add structured logs, request correlation, health checks, service metrics, and provider failure visibility.", "status": "unclaimed", "agent_id": null, "branch": null, "claimed_at": null, "released_at": null, "plan_ref": "docs/phases/PHASE_4_SCALE.md § 4.3"},
+    "security_and_release_hardening": {"description": "Complete dependency auditing, secret handling review, API rate limiting, production configuration, and release verification.", "status": "unclaimed", "agent_id": null, "branch": null, "claimed_at": null, "released_at": null, "plan_ref": "docs/phases/PHASE_4_SCALE.md § 4.4"}
+  }
+  }
 }

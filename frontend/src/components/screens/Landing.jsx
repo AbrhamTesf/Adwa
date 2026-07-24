@@ -4,7 +4,7 @@ import AdwaDivider from "../ui/AdwaDivider.jsx";
 import { useSessionStore, SUPPORTED_LANGUAGES } from "../../stores/useSessionStore";
 
 /**
- * Screen 1 — Landing / Onboarding with Gasha Shield Oscillating Hero Model
+ * Screen 1 — Landing / Onboarding with Static Regal Gasha Shield Hero Emblem
  * Adheres strictly to docs/adwa_lens_architecture.md Section 2
  */
 export default function Landing({ navigate }) {
@@ -46,36 +46,29 @@ export default function Landing({ navigate }) {
 
       {/* Header Branding */}
       <div className="relative z-10 text-center pt-2">
-        <div className="inline-block px-3 py-1 mb-2 rounded-full text-xs font-semibold uppercase tracking-widest text-adwa-emerald bg-adwa-emerald/10 border border-adwa-emerald/30">
+        <div className="inline-block px-3.5 py-1 mb-2 rounded-full text-xs font-semibold uppercase tracking-widest text-adwa-emerald bg-adwa-emerald/10 border border-adwa-emerald/30 shadow-sm">
           Victory of Adwa Centenary Companion
         </div>
-        <h1 className="text-4xl font-display font-bold text-imperial-gold tracking-wide">
+        <h1 className="text-4xl sm:text-5xl font-display font-bold text-imperial-gold tracking-wide drop-shadow-md">
           Adwa Lens
         </h1>
-        <p className="text-parchment/80 text-sm">Your museum, brought to life.</p>
+        <p className="text-parchment/80 text-sm sm:text-base font-light">Your museum, brought to life.</p>
       </div>
 
-      {/* 3D Gasha Shield Hero Section with Constrained Oscillation & Floating Halo */}
-      <div className="relative z-10 w-full max-w-md aspect-square mx-auto flex items-center justify-center animate-float my-auto">
+      {/* Static Regal Gasha Shield Symbolic Hero Emblem */}
+      <div className="relative z-10 w-full max-w-sm aspect-square mx-auto flex items-center justify-center my-auto pointer-events-none">
         {/* Ambient gold glow halo */}
-        <div className="absolute inset-4 bg-gradient-to-tr from-amber-500/25 via-imperial-gold/15 to-transparent blur-3xl rounded-full pointer-events-none" />
+        <div className="absolute inset-0 bg-gradient-to-tr from-amber-500/20 via-imperial-gold/25 to-transparent blur-3xl rounded-full pointer-events-none" />
 
-        {/* 3D Canvas wrapper */}
+        {/* 3D Canvas wrapper — static pose, disabled touch/drag rotation */}
         <div className="relative z-10 w-full h-full">
           <model-viewer
             src="/models/gasha.glb"
             alt="Adwa Imperial Victory Gasha Shield"
-            auto-rotate
-            auto-rotate-delay="0"
-            rotation-per-second="8deg"
             camera-orbit="0deg 75deg auto"
-            min-camera-orbit="-45deg 60deg auto"
-            max-camera-orbit="45deg 90deg auto"
-            camera-controls
-            touch-action="pan-y"
-            shadow-intensity="1.8"
-            shadow-softness="0.8"
-            exposure="1.15"
+            shadow-intensity="1.5"
+            shadow-softness="0.6"
+            exposure="1.2"
             tone-mapping="neutral"
             interaction-prompt="none"
             style={{
@@ -85,7 +78,7 @@ export default function Landing({ navigate }) {
             }}
           >
             <div slot="poster" className="w-full h-full flex items-center justify-center">
-              <div className="w-12 h-12 border-4 border-imperial-gold/30 border-t-imperial-gold rounded-full animate-spin" />
+              <div className="w-10 h-10 border-3 border-imperial-gold/30 border-t-imperial-gold rounded-full animate-spin" />
             </div>
           </model-viewer>
         </div>

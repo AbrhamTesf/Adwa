@@ -84,7 +84,7 @@ cat << 'EOF' > frontend/package.json
   "dependencies": {
     "@google/model-viewer": "^3.5.0",
     "zustand": "^4.5.2",
-    "three": "^0.160.0",
+    "three": "^0.166.0",
     "gsap": "^3.12.5",
     "idb-keyval": "^6.2.1",
     "react": "^18.2.0",

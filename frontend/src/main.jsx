@@ -1,5 +1,6 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
+import "@google/model-viewer";
 import App from "./App.jsx";
 import "./styles/index.css";
 

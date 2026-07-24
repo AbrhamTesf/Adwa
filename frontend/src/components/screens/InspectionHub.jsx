@@ -1,4 +1,3 @@
-import "@google/model-viewer";
 import React, { useMemo, useState } from "react";
 import { PERSONAS } from "../../personas/personas";
 import { useExhibitStore } from "../../stores/useExhibitStore";

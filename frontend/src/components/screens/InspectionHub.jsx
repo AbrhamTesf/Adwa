@@ -2,6 +2,7 @@ import React, { useMemo, useState } from "react";
 import { PERSONAS } from "../../personas/personas";
 import { useExhibitStore } from "../../stores/useExhibitStore";
 import { useSessionStore } from "../../stores/useSessionStore";
+import InteractiveModelViewer from "../ui/InteractiveModelViewer.jsx";
 
 const TABS = [
   { id: "material", label: "Material", icon: "◆" },
@@ -23,7 +24,7 @@ function normaliseHotspots(hotspotJson) {
   }));
 }
 
-/** Screen 5 — 3D WebGL Inspection & Deep Hotspot Hub */
+/** Screen 5 — 3D WebGL Inspection & Deep Hotspot Hub with Progress Loading Overlay */
 export default function InspectionHub({ navigate }) {
   const exhibit = useExhibitStore((state) => state.activeExhibit);
   const isLoading = useExhibitStore((state) => state.isLoading);
@@ -44,6 +45,13 @@ export default function InspectionHub({ navigate }) {
   const selectedHotspot = hotspots.find((hotspot) => hotspot.id === selectedHotspotId);
   const isInstrument = exhibit?.category === "instrument";
   const modelSource = exhibit?.glb_url || "/models/shotel_sword.glb";
+  const exhibitId = exhibit?.exhibit_id || "shotel_sword";
+  const posterPath = `/models/posters/${exhibitId}_poster.webp`;
+  const exhibitTrivia =
+    exhibit?.persona_scripts?.usage ||
+    exhibit?.persona_scripts?.craft ||
+    "The Shotel's unique semi-circular crescent curve enabled Ethiopian warriors to reach around enemy shields during close-quarters combat at Adwa.";
+
   const activeTabText =
     selectedHotspot?.content?.[activeTab] ||
     selectedHotspot?.[activeTab] ||
@@ -97,17 +105,17 @@ export default function InspectionHub({ navigate }) {
 
   return (
     <section className="relative min-h-screen overflow-hidden bg-obsidian text-parchment">
-      <model-viewer
-        src={modelSource}
-        alt={exhibit?.name || "Shotel curved sword"}
-        camera-controls
-        interaction-prompt="auto"
-        auto-rotate={autoRotate ? "" : undefined}
-        auto-rotate-delay="0"
-        rotation-per-second="18deg"
-        shadow-intensity="1"
+      <InteractiveModelViewer
+        modelPath={modelSource}
+        posterPath={posterPath}
+        altText={exhibit?.name || "Shotel curved sword"}
+        exhibitTrivia={exhibitTrivia}
+        containerClassName="relative h-[72vh] w-full"
+        className="h-full w-full bg-adwa-geometry"
+        autoRotate={autoRotate}
+        cameraControls
+        shadowIntensity="1"
         exposure="1"
-        className="h-[72vh] w-full bg-adwa-geometry"
         onPointerDown={handleModelInteraction}
         onTouchStart={handleModelInteraction}
       >
@@ -128,9 +136,9 @@ export default function InspectionHub({ navigate }) {
             +
           </button>
         ))}
-      </model-viewer>
+      </InteractiveModelViewer>
 
-      <div className="absolute left-4 top-4 right-4 flex items-start justify-between gap-3">
+      <div className="absolute left-4 top-4 right-4 flex items-start justify-between gap-3 z-20">
         <div className="max-w-[70%] rounded-xl2 border border-imperial-gold/30 bg-obsidian/80 px-4 py-3 backdrop-blur">
           <p className="text-xs uppercase tracking-[0.18em] text-imperial-gold">3D inspection</p>
           <h1 className="font-display text-lg">{exhibit?.name || "Shotel Curved Sword"}</h1>
@@ -158,7 +166,7 @@ export default function InspectionHub({ navigate }) {
         </div>
       </div>
 
-      <aside className="absolute bottom-0 left-0 right-0 rounded-t-xl2 border-t border-imperial-gold/30 bg-obsidian-raised/95 p-4 shadow-gold-glow backdrop-blur">
+      <aside className="absolute bottom-0 left-0 right-0 z-20 rounded-t-xl2 border-t border-imperial-gold/30 bg-obsidian-raised/95 p-4 shadow-gold-glow backdrop-blur">
         <div className="mb-3 flex items-center justify-between gap-3">
           <div>
             <p className="text-xs uppercase tracking-[0.15em] text-imperial-gold">Hotspot details</p>

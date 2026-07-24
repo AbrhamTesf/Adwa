@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { pulse } from "../../lib/haptics";
+import InteractiveModelViewer from "../ui/InteractiveModelViewer.jsx";
 
 const TAP_DISTANCE_PX = 14;
 const WAVE_DURATION_MS = 520;
@@ -138,21 +139,22 @@ export default function SensoryHub({ navigate }) {
       </header>
 
       <div className={`relative min-h-0 flex-1 overflow-hidden rounded-xl2 border border-imperial-gold/30 bg-obsidian-raised ${isStriking ? "shadow-gold-glow" : ""}`}>
-        <model-viewer
+        <InteractiveModelViewer
           ref={modelRef}
-          src="/models/negarit_drum.glb"
-          alt="Negarit ceremonial royal drum"
-          camera-controls
-          interaction-prompt="auto"
-          auto-rotate
-          auto-rotate-delay="1200"
-          shadow-intensity="1"
-          exposure="1.1"
+          modelPath="/models/negarit_drum.glb"
+          posterPath="/models/posters/negarit_drum_poster.webp"
+          altText="Negarit ceremonial royal drum"
+          exhibitTrivia="The Negarit drum was the sacred voice of the Ethiopian Sovereign — struck to proclaim military mobilization decrees and announce historic battle victories."
+          containerClassName="h-full w-full flex items-center justify-center"
           className="h-full min-h-[360px] w-full"
+          cameraControls
+          autoRotate
+          shadowIntensity="1"
+          exposure="1.1"
           onPointerDown={handlePointerDown}
           onPointerUp={handleMeshTap}
         />
-        <div className="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-obsidian-raised via-obsidian-raised/25 to-transparent px-4 pb-3 pt-16">
+        <div className="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-obsidian-raised via-obsidian-raised/25 to-transparent px-4 pb-3 pt-16 z-20">
           <p className="text-center text-xs font-medium uppercase tracking-[0.16em] text-parchment/75">Direct mesh tap enabled</p>
         </div>
       </div>

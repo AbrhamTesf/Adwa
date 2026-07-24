@@ -133,6 +133,9 @@ export default defineConfig({
     port: 5173,
     host: true,
     allowedHosts: true,
+    hmr: {
+      clientPort: 443
+    },
     proxy: {
       "/api": {
         target: "http://localhost:8787",

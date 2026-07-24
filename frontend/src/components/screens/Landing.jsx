@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import PrimaryButton from "../ui/PrimaryButton.jsx";
 import AdwaDivider from "../ui/AdwaDivider.jsx";
+import InteractiveModelViewer from "../ui/InteractiveModelViewer.jsx";
 import { useSessionStore, SUPPORTED_LANGUAGES } from "../../stores/useSessionStore";
 
 /**
@@ -55,33 +56,17 @@ export default function Landing({ navigate }) {
         <p className="text-parchment/80 text-sm sm:text-base font-light">Your museum, brought to life.</p>
       </div>
 
-      {/* Static Regal Gasha Shield Symbolic Hero Emblem */}
-      <div className="relative z-10 w-full max-w-sm aspect-square mx-auto flex items-center justify-center my-auto pointer-events-none">
-        {/* Ambient gold glow halo */}
-        <div className="absolute inset-0 bg-gradient-to-tr from-amber-500/20 via-imperial-gold/25 to-transparent blur-3xl rounded-full pointer-events-none" />
-
-        {/* 3D Canvas wrapper — static pose, disabled touch/drag rotation */}
-        <div className="relative z-10 w-full h-full">
-          <model-viewer
-            src="/models/gasha.glb"
-            alt="Adwa Imperial Victory Gasha Shield"
-            camera-orbit="0deg 75deg auto"
-            shadow-intensity="1.5"
-            shadow-softness="0.6"
-            exposure="1.2"
-            tone-mapping="neutral"
-            interaction-prompt="none"
-            style={{
-              width: "100%",
-              height: "100%",
-              "--poster-color": "transparent"
-            }}
-          >
-            <div slot="poster" className="w-full h-full flex items-center justify-center">
-              <div className="w-10 h-10 border-3 border-imperial-gold/30 border-t-imperial-gold rounded-full animate-spin" />
-            </div>
-          </model-viewer>
-        </div>
+      {/* Regal Gasha Shield Hero Emblem with Interactive 2D Loading UX */}
+      <div className="relative z-10 my-auto w-full">
+        <InteractiveModelViewer
+          modelPath="/models/gasha.glb"
+          posterPath="/models/posters/gasha_poster.webp"
+          altText="Adwa Imperial Victory Gasha Shield"
+          exhibitTrivia="The Gasha shield was crafted from dense ox hide and reinforced with embossed gold leaf, serving as both defensive armor and a proud royal symbol during the Battle of Adwa in 1896."
+          containerClassName="relative w-full max-w-sm aspect-square mx-auto flex items-center justify-center"
+          camera-orbit="0deg 75deg auto"
+          interaction-prompt="none"
+        />
       </div>
 
       {/* Main Glassmorphic Action Panel */}

@@ -61,3 +61,33 @@
     transform: translateY(-10px);
   }
 }
+
+@keyframes scanLaser {
+  0% {
+    top: 0%;
+    opacity: 0.8;
+  }
+  50% {
+    top: 98%;
+    opacity: 1;
+  }
+  100% {
+    top: 0%;
+    opacity: 0.8;
+  }
+}
+
+.animate-scan-laser {
+  animation: scanLaser 2.2s ease-in-out infinite;
+}
+
+@keyframes shutterFlash {
+  0% { opacity: 0; }
+  40% { opacity: 0.95; }
+  100% { opacity: 0; }
+}
+
+.shutter-flash {
+  animation: shutterFlash 0.3s ease-out forwards;
+}
+

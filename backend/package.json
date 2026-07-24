@@ -9,6 +9,7 @@
   "dependencies": {
     "@fastify/cors": "^11.0.0",
     "@fastify/static": "^10.1.2",
+    "@google/generative-ai": "^0.24.1",
     "adwa-lens": "file:..",
     "dotenv": "^16.4.5",
     "fastify": "^5.10.0",

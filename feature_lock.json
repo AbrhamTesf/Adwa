@@ -493,9 +493,9 @@
       "name": "Offline Service Worker & Top-20 Exhibit Pre-Cache",
       "description": "Build Service Worker caching top 20 exhibit JSON files, static persona scripts, and browser speechSynthesis offline fallback.",
       "spec_reference": "docs/adwa_lens_architecture.md Section 1.3 'Offline Contingency'",
-      "status": "unlocked",
-      "claimed_by": null,
-      "claimed_at": null,
+      "status": "completed",
+      "claimed_by": "Antigravity",
+      "claimed_at": "2026-07-25T21:52:00+03:00",
       "estimated_hours": 4,
       "dependencies": [
         "FEAT-002",

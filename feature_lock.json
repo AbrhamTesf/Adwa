@@ -516,9 +516,9 @@
       "name": "AI Prompt Safety Guardrails & Off-Topic Redirection",
       "description": "Implement prompt guardrails in backend/lib/personas.js politely redirecting off-topic or inappropriate user questions back to exhibit context.",
       "spec_reference": "docs/adwa_lens_architecture.md Section 3 Edge Case Handling",
-      "status": "unlocked",
-      "claimed_by": null,
-      "claimed_at": null,
+      "status": "completed",
+      "claimed_by": "Antigravity",
+      "claimed_at": "2026-07-25T23:02:00+03:00",
       "estimated_hours": 2,
       "dependencies": [
         "FEAT-009"

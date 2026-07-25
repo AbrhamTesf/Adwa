@@ -10,7 +10,7 @@
     "lint": "eslint . --ext js,jsx --no-inline-config"
   },
   "dependencies": {
-    "@google/model-viewer": "^3.5.0",
+    "@google/model-viewer": "^4.3.1",
     "@react-three/drei": "^9.122.0",
     "@react-three/fiber": "^8.18.0",
     "adwa-lens": "file:..",

@@ -1,8 +1,8 @@
 {
   "project_name": "Adwa Lens — AI-Powered WebAR Museum Companion",
-  "last_updated": "2026-07-25T10:52:00+03:00",
+  "last_updated": "2026-07-25T19:48:00+03:00",
   "total_features": 30,
-  "completed_count": 7,
+  "completed_count": 12,
   "features": [
     {
       "id": "FEAT-001",
@@ -358,9 +358,9 @@
       "name": "Embilta & Meleket Blowing Mechanics & Airflow Overlay",
       "description": "Build wind instrument blowing interaction: mic breath autocorrelation pitch/amplitude detection in pitchDetection.js, interactive Blow button, and visual airflow particle shader.",
       "spec_reference": "docs/adwa_lens_architecture.md Section 4.4 & docs/GOVERNANCE.md Section 4.4-4.5",
-      "status": "unlocked",
-      "claimed_by": null,
-      "claimed_at": null,
+      "status": "completed",
+      "claimed_by": "Cursor / Stream D",
+      "claimed_at": "2026-07-25T15:43:00+03:00",
       "estimated_hours": 5,
       "dependencies": [
         "FEAT-004",

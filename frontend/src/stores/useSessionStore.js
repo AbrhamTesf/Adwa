@@ -6,6 +6,11 @@ export const SUPPORTED_LANGUAGES = [
   { code: "es", label: "Español (Spanish)", flag: "ES", ttsVoiceId: "multilingual" }
 ];
 
+function clampStopIndex(index, itineraryLength) {
+  const lastIndex = Math.max(itineraryLength - 1, 0);
+  return Math.min(Math.max(index, 0), lastIndex);
+}
+
 /**
  * App State Manager — session context, tour history, offline queue.
  * (mirrors "App State Manager (Zustand/Redux)" in the architecture diagram)
@@ -28,6 +33,10 @@ export const useSessionStore = create((set, get) => ({
   setOnboarding: (partial) => set(partial),
   setPersona: (persona) => set({ persona }),
   setItinerary: (itinerary) => set({ itinerary, currentStopIndex: 0 }),
+  setCurrentStopIndex: (index) =>
+    set((s) => ({ currentStopIndex: clampStopIndex(index, s.itinerary.length) })),
+  advanceStop: () =>
+    set((s) => ({ currentStopIndex: clampStopIndex(s.currentStopIndex + 1, s.itinerary.length) })),
   markVisited: (exhibitId) =>
     set((s) => ({
       visitedExhibitIds: s.visitedExhibitIds.includes(exhibitId)

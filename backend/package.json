@@ -4,15 +4,30 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "node index.js"
+    "dev": "node index.js",
+    "db:generate": "prisma generate",
+    "db:migrate": "prisma migrate dev",
+    "db:deploy": "prisma migrate deploy",
+    "db:seed": "node prisma/seed.js",
+    "db:studio": "prisma studio"
   },
   "dependencies": {
+    "@fastify/cookie": "^11.1.2",
     "@fastify/cors": "^11.0.0",
+    "@fastify/rate-limit": "^11.1.0",
     "@fastify/static": "^10.1.2",
     "@google/generative-ai": "^0.24.1",
+    "@node-rs/argon2": "^2.0.2",
+    "@prisma/adapter-pg": "^7.9.0",
+    "@prisma/client": "^7.9.0",
     "adwa-lens": "file:..",
     "dotenv": "^16.4.5",
     "fastify": "^5.10.0",
-    "node-fetch": "^3.3.2"
+    "jsonwebtoken": "^9.0.3",
+    "node-fetch": "^3.3.2",
+    "pg": "^8.22.0"
+  },
+  "devDependencies": {
+    "prisma": "^7.9.0"
   }
 }

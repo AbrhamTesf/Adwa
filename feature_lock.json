@@ -1,8 +1,8 @@
 {
   "project_name": "Adwa Lens — AI-Powered WebAR Museum Companion",
-  "last_updated": "2026-07-25T19:48:00+03:00",
+  "last_updated": "2026-07-26T01:55:00+03:00",
   "total_features": 30,
-  "completed_count": 12,
+  "completed_count": 14,
   "features": [
     {
       "id": "FEAT-001",
@@ -632,12 +632,12 @@
       "name": "Museum Content Management System",
       "description": "Provide authenticated museum-staff workflows to create, review, publish, version, and roll back exhibit metadata, stories, translations, media, hotspot content, and 3D-model references without developer intervention.",
       "spec_reference": "High-priority product requirement — admin and content management",
-      "status": "unlocked",
-      "claimed_by": null,
-      "claimed_at": null,
+      "status": "completed",
+      "claimed_by": "Cursor / Stream E",
+      "claimed_at": "2026-07-26T01:55:00+03:00",
       "estimated_hours": 24,
       "dependencies": ["FEAT-003", "FEAT-004"],
-      "deliverables": ["backend/routes/admin-content.js", "frontend/src/components/admin/ContentManager.jsx", "docs/content-governance.md"],
+      "deliverables": ["backend/routes/admin-content.js", "backend/lib/contentSchema.js", "frontend/src/components/admin/ContentManager.jsx"],
       "verification_criteria": ["Authorized staff can edit and publish exhibit copy and persona stories from an admin interface", "Content changes are validated, versioned, and reversible", "Published content is served to the visitor experience without a frontend deployment"]
     },
     {
@@ -647,9 +647,9 @@
       "name": "Privacy-Safe Visitor Analytics & Insights Dashboard",
       "description": "Instrument privacy-safe visitor events and provide museum staff a dashboard for exhibit popularity, route drop-off, persona selection, feature use, session duration, and service-failure trends.",
       "spec_reference": "High-priority product requirement — analytics and insights dashboard",
-      "status": "unlocked",
-      "claimed_by": null,
-      "claimed_at": null,
+      "status": "completed",
+      "claimed_by": "Cursor / Stream E",
+      "claimed_at": "2026-07-26T01:55:00+03:00",
       "estimated_hours": 16,
       "dependencies": ["FEAT-003", "FEAT-028"],
       "deliverables": ["backend/routes/analytics.js", "frontend/src/lib/analytics.js", "frontend/src/components/admin/AnalyticsDashboard.jsx"],

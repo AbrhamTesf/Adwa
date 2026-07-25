@@ -124,8 +124,11 @@ export default function CameraScanner({ navigate }) {
       {/* Header bar */}
       <div className="relative z-20 p-4 flex justify-between items-center bg-gradient-to-b from-black/80 to-transparent">
         <button
-          className="text-sm font-semibold px-4 py-2 rounded-full bg-obsidian/70 border border-wanza-wood text-parchment"
-          onClick={() => navigate("landing")}
+          className="text-sm font-semibold px-4 py-2 rounded-full bg-obsidian/70 border border-wanza-wood text-parchment hover:bg-obsidian transition-colors"
+          onClick={() => {
+            const itinerary = useSessionStore.getState().itinerary;
+            navigate(itinerary && itinerary.length > 0 ? "navigation" : "landing");
+          }}
         >
           ← Back
         </button>

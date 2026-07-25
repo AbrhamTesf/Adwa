@@ -263,6 +263,9 @@ export default function InspectionHub({ navigate }) {
   const persona = useSessionStore((state) => state.persona);
   const setPersona = useSessionStore((state) => state.setPersona);
   const markVisited = useSessionStore((state) => state.markVisited);
+  const advanceStop = useSessionStore((state) => state.advanceStop);
+  const currentStopIndex = useSessionStore((state) => state.currentStopIndex);
+  const itinerary = useSessionStore((state) => state.itinerary);
 
   /* ── Local state ───────────────────────────────────────── */
   const [activeTab, setActiveTab] = useState("material");
@@ -471,6 +474,23 @@ export default function InspectionHub({ navigate }) {
   }
 
   /**
+   * Requirement 1: Finish Inspection Handler
+   */
+  const handleFinishInspection = () => {
+    if (exhibitId) {
+      markVisited(exhibitId);
+    }
+    advanceStop();
+    if (itinerary.length > 0 && currentStopIndex >= itinerary.length - 1) {
+      navigate?.("memoryDeck");
+    } else if (itinerary.length > 0) {
+      navigate?.("navigation");
+    } else {
+      navigate?.("scanner");
+    }
+  };
+
+  /**
    * Requirement 1 & 4: Submit Handlers for Text & Voice
    */
   const handleTextFormSubmit = async (e) => {
@@ -650,47 +670,68 @@ export default function InspectionHub({ navigate }) {
         </div>
       )}
 
-      {/* ─ Top Bar: Title, Category & Persona Selector ─── */}
-      <div className="absolute left-4 top-4 right-4 flex items-start justify-between gap-3 z-20">
-        <div className="max-w-[70%] rounded-xl2 border border-imperial-gold/30 bg-obsidian/80 px-4 py-3 backdrop-blur shadow-md">
-          <div className="flex items-center gap-2">
-            <p className="text-[0.65rem] uppercase tracking-[0.18em] text-imperial-gold font-semibold">
-              3D Inspection
-            </p>
-            <span className="rounded-full bg-imperial-gold/20 px-2 py-0.5 text-[0.65rem] text-imperial-gold border border-imperial-gold/30">
-              {exhibit?.category || "Monument"}
-            </span>
-          </div>
-          <h1 className="font-display text-base sm:text-lg text-parchment">
-            {exhibit?.name || "Empress Taytu Monument"}
-          </h1>
-          <p className="mt-0.5 text-[0.7rem] text-parchment/65">
-            {autoRotate ? "Orbiting — click pins to inspect regalia" : "Interactive camera active"}
-          </p>
+      {/* ─ Requirement 1: Top Navigation Bar in InspectionHub ─── */}
+      <header className="absolute left-4 top-4 right-4 z-20 flex flex-col gap-2">
+        {/* Row 1: CTA Buttons */}
+        <div className="flex items-center justify-between gap-2">
+          <button
+            type="button"
+            onClick={() => navigate?.(itinerary.length > 0 ? "navigation" : "scanner")}
+            className="flex items-center gap-1.5 rounded-xl border border-imperial-gold/40 bg-obsidian/90 px-3.5 py-2 text-xs font-semibold text-imperial-gold shadow-md backdrop-blur hover:bg-imperial-gold/20 hover:border-imperial-gold transition-all active:scale-95"
+          >
+            <span className="text-sm">←</span>
+            <span>Back to {itinerary.length > 0 ? "Tour Map" : "Scanner"}</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={handleFinishInspection}
+            className="flex items-center gap-1.5 rounded-xl border border-imperial-gold bg-imperial-gold px-4 py-2 text-xs font-bold text-obsidian shadow-gold-glow hover:bg-imperial-gold-light transition-all active:scale-95"
+          >
+            <span>Finish Inspection</span>
+            <span className="text-sm">✓</span>
+          </button>
         </div>
 
-        <div className="flex rounded-xl2 border border-imperial-gold/30 bg-obsidian/80 p-1 backdrop-blur shadow-md">
-          {PERSONAS.map((personaOption) => (
-            <button
-              key={personaOption.id}
-              type="button"
-              className={`grid h-9 w-9 place-items-center rounded-lg text-base transition ${
-                persona === personaOption.id
-                  ? "bg-imperial-gold text-obsidian shadow-gold-glow font-bold"
-                  : "text-parchment hover:bg-obsidian-overlay"
-              }`}
-              aria-label={`Switch to ${personaOption.label}`}
-              title={personaOption.label}
-              onClick={() => setPersona(personaOption.id)}
-            >
-              {personaOption.icon}
-            </button>
-          ))}
+        {/* Row 2: Title, Category & Persona Selector */}
+        <div className="flex items-center justify-between gap-3">
+          <div className="max-w-[65%] rounded-xl border border-imperial-gold/30 bg-obsidian/85 px-3.5 py-2 backdrop-blur shadow-md">
+            <div className="flex items-center gap-2">
+              <p className="text-[0.65rem] uppercase tracking-[0.18em] text-imperial-gold font-semibold">
+                3D Inspection
+              </p>
+              <span className="rounded-full bg-imperial-gold/20 px-2 py-0.5 text-[0.65rem] text-imperial-gold border border-imperial-gold/30">
+                {exhibit?.category || "Monument"}
+              </span>
+            </div>
+            <h1 className="font-display text-sm sm:text-base text-parchment truncate">
+              {exhibit?.name || "Empress Taytu Monument"}
+            </h1>
+          </div>
+
+          <div className="flex rounded-xl border border-imperial-gold/30 bg-obsidian/85 p-1 backdrop-blur shadow-md">
+            {PERSONAS.map((personaOption) => (
+              <button
+                key={personaOption.id}
+                type="button"
+                className={`grid h-8 w-8 place-items-center rounded-lg text-sm transition ${
+                  persona === personaOption.id
+                    ? "bg-imperial-gold text-obsidian shadow-gold-glow font-bold"
+                    : "text-parchment hover:bg-obsidian-overlay"
+                }`}
+                aria-label={`Switch to ${personaOption.label}`}
+                title={personaOption.label}
+                onClick={() => setPersona(personaOption.id)}
+              >
+                {personaOption.icon}
+              </button>
+            ))}
+          </div>
         </div>
-      </div>
+      </header>
 
       {/* ─ Requirement 2: Story Transcript HUD Overlay ─ */}
-      <div className="absolute left-4 top-24 right-4 z-20 max-w-lg transition-all duration-300">
+      <div className="absolute left-4 top-28 right-4 z-20 max-w-lg transition-all duration-300">
         <div className="rounded-xl border border-imperial-gold/30 bg-black/40 px-3.5 py-2.5 shadow-lg backdrop-blur-md text-parchment">
           <div className="flex items-center justify-between gap-2 border-b border-imperial-gold/20 pb-1 mb-1.5">
             <div className="flex items-center gap-2">

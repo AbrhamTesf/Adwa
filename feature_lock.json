@@ -336,9 +336,9 @@
       "name": "Multi-Persona Engine (Scholar & Royal) & Mid-Tour Switch",
       "description": "Expand persona engine with History Scholar and Royal Roleplay prompts in personas.js and UI persona switcher chips in VoiceGuideOverlay.jsx.",
       "spec_reference": "docs/adwa_lens_architecture.md Section 4.2 & Section 2 Screen 7",
-      "status": "unlocked",
-      "claimed_by": null,
-      "claimed_at": null,
+      "status": "completed",
+      "claimed_by": "Antigravity",
+      "claimed_at": "2026-07-25T18:45:00+03:00",
       "estimated_hours": 3,
       "dependencies": [
         "FEAT-009"

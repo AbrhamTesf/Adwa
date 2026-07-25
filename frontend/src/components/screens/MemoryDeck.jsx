@@ -1,4 +1,5 @@
 import React, { useState, useCallback } from "react";
+import { createRecoverySession } from "../../lib/sessionSync.js";
 import { useSessionStore } from "../../stores/useSessionStore";
 import BadgeShelf from "./memoryDeck/BadgeShelf";
 import VisitedExhibitShelf from "./memoryDeck/VisitedExhibitShelf";
@@ -7,16 +8,19 @@ import ShareExportModal from "./memoryDeck/ShareExportModal";
 /**
  * Screen 8 — Post-Tour Memory Deck & Engagement
  * FEAT-011: Visited exhibit cards, mini-quizzes, digital badge collection shelf,
- * share/export souvenir modal, and reset tour orchestration.
+ * share/export souvenir modal, cross-device recovery, and reset tour orchestration.
  */
 export default function MemoryDeck({ navigate }) {
   const visitedExhibitIds = useSessionStore((s) => s.visitedExhibitIds);
   const persona = useSessionStore((s) => s.persona);
   const resetSession = useSessionStore((s) => s.resetSession);
+  const sessionSyncStatus = useSessionStore((s) => s.sessionSyncStatus);
 
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
   const [showResetConfirm, setShowResetConfirm] = useState(false);
   const [quizScores, setQuizScores] = useState({});
+  const [recoveryLink, setRecoveryLink] = useState("");
+  const [saveMessage, setSaveMessage] = useState("");
 
   const handleQuizAnswer = useCallback((exhibitId, isCorrect) => {
     setQuizScores((prev) => ({
@@ -27,6 +31,26 @@ export default function MemoryDeck({ navigate }) {
 
   const totalAnswered = Object.keys(quizScores).length;
   const totalCorrect = Object.values(quizScores).filter(Boolean).length;
+
+  async function saveTour() {
+    setSaveMessage("");
+    try {
+      const saved = await createRecoverySession();
+      setRecoveryLink(saved.recoveryLink);
+      setSaveMessage("Your private recovery link is ready. Keep it somewhere safe.");
+    } catch (error) {
+      setSaveMessage(error?.message || "Failed to save recovery link.");
+    }
+  }
+
+  async function copyRecoveryLink() {
+    try {
+      await navigator.clipboard.writeText(recoveryLink);
+      setSaveMessage("Recovery link copied.");
+    } catch {
+      setSaveMessage("Copy the recovery link manually from the field below.");
+    }
+  }
 
   const handleStartNewTour = () => {
     resetSession();
@@ -53,6 +77,40 @@ export default function MemoryDeck({ navigate }) {
 
         {/* ---- Visited Exhibit Cards & Mini Quizzes ---- */}
         <VisitedExhibitShelf visitedExhibitIds={visitedExhibitIds} onAnswer={handleQuizAnswer} />
+
+        {/* ---- Continue On Another Device (Cross-Device Recovery) ---- */}
+        <section className="adwa-glass mt-6 p-4 rounded-xl border border-imperial-gold/30">
+          <h3 className="text-base font-semibold text-imperial-gold">Continue on another device</h3>
+          <p className="mt-1 text-xs text-parchment/70">
+            Create a private recovery link for your route, visited exhibits, preferences, and earned badges.
+          </p>
+          <button
+            type="button"
+            className="adwa-btn-secondary mt-3 w-full py-2.5 text-xs font-semibold"
+            onClick={saveTour}
+            disabled={sessionSyncStatus === "saving"}
+          >
+            {sessionSyncStatus === "saving" ? "Saving your tour…" : "Save my tour link"}
+          </button>
+          {recoveryLink && (
+            <div className="mt-3 flex gap-2">
+              <input
+                className="min-w-0 flex-1 rounded-lg border border-imperial-gold/30 bg-obsidian px-3 py-2 text-xs text-parchment focus:outline-none"
+                value={recoveryLink}
+                readOnly
+                aria-label="Tour recovery link"
+              />
+              <button type="button" className="adwa-btn-primary px-4 py-2 text-xs font-semibold" onClick={copyRecoveryLink}>
+                Copy
+              </button>
+            </div>
+          )}
+          {saveMessage && (
+            <p className="mt-2 text-xs text-parchment/75" role="status">
+              {saveMessage}
+            </p>
+          )}
+        </section>
       </div>
 
       {/* ---- Footer Actions ---- */}

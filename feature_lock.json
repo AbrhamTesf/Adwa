@@ -1,7 +1,7 @@
 {
   "project_name": "Adwa Lens — AI-Powered WebAR Museum Companion",
-  "last_updated": "2026-07-24T12:26:17+03:00",
-  "total_features": 25,
+  "last_updated": "2026-07-25T00:00:00+03:00",
+  "total_features": 30,
   "completed_count": 6,
   "features": [
     {
@@ -579,6 +579,81 @@
       "verification_criteria": [
         "Full demo flow runs smoothly: Landing -> Planner -> LiveNav -> CameraScan -> InspectionHub -> VoiceGuide -> SensoryHub -> MemoryDeck"
       ]
+    },
+    {
+      "id": "FEAT-026",
+      "priority_rank": 26,
+      "stream": "Stream B — Platform Resilience",
+      "name": "Offline-First Core Tour Experience",
+      "description": "Provide a complete degraded-network tour using IndexedDB-cached exhibit content, curated local guide answers, queued session events, and browser speech synthesis so core exhibit discovery and personalized storytelling remain usable without the RAG service.",
+      "spec_reference": "Critical product requirement — offline-first core experience",
+      "status": "unlocked",
+      "claimed_by": null,
+      "claimed_at": null,
+      "estimated_hours": 12,
+      "dependencies": ["FEAT-002", "FEAT-004", "FEAT-009", "FEAT-022"],
+      "deliverables": ["frontend/src/lib/offlineTourCache.js", "frontend/src/hooks/useOfflineGuide.js", "frontend/public/sw.js"],
+      "verification_criteria": ["A previously visited exhibit opens with its metadata, narrative, and persona-appropriate fallback answers while offline", "Guide requests fall back to local curated content and browser speech synthesis without an error screen", "Tour progress and analytics events queue locally and synchronize after connectivity returns"]
+    },
+    {
+      "id": "FEAT-027",
+      "priority_rank": 27,
+      "stream": "Stream B — Platform Resilience",
+      "name": "Provider Failure Handling & Graceful Degradation UX",
+      "description": "Define normalized provider-failure states and user-facing recovery paths for Gemini Vision, Groq RAG, ElevenLabs, microphone/camera permissions, timeouts, and mid-conversation network loss.",
+      "spec_reference": "Critical product requirement — robust error handling and graceful degradation",
+      "status": "unlocked",
+      "claimed_by": null,
+      "claimed_at": null,
+      "estimated_hours": 8,
+      "dependencies": ["FEAT-003", "FEAT-007", "FEAT-009"],
+      "deliverables": ["backend/lib/errors.js", "frontend/src/components/ui/ServiceFallbackNotice.jsx", "frontend/src/lib/serviceFallbacks.js"],
+      "verification_criteria": ["Gemini Vision failure offers manual exhibit selection and retry without losing the tour state", "ElevenLabs quota or stream failure switches to captions and browser speech synthesis", "Network loss during a guide response preserves the transcript and presents a clear retry/offline option"]
+    },
+    {
+      "id": "FEAT-028",
+      "priority_rank": 28,
+      "stream": "Stream C — Identity & Sessions",
+      "name": "Persistent Cross-Device Visitor Sessions",
+      "description": "Allow visitors to save and resume a tour across devices using a privacy-preserving accountless recovery link or optional sign-in, with synchronized itinerary, persona, visited exhibits, badges, and preferences.",
+      "spec_reference": "High-priority product requirement — user session persistence across devices",
+      "status": "unlocked",
+      "claimed_by": null,
+      "claimed_at": null,
+      "estimated_hours": 12,
+      "dependencies": ["FEAT-002", "FEAT-003"],
+      "deliverables": ["backend/routes/sessions.js", "frontend/src/lib/sessionSync.js", "frontend/src/components/screens/ResumeTour.jsx"],
+      "verification_criteria": ["Visitor can create a recovery link or sign in and resume an interrupted tour on a second device", "Itinerary, persona, visited exhibits, badges, and accessibility preferences restore correctly", "Expired or invalid recovery links show a safe, actionable recovery state"]
+    },
+    {
+      "id": "FEAT-029",
+      "priority_rank": 29,
+      "stream": "Stream E — Museum Operations",
+      "name": "Museum Content Management System",
+      "description": "Provide authenticated museum-staff workflows to create, review, publish, version, and roll back exhibit metadata, stories, translations, media, hotspot content, and 3D-model references without developer intervention.",
+      "spec_reference": "High-priority product requirement — admin and content management",
+      "status": "unlocked",
+      "claimed_by": null,
+      "claimed_at": null,
+      "estimated_hours": 24,
+      "dependencies": ["FEAT-003", "FEAT-004"],
+      "deliverables": ["backend/routes/admin-content.js", "frontend/src/components/admin/ContentManager.jsx", "docs/content-governance.md"],
+      "verification_criteria": ["Authorized staff can edit and publish exhibit copy and persona stories from an admin interface", "Content changes are validated, versioned, and reversible", "Published content is served to the visitor experience without a frontend deployment"]
+    },
+    {
+      "id": "FEAT-030",
+      "priority_rank": 30,
+      "stream": "Stream E — Museum Operations",
+      "name": "Privacy-Safe Visitor Analytics & Insights Dashboard",
+      "description": "Instrument privacy-safe visitor events and provide museum staff a dashboard for exhibit popularity, route drop-off, persona selection, feature use, session duration, and service-failure trends.",
+      "spec_reference": "High-priority product requirement — analytics and insights dashboard",
+      "status": "unlocked",
+      "claimed_by": null,
+      "claimed_at": null,
+      "estimated_hours": 16,
+      "dependencies": ["FEAT-003", "FEAT-028"],
+      "deliverables": ["backend/routes/analytics.js", "frontend/src/lib/analytics.js", "frontend/src/components/admin/AnalyticsDashboard.jsx"],
+      "verification_criteria": ["Dashboard reports popular exhibits, drop-off points, persona usage, and time spent for a selectable date range", "Analytics exclude raw audio, camera frames, and unnecessary personal data", "Offline events are queued and deduplicated when sent after reconnection"]
     }
   ],
   "phase_feature_locks": {"_comment": "Feature claiming system. Before building any feature, an agent or developer MUST claim it here via a PR that updates this file. Prevents two agents building the same thing. Claimed features show agent_id and branch. Released = merged to develop.",

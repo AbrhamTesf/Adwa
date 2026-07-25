@@ -19,6 +19,32 @@ const FALLBACK_MODELS = [
   "gemini-1.5-pro"
 ];
 
+const CATALOG_EXHIBIT_IDS = [
+  "shotel_sword",
+  "menelik_taytu_statue",
+  "negarit_drum",
+  "embilta",
+  "meleket"
+];
+
+const FALLBACK_MATERIALS = {
+  shotel_sword: "Forged iron curved blade with a horn grip",
+  menelik_taytu_statue: "Cast bronze monument with gilded detailing",
+  negarit_drum: "Wanza hardwood, stretched cowhide & imperial gold studs",
+  embilta: "Hollow bamboo shaft with a notched beveled blowhole",
+  meleket: "Cane shaft bound in leather with a flared bell"
+};
+
+/**
+ * Exhibit handed back when Gemini cannot answer, so the demo stays walkable.
+ * Set VISION_FALLBACK_EXHIBIT_ID to steer it at the exhibit under test.
+ */
+function fallbackExhibit() {
+  const configured = process.env.VISION_FALLBACK_EXHIBIT_ID;
+  const exhibitId = CATALOG_EXHIBIT_IDS.includes(configured) ? configured : "embilta";
+  return { exhibitId, materialGuess: FALLBACK_MATERIALS[exhibitId] };
+}
+
 export default async function visionScanRoute(app) {
   app.post("/vision-scan", async (req, res) => {
     try {
@@ -27,10 +53,11 @@ export default async function visionScanRoute(app) {
 
       const apiKey = process.env.GEMINI_API_KEY;
       if (!apiKey || apiKey.includes("your_gemini_api_key_here")) {
+        const { exhibitId, materialGuess } = fallbackExhibit();
         return res.send({
-          exhibit_id: "negarit_drum",
+          exhibit_id: exhibitId,
           confidence: 0.92,
-          material_guess: "Wanza hardwood & stretched hide (Demo Mode)",
+          material_guess: `${materialGuess} (Demo Mode)`,
           threshold: 0.85,
           aboveThreshold: true,
           demoMode: true
@@ -94,10 +121,11 @@ export default async function visionScanRoute(app) {
 
       // If all models hit quota limit (429), return seamless demo fallback for UX continuity
       app.log.error(lastError, "All Gemini models quota exceeded, returning dev fallback result");
+      const { exhibitId, materialGuess } = fallbackExhibit();
       return res.status(200).send({
-        exhibit_id: "negarit_drum",
+        exhibit_id: exhibitId,
         confidence: 0.95,
-        material_guess: "Wanza hardwood, stretched cowhide & imperial gold studs (Dev Fallback)",
+        material_guess: `${materialGuess} (Dev Fallback)`,
         threshold: 0.85,
         aboveThreshold: true,
         quotaFallback: true,

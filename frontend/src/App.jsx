@@ -1,5 +1,6 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useNetworkStatus } from "./hooks/useNetworkStatus";
+import { getRecoveryTokenFromHash, startSessionSync } from "./lib/sessionSync";
 import Landing from "./components/screens/Landing.jsx";
 import ItineraryPlanner from "./components/screens/ItineraryPlanner.jsx";
 import LiveNavigation from "./components/screens/LiveNavigation.jsx";
@@ -8,31 +9,16 @@ import InspectionHub from "./components/screens/InspectionHub.jsx";
 import SensoryHub from "./components/screens/SensoryHub.jsx";
 import VoiceGuideOverlay from "./components/screens/VoiceGuideOverlay.jsx";
 import MemoryDeck from "./components/screens/MemoryDeck.jsx";
+import ResumeTour from "./components/screens/ResumeTour.jsx";
 
-/**
- * Screen router — deliberately simple (no external router dep) so the
- * hackathon build stays easy for 4 parallel streams to touch without
- * merge conflicts. Swap for react-router post-hackathon if needed.
- */
-const SCREENS = {
-  landing: Landing,
-  planner: ItineraryPlanner,
-  navigation: LiveNavigation,
-  scanner: CameraScanner,
-  inspection: InspectionHub,
-  sensory: SensoryHub,
-  voiceGuide: VoiceGuideOverlay,
-  memoryDeck: MemoryDeck
-};
+const SCREENS = { landing: Landing, planner: ItineraryPlanner, navigation: LiveNavigation, scanner: CameraScanner, inspection: InspectionHub, sensory: SensoryHub, voiceGuide: VoiceGuideOverlay, memoryDeck: MemoryDeck, resumeTour: ResumeTour };
 
 export default function App() {
   useNetworkStatus();
-  const [screen, setScreen] = useState("landing");
+  const recoveryToken = getRecoveryTokenFromHash();
+  const [screen, setScreen] = useState(recoveryToken ? "resumeTour" : "landing");
   const ScreenComponent = SCREENS[screen] || Landing;
 
-  return (
-    <div className="min-h-screen w-full">
-      <ScreenComponent navigate={setScreen} />
-    </div>
-  );
+  useEffect(() => startSessionSync(), []);
+  return <div className="min-h-screen w-full"><ScreenComponent navigate={setScreen} recoveryToken={recoveryToken} /></div>;
 }

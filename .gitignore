@@ -4,3 +4,4 @@ backend/.env
 *.local
 .DS_Store
 frontend/public/models/*.glb.tmp
+backend/.data/

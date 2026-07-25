@@ -5,6 +5,7 @@ import visionScanRoute from "./routes/vision-scan.js";
 import sttRoute from "./routes/stt.js";
 import askGuideRoute from "./routes/ask-guide.js";
 import ttsStreamRoute from "./routes/tts-stream.js";
+import sessionsRoute from "./routes/sessions.js";
 
 dotenv.config();
 
@@ -19,6 +20,7 @@ app.register(visionScanRoute, { prefix: "/api" });
 app.register(sttRoute, { prefix: "/api" });
 app.register(askGuideRoute, { prefix: "/api" });
 app.register(ttsStreamRoute, { prefix: "/api" });
+app.register(sessionsRoute, { prefix: "/api" });
 
 app.get("/api/health", async () => ({ status: "ok", service: "adwa-lens-bff" }));
 

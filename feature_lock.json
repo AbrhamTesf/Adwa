@@ -248,9 +248,9 @@
       "name": "Post-Tour Memory Deck Recap & Visited Exhibit Shelf",
       "description": "Build MemoryDeck.jsx displaying recap cards for visited exhibits, AR snapshot thumbnails, and digital badge shelf.",
       "spec_reference": "docs/adwa_lens_architecture.md Section 2 'Screen 8 — Post-Tour Memory Deck'",
-      "status": "unlocked",
-      "claimed_by": null,
-      "claimed_at": null,
+      "status": "completed",
+      "claimed_by": "Antigravity",
+      "claimed_at": "2026-07-25T18:55:00+03:00",
       "estimated_hours": 3,
       "dependencies": [
         "FEAT-002"

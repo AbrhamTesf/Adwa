@@ -314,9 +314,9 @@
       "name": "Hero Artifact 3D Exploded View Transformation",
       "description": "Implement GSAP transform tween / morph targets separating shotel_sword.glb into blade, hilt, and sheath layers upon button toggle.",
       "spec_reference": "docs/adwa_lens_architecture.md Section 2 'Screen 5' & docs/PHASES_AND_ROLES.md Stream A Phase 2",
-      "status": "unlocked",
-      "claimed_by": null,
-      "claimed_at": null,
+      "status": "completed",
+      "claimed_by": "Antigravity / Stream A",
+      "claimed_at": "2026-07-25T11:00:00Z",
       "estimated_hours": 4,
       "dependencies": [
         "FEAT-005",

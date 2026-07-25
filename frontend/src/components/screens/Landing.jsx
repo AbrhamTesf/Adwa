@@ -60,7 +60,7 @@ export default function Landing({ navigate }) {
       <div className="relative z-10 my-auto w-full">
         <InteractiveModelViewer
           modelPath="/models/gasha.glb"
-          posterPath="/models/posters/gasha_poster.webp"
+          posterPath="/models/posters/gasha_poster.png"
           altText="Adwa Imperial Victory Gasha Shield"
           exhibitTrivia="The Gasha shield was crafted from dense ox hide and reinforced with embossed gold leaf, serving as both defensive armor and a proud royal symbol during the Battle of Adwa in 1896."
           containerClassName="relative w-full max-w-sm aspect-square mx-auto flex items-center justify-center"

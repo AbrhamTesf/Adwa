@@ -154,24 +154,24 @@ function TaytuModelMesh({ glbUrl, selectedHotspotId, onSelectHotspot, isTaytu })
           const isSelected = selectedHotspotId === hotspot.id;
           return (
             <group key={hotspot.id} position={hotspot.position}>
-              <Html position={[0, 0, 0]} center distanceFactor={8} zIndexRange={[100, 0]}>
+              <Html position={[0, 0, 0]} center distanceFactor={16} zIndexRange={[100, 0]}>
                 <button
                   type="button"
                   aria-label={hotspot.title}
                   className={`group relative flex items-center justify-center rounded-full transition-all duration-300 ${
                     isSelected
-                      ? "h-9 w-9 bg-imperial-gold ring-4 ring-imperial-gold/40 shadow-gold-glow scale-110"
-                      : "h-7 w-7 bg-obsidian/85 border-2 border-imperial-gold/80 hover:scale-125 hover:bg-imperial-gold hover:text-obsidian"
+                      ? "h-6 w-6 bg-imperial-gold ring-2 ring-imperial-gold/50 shadow-gold-glow scale-110"
+                      : "h-4 w-4 bg-obsidian/90 border border-imperial-gold/80 hover:scale-125 hover:bg-imperial-gold hover:text-obsidian"
                   }`}
                   onClick={(e) => {
                     e.stopPropagation();
                     onSelectHotspot(hotspot);
                   }}
                 >
-                  <span className={`text-xs font-bold ${isSelected ? "text-obsidian" : "text-imperial-gold group-hover:text-obsidian"}`}>
+                  <span className={`text-[9px] font-bold ${isSelected ? "text-obsidian" : "text-imperial-gold group-hover:text-obsidian"}`}>
                     ✦
                   </span>
-                  <span className="pointer-events-none absolute bottom-full mb-2 hidden whitespace-nowrap rounded-md bg-obsidian-raised px-2.5 py-1 text-[0.7rem] text-parchment shadow-md border border-imperial-gold/30 group-hover:block">
+                  <span className="pointer-events-none absolute bottom-full mb-2 hidden whitespace-nowrap rounded-md bg-obsidian-raised px-2 py-0.5 text-[0.65rem] text-parchment shadow-md border border-imperial-gold/30 group-hover:block">
                     {hotspot.title}
                   </span>
                 </button>
@@ -753,7 +753,7 @@ export default function InspectionHub({ navigate }) {
           </div>
 
           {showTranscriptHUD && (
-            <div className="animate-fadeIn">
+            <div className="animate-fadeIn max-h-32 overflow-y-auto pr-1">
               <p className="text-xs leading-relaxed text-parchment/90 italic">
                 "{exhibit?.persona_scripts?.[persona] || exhibit?.persona_scripts?.[activeTab] || exhibitTrivia}"
               </p>
@@ -765,7 +765,7 @@ export default function InspectionHub({ navigate }) {
       {/* ─ Requirement 3: Hotspot AI Explainer & Read-Aloud Card ─ */}
       {selectedHotspot && (
         <div className="absolute right-4 bottom-56 left-4 z-30 max-w-md mx-auto animate-fadeIn">
-          <div className="rounded-2xl border border-imperial-gold/50 bg-black/60 p-4 shadow-gold-glow backdrop-blur-xl text-parchment">
+          <div className="rounded-2xl border border-imperial-gold/50 bg-black/60 p-4 shadow-gold-glow backdrop-blur-xl text-parchment max-h-48 overflow-y-auto">
             <div className="flex items-center justify-between gap-2 mb-2">
               <div className="flex items-center gap-2">
                 <span className="text-imperial-gold text-lg">✦</span>
@@ -813,7 +813,7 @@ export default function InspectionHub({ navigate }) {
       )}
 
       {/* ─ Bottom Drawer: Hotspot Inspection & Actions ─── */}
-      <aside className="absolute bottom-0 left-0 right-0 z-20 rounded-t-xl2 border-t border-imperial-gold/30 bg-obsidian-raised/95 p-4 shadow-gold-glow backdrop-blur">
+      <aside className="absolute bottom-0 left-0 right-0 z-20 rounded-t-xl2 border-t border-imperial-gold/30 bg-obsidian-raised/95 p-4 shadow-gold-glow backdrop-blur max-h-[55vh] overflow-y-auto">
         <div className="mb-3 flex items-center justify-between gap-3">
           <div>
             <p className="text-[0.65rem] uppercase tracking-[0.15em] text-imperial-gold font-semibold">
@@ -870,9 +870,11 @@ export default function InspectionHub({ navigate }) {
         </div>
 
         {/* Description Copy */}
-        <p className="min-h-10 text-xs sm:text-sm leading-6 text-parchment/85">
-          {activeTabText}
-        </p>
+        <div className="max-h-32 overflow-y-auto pr-1 mb-2">
+          <p className="min-h-10 text-xs sm:text-sm leading-6 text-parchment/85">
+            {activeTabText}
+          </p>
+        </div>
 
         {/* ─ Requirement 1 & 4: Explicit Text Submit & Voice Input Bar ─ */}
         <form onSubmit={handleTextFormSubmit} className="mt-3 flex items-center gap-2">
@@ -916,7 +918,7 @@ export default function InspectionHub({ navigate }) {
         </form>
 
         {captions && (
-          <div className="mt-2 text-xs text-imperial-gold bg-imperial-gold/10 p-2 rounded-lg border border-imperial-gold/30 animate-fadeIn flex items-center justify-between">
+          <div className="mt-2 text-xs text-imperial-gold bg-imperial-gold/10 p-2 rounded-lg border border-imperial-gold/30 animate-fadeIn flex items-center justify-between max-h-28 overflow-y-auto">
             <span>{captions}</span>
             {status === "thinking" && (
               <span className="inline-block h-3 w-3 animate-spin rounded-full border-2 border-imperial-gold border-t-transparent" />

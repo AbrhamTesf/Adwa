@@ -1,8 +1,8 @@
 {
   "project_name": "Adwa Lens — AI-Powered WebAR Museum Companion",
-  "last_updated": "2026-07-25T00:00:00+03:00",
+  "last_updated": "2026-07-25T10:52:00+03:00",
   "total_features": 30,
-  "completed_count": 6,
+  "completed_count": 7,
   "features": [
     {
       "id": "FEAT-001",
@@ -292,9 +292,9 @@
       "name": "Indoor 2D SVG Map & Live Route Navigation",
       "description": "Build LiveNavigation.jsx top-down 2D SVG floor map with color-coded walking route line, crowd warning chip, and manual 'I am here' checkpoint check-in.",
       "spec_reference": "docs/adwa_lens_architecture.md Section 2 'Screen 3 — Live Navigation'",
-      "status": "unlocked",
-      "claimed_by": null,
-      "claimed_at": null,
+      "status": "completed",
+      "claimed_by": "Cursor-Grok / Stream C",
+      "claimed_at": "2026-07-25T10:52:00+03:00",
       "estimated_hours": 4,
       "dependencies": [
         "FEAT-012"

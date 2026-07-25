@@ -9,6 +9,17 @@ const HINT_TEXT = {
   hold_steady: "Hold camera steady"
 };
 
+/** getUserMedia rejection names — a generic message hides the actual fix. */
+const CAMERA_ERROR_TEXT = {
+  NotAllowedError:
+    "Camera access is blocked for this site. Allow it in your browser's site settings, then reload.",
+  SecurityError: "Camera access needs a secure (https) connection.",
+  NotFoundError: "No camera was found on this device.",
+  NotReadableError: "Another app or browser tab is already using the camera. Close it and retry.",
+  OverconstrainedError: "No rear-facing camera is available on this device.",
+  AbortError: "The camera stopped unexpectedly. Reload the page to try again."
+};
+
 /** Screen 4 — Camera AI Vision Scanner with Interactive Shutter & Laser Animation */
 export default function CameraScanner({ navigate }) {
   const loadExhibit = useExhibitStore((s) => s.loadExhibit);
@@ -19,19 +30,31 @@ export default function CameraScanner({ navigate }) {
   const [errorMsg, setErrorMsg] = useState(null);
   const [statusMsg, setStatusMsg] = useState("Position exhibit inside reticle");
 
-  const { videoRef, hint, startStream, captureFrame } = useCameraScanner({
+  const { videoRef, hint, startStream, stopStream, captureFrame } = useCameraScanner({
     onFrameReady: () => {}
   });
 
   useEffect(() => {
+    let cancelled = false;
+
     (async () => {
       try {
         await startStream();
       } catch (err) {
-        setErrorMsg("Unable to access camera feed. Please check permissions.");
+        if (cancelled) return;
+        setErrorMsg(
+          CAMERA_ERROR_TEXT[err?.name] || "Unable to access camera feed. Please check permissions."
+        );
       }
     })();
-  }, [startStream]);
+
+    // Without this the camera keeps running after leaving the scanner, which
+    // can block the microphone the sensory screen needs.
+    return () => {
+      cancelled = true;
+      stopStream();
+    };
+  }, [startStream, stopStream]);
 
   async function triggerScan() {
     if (isAnalyzing || matched) return;
@@ -87,7 +110,13 @@ export default function CameraScanner({ navigate }) {
   return (
     <div className="relative min-h-screen bg-obsidian text-parchment overflow-hidden flex flex-col justify-between">
       {/* Video Viewfinder */}
-      <video ref={videoRef} className="absolute inset-0 w-full h-full object-cover" muted playsInline />
+      <video
+        ref={videoRef}
+        className="absolute inset-0 w-full h-full object-cover"
+        autoPlay
+        muted
+        playsInline
+      />
 
       {/* Camera Shutter Flash Overlay */}
       {isFlashing && <div className="absolute inset-0 bg-white shutter-flash z-30 pointer-events-none" />}

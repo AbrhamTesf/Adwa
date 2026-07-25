@@ -63,7 +63,15 @@ export function useVoiceGuide(exhibitContext) {
     setStatus("idle");
   }, [exhibitContext, persona]);
 
-  return { status, captions, startListening, stopListeningAndSend };
+  const stopAudio = useCallback(() => {
+    if (mediaRecorderRef.current && mediaRecorderRef.current.state === "recording") {
+      mediaRecorderRef.current.stop();
+    }
+    window.speechSynthesis?.cancel();
+    setStatus("idle");
+  }, []);
+
+  return { status, captions, setCaptions, startListening, stopListeningAndSend, stopAudio };
 }
 
 async function speak(text, persona) {

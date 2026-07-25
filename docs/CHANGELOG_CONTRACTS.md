@@ -14,6 +14,11 @@ Migration: <what other streams need to do>
 
 ---
 
+### 2026-07-25 — Recovery-session snapshot contract (FEAT-028)
+Stream: C
+Changed: frontend/src/stores/useSessionStore.js, backend/routes/sessions.js
+Reason: Accountless recovery links need a versioned, non-sensitive tour snapshot that can be restored across devices.
+Migration: Additive only. `createTourSnapshot`, `hydrateSession`, `recoveryToken`, sync status fields, and `unlockedBadgeIds` are available; existing session fields and actions are unchanged.
 ### 2026-07-25 — Session store gains stop-progress setters (FEAT-013)
 Stream: C
 Changed: frontend/src/stores/useSessionStore.js

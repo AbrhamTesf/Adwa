@@ -11,10 +11,77 @@ export function useVoiceGuide(exhibitContext) {
   const persona = useSessionStore((s) => s.persona);
   const [status, setStatus] = useState("idle"); // idle | listening | thinking | speaking
   const [captions, setCaptions] = useState("");
+  const [isPlaying, setIsPlaying] = useState(false);
   const mediaRecorderRef = useRef(null);
   const chunksRef = useRef([]);
+  const audioObjRef = useRef(null);
+
+  const stopAudio = useCallback(() => {
+    if (audioObjRef.current) {
+      try {
+        audioObjRef.current.pause();
+        audioObjRef.current.currentTime = 0;
+      } catch {
+        /* noop */
+      }
+      audioObjRef.current = null;
+    }
+    if (mediaRecorderRef.current && mediaRecorderRef.current.state === "recording") {
+      try {
+        mediaRecorderRef.current.stop();
+      } catch {
+        /* noop */
+      }
+    }
+    window.speechSynthesis?.cancel();
+    setIsPlaying(false);
+    setStatus("idle");
+  }, []);
+
+  const speakText = useCallback(async (text, overridePersona) => {
+    const activePersona = overridePersona || persona;
+    stopAudio();
+    try {
+      setIsPlaying(true);
+      setStatus("speaking");
+      const res = await fetch("/api/tts-stream", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ text, persona: activePersona })
+      });
+      if (!res.ok) throw new Error("TTS upstream failed");
+      const audioBlob = await res.blob();
+      const audioUrl = URL.createObjectURL(audioBlob);
+      const audio = new Audio(audioUrl);
+      audioObjRef.current = audio;
+
+      audio.onended = () => {
+        setIsPlaying(false);
+        setStatus("idle");
+      };
+      audio.onerror = () => {
+        setIsPlaying(false);
+        setStatus("idle");
+      };
+
+      await audio.play();
+    } catch (e) {
+      console.warn("[speak Fallback] Using window.speechSynthesis due to:", e.message);
+      const utter = new SpeechSynthesisUtterance(text);
+      utter.onend = () => {
+        setIsPlaying(false);
+        setStatus("idle");
+      };
+      utter.onerror = () => {
+        setIsPlaying(false);
+        setStatus("idle");
+      };
+      window.speechSynthesis.speak(utter);
+    }
+  }, [persona, stopAudio]);
 
   const startListening = useCallback(async () => {
+    stopAudio();
     try {
       setStatus("listening");
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
@@ -32,12 +99,12 @@ export function useVoiceGuide(exhibitContext) {
       setCaptions("Microphone access permission was denied or unavailable. Please type your question below.");
       setStatus("idle");
     }
-  }, []);
+  }, [stopAudio]);
 
   const sendTextQuestion = useCallback(
     async (text) => {
       const trimmed = text?.trim();
-      if (!trimmed) return;
+      if (!trimmed) return "";
 
       try {
         setStatus("thinking");
@@ -57,27 +124,64 @@ export function useVoiceGuide(exhibitContext) {
         const reader = guideRes.body.getReader();
         const decoder = new TextDecoder();
         let fullText = "";
+        let lineBuffer = "";
 
         while (true) {
           const { done, value } = await reader.read();
           if (done) break;
           const chunk = decoder.decode(value, { stream: true });
-          fullText += chunk;
-          setCaptions(fullText);
+          lineBuffer += chunk;
+
+          const lines = lineBuffer.split("\n");
+          lineBuffer = lines.pop() || "";
+
+          for (const line of lines) {
+            const trimmedLine = line.trim();
+            if (trimmedLine.startsWith("data: ")) {
+              const dataStr = trimmedLine.slice(6).trim();
+              if (dataStr === "[DONE]") continue;
+              try {
+                const parsed = JSON.parse(dataStr);
+                const deltaContent = parsed.choices?.[0]?.delta?.content;
+                if (deltaContent) {
+                  fullText += deltaContent;
+                  setCaptions(fullText);
+                }
+              } catch {
+                /* partial JSON line */
+              }
+            }
+          }
+        }
+
+        if (lineBuffer.trim().startsWith("data: ")) {
+          const dataStr = lineBuffer.trim().slice(6).trim();
+          if (dataStr !== "[DONE]") {
+            try {
+              const parsed = JSON.parse(dataStr);
+              const deltaContent = parsed.choices?.[0]?.delta?.content;
+              if (deltaContent) {
+                fullText += deltaContent;
+                setCaptions(fullText);
+              }
+            } catch {
+              /* partial JSON */
+            }
+          }
         }
 
         if (fullText) {
-          setStatus("speaking");
-          await speak(fullText, persona);
+          await speakText(fullText, persona);
         }
+        return fullText;
       } catch (err) {
         console.error("[useVoiceGuide] Text question error:", err);
         setCaptions(`Unable to reach guide: ${err.message}. Please try again.`);
-      } finally {
         setStatus("idle");
+        return "";
       }
     },
-    [exhibitContext, persona]
+    [exhibitContext, persona, speakText]
   );
 
   const stopListeningAndSend = useCallback(async () => {
@@ -133,42 +237,15 @@ export function useVoiceGuide(exhibitContext) {
     }
   }, [sendTextQuestion]);
 
-  const stopAudio = useCallback(() => {
-    if (mediaRecorderRef.current && mediaRecorderRef.current.state === "recording") {
-      try {
-        mediaRecorderRef.current.stop();
-      } catch {
-        /* noop */
-      }
-    }
-    window.speechSynthesis?.cancel();
-    setStatus("idle");
-  }, []);
-
   return {
     status,
     captions,
     setCaptions,
+    isPlaying,
     startListening,
     stopListeningAndSend,
     sendTextQuestion,
+    speakText,
     stopAudio
   };
-}
-
-async function speak(text, persona) {
-  try {
-    const res = await fetch("/api/tts-stream", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ text, persona })
-    });
-    if (!res.ok) throw new Error("TTS upstream failed");
-    const audio = new Audio(URL.createObjectURL(await res.blob()));
-    await audio.play();
-  } catch (e) {
-    console.warn("[speak Fallback] Using window.speechSynthesis due to:", e.message);
-    const utter = new SpeechSynthesisUtterance(text);
-    window.speechSynthesis.speak(utter);
-  }
 }

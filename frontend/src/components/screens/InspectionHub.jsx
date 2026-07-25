@@ -5,6 +5,7 @@ import gsap from "gsap";
 import { PERSONAS } from "../../personas/personas";
 import { useExhibitStore } from "../../stores/useExhibitStore";
 import { useSessionStore } from "../../stores/useSessionStore";
+import { useVoiceGuide } from "../../hooks/useVoiceGuide";
 import InteractiveModelViewer from "../ui/InteractiveModelViewer.jsx";
 
 /* ────────────────────────────────────────────────────────────
@@ -271,9 +272,28 @@ export default function InspectionHub({ navigate }) {
   const [modelReady, setModelReady] = useState(false);
   const [glbError, setGlbError] = useState(false);
 
+  /* Overhaul UI States */
+  const [textQuery, setTextQuery] = useState("");
+  const [showTranscriptHUD, setShowTranscriptHUD] = useState(true);
+  const [hotspotAIExplanation, setHotspotAIExplanation] = useState("");
+  const [isGeneratingExplanation, setIsGeneratingExplanation] = useState(false);
+  const [isMicActive, setIsMicActive] = useState(false);
+
   /* Camera focus state for R3F Canvas */
   const [focusTarget, setFocusTarget] = useState(DEFAULT_CAMERA_TARGET);
   const [focusPos, setFocusPos] = useState(DEFAULT_CAMERA_POS);
+
+  /* ── Voice Guide Hook ──────────────────────────────────── */
+  const {
+    status,
+    captions,
+    isPlaying,
+    startListening,
+    stopListeningAndSend,
+    sendTextQuestion,
+    speakText,
+    stopAudio
+  } = useVoiceGuide(exhibit);
 
   /* ── Refs ───────────────────────────────────────────────── */
   const controlsRef = useRef(null);
@@ -396,7 +416,11 @@ export default function InspectionHub({ navigate }) {
   }, [exploded, modelReady, isShotel]);
 
   /* ── Interaction handlers ──────────────────────────────── */
-  function chooseHotspot(hotspot) {
+
+  /**
+   * Requirement 3: Interactive Hotspot AI Explainer & Read-Aloud
+   */
+  async function chooseHotspot(hotspot) {
     setSelectedHotspotId(hotspot.id);
     setActiveTab(hotspot.tab || "material");
     setAutoRotate(false);
@@ -405,6 +429,16 @@ export default function InspectionHub({ navigate }) {
       setFocusTarget(hotspot.cameraTarget);
       setFocusPos(hotspot.cameraPos);
     }
+
+    // Trigger AI Hotspot Explainer & Read-Aloud
+    setIsGeneratingExplanation(true);
+    setHotspotAIExplanation("Generating deep AI historical analysis…");
+
+    const prompt = `Explain the historical and strategic significance of ${hotspot.title} (${hotspot.description}) on the Empress Taytu Monument in 2 concise sentences.`;
+    const explanationText = await sendTextQuestion(prompt);
+    const finalExplanation = explanationText || hotspot.description;
+    setHotspotAIExplanation(finalExplanation);
+    setIsGeneratingExplanation(false);
   }
 
   function handleResetCamera() {
@@ -412,6 +446,7 @@ export default function InspectionHub({ navigate }) {
     setFocusTarget(DEFAULT_CAMERA_TARGET);
     setFocusPos(DEFAULT_CAMERA_POS);
     setAutoRotate(true);
+    setHotspotAIExplanation("");
     if (controlsRef.current) {
       controlsRef.current.reset();
     }
@@ -434,6 +469,27 @@ export default function InspectionHub({ navigate }) {
     if (exhibit?.exhibit_id) markVisited(exhibit.exhibit_id);
     navigate?.("voiceGuide");
   }
+
+  /**
+   * Requirement 1 & 4: Submit Handlers for Text & Voice
+   */
+  const handleTextFormSubmit = async (e) => {
+    e.preventDefault();
+    if (!textQuery.trim()) return;
+    const query = textQuery;
+    setTextQuery("");
+    await sendTextQuestion(query);
+  };
+
+  const handleMicToggle = async () => {
+    if (isMicActive) {
+      setIsMicActive(false);
+      await stopListeningAndSend();
+    } else {
+      setIsMicActive(true);
+      await startListening();
+    }
+  };
 
   /* ── Loading state ─────────────────────────────────────── */
   if (isLoading) {
@@ -633,6 +689,88 @@ export default function InspectionHub({ navigate }) {
         </div>
       </div>
 
+      {/* ─ Requirement 2: Story Transcript HUD Overlay ─ */}
+      <div className="absolute left-4 top-24 right-4 z-20 max-w-lg transition-all duration-300">
+        <div className="rounded-xl border border-imperial-gold/30 bg-black/40 px-3.5 py-2.5 shadow-lg backdrop-blur-md text-parchment">
+          <div className="flex items-center justify-between gap-2 border-b border-imperial-gold/20 pb-1 mb-1.5">
+            <div className="flex items-center gap-2">
+              <span className="text-sm">📜</span>
+              <span className="text-xs font-bold uppercase tracking-wider text-imperial-gold">
+                Story Transcript
+              </span>
+              <span className="text-[10px] text-imperial-gold/80 bg-imperial-gold/15 px-2 py-0.5 rounded-full border border-imperial-gold/30 font-semibold">
+                {persona.toUpperCase()}
+              </span>
+            </div>
+            <button
+              type="button"
+              onClick={() => setShowTranscriptHUD((prev) => !prev)}
+              className="text-xs text-imperial-gold/80 hover:text-imperial-gold flex items-center gap-1 font-semibold transition-colors"
+            >
+              {showTranscriptHUD ? "Hide ▲" : "Show ▼"}
+            </button>
+          </div>
+
+          {showTranscriptHUD && (
+            <div className="animate-fadeIn">
+              <p className="text-xs leading-relaxed text-parchment/90 italic">
+                "{exhibit?.persona_scripts?.[persona] || exhibit?.persona_scripts?.[activeTab] || exhibitTrivia}"
+              </p>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* ─ Requirement 3: Hotspot AI Explainer & Read-Aloud Card ─ */}
+      {selectedHotspot && (
+        <div className="absolute right-4 bottom-56 left-4 z-30 max-w-md mx-auto animate-fadeIn">
+          <div className="rounded-2xl border border-imperial-gold/50 bg-black/60 p-4 shadow-gold-glow backdrop-blur-xl text-parchment">
+            <div className="flex items-center justify-between gap-2 mb-2">
+              <div className="flex items-center gap-2">
+                <span className="text-imperial-gold text-lg">✦</span>
+                <h3 className="font-display text-sm font-bold text-imperial-gold">
+                  {selectedHotspot.title}
+                </h3>
+              </div>
+
+              {/* Equalizer & Voice Control */}
+              <div className="flex items-center gap-2">
+                {isPlaying && (
+                  <div className="flex items-end gap-0.5 h-4" title="Audio streaming active">
+                    <span className="w-1 bg-imperial-gold animate-bounce rounded-full h-3" />
+                    <span className="w-1 bg-imperial-gold animate-bounce delay-100 rounded-full h-4" />
+                    <span className="w-1 bg-imperial-gold animate-bounce delay-200 rounded-full h-2" />
+                  </div>
+                )}
+                <button
+                  type="button"
+                  onClick={isPlaying ? stopAudio : () => speakText(hotspotAIExplanation || selectedHotspot.description)}
+                  className="flex items-center gap-1 text-[11px] px-2.5 py-1 rounded-full border border-imperial-gold/40 bg-imperial-gold/20 text-imperial-gold hover:bg-imperial-gold hover:text-obsidian transition-colors font-semibold"
+                >
+                  {isPlaying ? "⏸️ Pause Voice" : "🔊 Replay Audio"}
+                </button>
+              </div>
+            </div>
+
+            <p className="text-xs text-parchment/75 mb-2 leading-relaxed">
+              {selectedHotspot.description}
+            </p>
+
+            {isGeneratingExplanation ? (
+              <div className="flex items-center gap-2 text-xs text-imperial-gold animate-pulse pt-2 border-t border-parchment/10">
+                <span className="inline-block h-3 w-3 animate-spin rounded-full border-2 border-imperial-gold border-t-transparent" />
+                <span>Consulting Groq AI for deep coordinate analysis…</span>
+              </div>
+            ) : hotspotAIExplanation ? (
+              <div className="pt-2 border-t border-imperial-gold/20 text-xs leading-relaxed text-parchment font-medium bg-imperial-gold/10 p-2.5 rounded-xl border border-imperial-gold/30">
+                <span className="font-bold text-imperial-gold block mb-0.5">💡 AI Hotspot Explainer:</span>
+                {hotspotAIExplanation}
+              </div>
+            ) : null}
+          </div>
+        </div>
+      )}
+
       {/* ─ Bottom Drawer: Hotspot Inspection & Actions ─── */}
       <aside className="absolute bottom-0 left-0 right-0 z-20 rounded-t-xl2 border-t border-imperial-gold/30 bg-obsidian-raised/95 p-4 shadow-gold-glow backdrop-blur">
         <div className="mb-3 flex items-center justify-between gap-3">
@@ -691,9 +829,59 @@ export default function InspectionHub({ navigate }) {
         </div>
 
         {/* Description Copy */}
-        <p className="min-h-12 text-xs sm:text-sm leading-6 text-parchment/85">
+        <p className="min-h-10 text-xs sm:text-sm leading-6 text-parchment/85">
           {activeTabText}
         </p>
+
+        {/* ─ Requirement 1 & 4: Explicit Text Submit & Voice Input Bar ─ */}
+        <form onSubmit={handleTextFormSubmit} className="mt-3 flex items-center gap-2">
+          <button
+            type="button"
+            onClick={handleMicToggle}
+            className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border transition-all ${
+              isMicActive || status === "listening"
+                ? "border-adwa-crimson bg-adwa-crimson text-white animate-pulse shadow-lg"
+                : "border-imperial-gold/40 bg-obsidian/80 text-imperial-gold hover:bg-imperial-gold/20"
+            }`}
+            aria-label="Toggle voice input"
+            title={isMicActive ? "Stop Listening & Send" : "Speak to Voice Guide"}
+          >
+            🎤
+          </button>
+
+          <input
+            type="text"
+            value={textQuery}
+            onChange={(e) => setTextQuery(e.target.value)}
+            placeholder={
+              status === "listening"
+                ? "Listening to your voice query…"
+                : status === "thinking"
+                ? "Thinking…"
+                : "Ask AI persona about Empress Taytu…"
+            }
+            className="flex-1 rounded-xl border border-imperial-gold/30 bg-obsidian/80 px-3.5 py-2 text-xs text-parchment placeholder-parchment/50 focus:border-imperial-gold focus:outline-none backdrop-blur"
+          />
+
+          <button
+            type="submit"
+            disabled={!textQuery.trim() || status === "thinking"}
+            className="flex h-10 px-4 items-center justify-center gap-1.5 rounded-xl border border-imperial-gold bg-imperial-gold text-obsidian font-bold text-xs shadow-gold-glow hover:bg-imperial-gold-light disabled:opacity-40 disabled:pointer-events-none transition-all"
+            aria-label="Send question"
+          >
+            <span>Send</span>
+            <span className="text-sm">➔</span>
+          </button>
+        </form>
+
+        {captions && (
+          <div className="mt-2 text-xs text-imperial-gold bg-imperial-gold/10 p-2 rounded-lg border border-imperial-gold/30 animate-fadeIn flex items-center justify-between">
+            <span>{captions}</span>
+            {status === "thinking" && (
+              <span className="inline-block h-3 w-3 animate-spin rounded-full border-2 border-imperial-gold border-t-transparent" />
+            )}
+          </div>
+        )}
 
         {/* Action Buttons */}
         <div className="mt-4 flex flex-wrap gap-2">
@@ -720,7 +908,7 @@ export default function InspectionHub({ navigate }) {
           )}
 
           <button type="button" className="adwa-btn-primary flex-1" onClick={openVoiceGuide}>
-            Ask Voice Guide
+            Full Voice Guide Overlay 🎙️
           </button>
         </div>
       </aside>

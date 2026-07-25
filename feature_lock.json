@@ -1,6 +1,6 @@
 {
   "project_name": "Adwa Lens — AI-Powered WebAR Museum Companion",
-  "last_updated": "2026-07-25T19:48:00+03:00",
+  "last_updated": "2026-07-25T21:57:07+03:00",
   "total_features": 30,
   "completed_count": 12,
   "features": [
@@ -423,19 +423,19 @@
       "id": "FEAT-019",
       "priority_rank": 19,
       "stream": "Stream A — WebGL/3D Asset Lead",
-      "name": "Emperor Menelik II & Empress Taytu Monument 3D Asset & Hotspots",
-      "description": "Integrate menelik_taytu_statue.glb model with multi-hotspot annotations for Velvet Kaba, Crown, Weaponry, and Taytu Banner.",
+      "name": "Empress Taytu Monument 3D Asset & Hotspots",
+      "description": "Integrate taytu_statue.glb model with multi-hotspot annotations for Royal Braided Hairstyle (Albaso), Ceremonial Kaba & Dress, Sheathed Royal Sword, and Strategic Command Gesture.",
       "spec_reference": "docs/GOVERNANCE.md Section 4.2 & docs/PHASES_AND_ROLES.md Section 1",
-      "status": "unlocked",
-      "claimed_by": null,
-      "claimed_at": null,
+      "status": "completed",
+      "claimed_by": "Antigravity",
+      "claimed_at": "2026-07-25T21:57:07+03:00",
       "estimated_hours": 4,
       "dependencies": [
         "FEAT-004",
         "FEAT-008"
       ],
       "deliverables": [
-        "frontend/public/models/menelik_taytu_statue.glb",
+        "frontend/public/models/taytu_statue.glb",
         "frontend/src/components/screens/InspectionHub.jsx"
       ],
       "verification_criteria": [

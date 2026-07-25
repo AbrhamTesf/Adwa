@@ -9,7 +9,7 @@ import { PERSONA_PROMPTS } from "../lib/personas.js";
 export default async function askGuideRoute(app) {
   app.post("/ask-guide", async (req, res) => {
     try {
-      const { transcript, exhibitContext, persona = "scholar" } = req.body;
+      const { transcript, exhibitContext, persona = "scholar" } = req.body || {};
       if (!transcript) return res.code(400).send({ error: true, message: "Missing 'transcript'" });
 
       const systemPrompt = `${PERSONA_PROMPTS[persona] || PERSONA_PROMPTS.scholar}
@@ -36,12 +36,14 @@ back to the exhibit's history, material, or cultural significance.`;
 
       if (!upstream.ok || !upstream.body) {
         const errText = await upstream.text();
+        console.error(`[ask-guide Error] Groq upstream status ${upstream.status}: ${errText}`);
         throw { status: upstream.status, message: errText, provider: "groq-llama" };
       }
 
       res.raw.writeHead(200, {
         "Content-Type": "text/event-stream",
         "Cache-Control": "no-cache",
+        "Access-Control-Allow-Origin": "*",
         Connection: "keep-alive"
       });
 
@@ -50,6 +52,7 @@ back to the exhibit's history, material, or cultural significance.`;
       }
       res.raw.end();
     } catch (err) {
+      console.error("[ask-guide Error]:", err);
       return normalizeError(res, err);
     }
   });

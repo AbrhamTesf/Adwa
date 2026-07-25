@@ -8,6 +8,7 @@
   },
   "dependencies": {
     "@fastify/cors": "^11.0.0",
+    "@fastify/multipart": "^10.1.0",
     "@fastify/static": "^10.1.2",
     "@google/generative-ai": "^0.24.1",
     "adwa-lens": "file:..",

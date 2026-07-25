@@ -1,5 +1,6 @@
 import Fastify from "fastify";
 import cors from "@fastify/cors";
+import multipart from "@fastify/multipart";
 import dotenv from "dotenv";
 import visionScanRoute from "./routes/vision-scan.js";
 import sttRoute from "./routes/stt.js";
@@ -13,6 +14,11 @@ const app = Fastify({ logger: true, bodyLimit: 10 * 1024 * 1024 });
 
 await app.register(cors, {
   origin: process.env.CORS_ORIGIN || "http://localhost:5173"
+});
+await app.register(multipart, {
+  limits: {
+    fileSize: 10 * 1024 * 1024 // 10 MB limit for audio file recordings
+  }
 });
 
 // Simple per-session rate limiting could be added here (Section: EDGE / SERVERLESS GATEWAY)

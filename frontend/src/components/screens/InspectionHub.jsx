@@ -1,4 +1,6 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { Component, Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { Canvas, useFrame } from "@react-three/fiber";
+import { Html, OrbitControls, useGLTF } from "@react-three/drei";
 import gsap from "gsap";
 import { PERSONAS } from "../../personas/personas";
 import { useExhibitStore } from "../../stores/useExhibitStore";
@@ -6,7 +8,7 @@ import { useSessionStore } from "../../stores/useSessionStore";
 import InteractiveModelViewer from "../ui/InteractiveModelViewer.jsx";
 
 /* ────────────────────────────────────────────────────────────
-   Constants
+   Constants & Metadata
    ──────────────────────────────────────────────────────────── */
 
 const TABS = [
@@ -16,15 +18,61 @@ const TABS = [
 ];
 
 /**
- * Exploded-view part definitions for the Shotel Sword.
- *
- * The shotel_sword.glb model contains two mesh nodes:
- *   • tripo_part_1 — upper blade geometry
- *   • tripo_part_0 — lower hilt / guard geometry
- *
- * A third "Leather Sheath" callout is rendered without a mesh
- * because the current model does not include a separate sheath node.
- * Its callout badge still appears for educational value.
+ * 4 Specific Pins for Empress Taytu Monument (FEAT-019)
+ */
+const TAYTU_HOTSPOTS = [
+  {
+    id: "albaso_braids",
+    title: "Royal Braided Hairstyle (Albaso)",
+    tag: "Craft & Tradition",
+    tab: "craft",
+    position: [0, 1.75, 0.1],
+    cameraTarget: [0, 1.75, 0.1],
+    cameraPos: [0, 1.85, 1.2],
+    description:
+      "Traditional Ethiopian royal braiding symbolizing dignity and leadership."
+  },
+  {
+    id: "kaba_dress",
+    title: "Ceremonial Kaba & Dress",
+    tag: "Material & Craft",
+    tab: "material",
+    position: [0, 1.15, 0.25],
+    cameraTarget: [0, 1.15, 0.25],
+    cameraPos: [0, 1.25, 1.5],
+    description:
+      "Heavy royal cloak with chest clasp and detailed belt medallion."
+  },
+  {
+    id: "royal_sword",
+    title: "Sheathed Royal Sword",
+    tag: "Military Command",
+    tab: "usage",
+    position: [-0.35, 0.75, 0.1],
+    cameraTarget: [-0.35, 0.75, 0.1],
+    cameraPos: [-0.8, 0.85, 1.3],
+    description:
+      "Represents Empress Taytu's personal military command and troop deployment at Adwa."
+  },
+  {
+    id: "command_gesture",
+    title: "Strategic Command Gesture",
+    tag: "Strategic Mastermind",
+    tab: "usage",
+    position: [0.55, 1.05, 0.35],
+    cameraTarget: [0.55, 1.05, 0.35],
+    cameraPos: [0.9, 1.15, 1.4],
+    description:
+      "Outstretched pointing hand highlighting her strategic mastermind during the Battle of Adwa."
+  }
+];
+
+/** Default camera pose */
+const DEFAULT_CAMERA_POS = [0, 1.2, 3.2];
+const DEFAULT_CAMERA_TARGET = [0, 0.6, 0];
+
+/**
+ * Exploded-view part definitions for Shotel Sword.
  */
 const EXPLODED_PARTS = [
   {
@@ -54,7 +102,108 @@ const EXPLODED_PARTS = [
 ];
 
 /* ────────────────────────────────────────────────────────────
-   Helpers
+   3D Canvas Subcomponents (R3F)
+   ──────────────────────────────────────────────────────────── */
+
+/** React Error Boundary for Three.js Canvas */
+class CanvasErrorBoundary extends Component {
+  constructor(props) {
+    super(props);
+    this.state = { hasError: false, error: null };
+  }
+
+  static getDerivedStateFromError(error) {
+    return { hasError: true, error };
+  }
+
+  componentDidCatch(error, errorInfo) {
+    console.error("[InspectionHub Canvas Error]:", error, errorInfo);
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return this.props.fallback;
+    }
+    return this.props.children;
+  }
+}
+
+/** Suspense Fallback Loader */
+function CanvasLoader() {
+  return (
+    <Html center>
+      <div className="flex flex-col items-center justify-center rounded-xl border border-imperial-gold/40 bg-obsidian-raised/90 p-4 shadow-gold-glow backdrop-blur text-center text-parchment min-w-[200px]">
+        <div className="mb-2 h-8 w-8 animate-spin rounded-full border-2 border-imperial-gold border-t-transparent" />
+        <p className="font-display text-xs tracking-wider text-imperial-gold">Loading 3D Statue Mesh…</p>
+      </div>
+    </Html>
+  );
+}
+
+/** Taytu Monument 3D Mesh Loader using Drei useGLTF */
+function TaytuModelMesh({ glbUrl, selectedHotspotId, onSelectHotspot, isTaytu }) {
+  const { scene } = useGLTF(glbUrl || "/models/taytu_statue.glb");
+  const clonedScene = useMemo(() => scene.clone(), [scene]);
+
+  return (
+    <group position={[0, -0.6, 0]}>
+      <primitive object={clonedScene} scale={[1, 1, 1]} />
+      {isTaytu &&
+        TAYTU_HOTSPOTS.map((hotspot) => {
+          const isSelected = selectedHotspotId === hotspot.id;
+          return (
+            <group key={hotspot.id} position={hotspot.position}>
+              <Html position={[0, 0, 0]} center distanceFactor={8} zIndexRange={[100, 0]}>
+                <button
+                  type="button"
+                  aria-label={hotspot.title}
+                  className={`group relative flex items-center justify-center rounded-full transition-all duration-300 ${
+                    isSelected
+                      ? "h-9 w-9 bg-imperial-gold ring-4 ring-imperial-gold/40 shadow-gold-glow scale-110"
+                      : "h-7 w-7 bg-obsidian/85 border-2 border-imperial-gold/80 hover:scale-125 hover:bg-imperial-gold hover:text-obsidian"
+                  }`}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onSelectHotspot(hotspot);
+                  }}
+                >
+                  <span className={`text-xs font-bold ${isSelected ? "text-obsidian" : "text-imperial-gold group-hover:text-obsidian"}`}>
+                    ✦
+                  </span>
+                  <span className="pointer-events-none absolute bottom-full mb-2 hidden whitespace-nowrap rounded-md bg-obsidian-raised px-2.5 py-1 text-[0.7rem] text-parchment shadow-md border border-imperial-gold/30 group-hover:block">
+                    {hotspot.title}
+                  </span>
+                </button>
+              </Html>
+            </group>
+          );
+        })}
+    </group>
+  );
+}
+
+/** Smooth Camera Controller */
+function CameraController({ controlsRef, focusTarget, focusPos }) {
+  useFrame(() => {
+    if (!controlsRef.current) return;
+    const controls = controlsRef.current;
+    if (focusTarget && focusPos) {
+      controls.target.lerp(
+        { x: focusTarget[0], y: focusTarget[1] - 0.6, z: focusTarget[2] },
+        0.08
+      );
+      controls.object.position.lerp(
+        { x: focusPos[0], y: focusPos[1], z: focusPos[2] },
+        0.08
+      );
+      controls.update();
+    }
+  });
+  return null;
+}
+
+/* ────────────────────────────────────────────────────────────
+   Helper Functions for ModelViewer Fallback
    ──────────────────────────────────────────────────────────── */
 
 function normaliseHotspots(hotspotJson) {
@@ -64,19 +213,12 @@ function normaliseHotspots(hotspotJson) {
       ...hotspot
     }));
   }
-
   return Object.entries(hotspotJson ?? {}).map(([id, hotspot]) => ({
     id,
     ...hotspot
   }));
 }
 
-/**
- * Traverse the model-viewer's internal Three.js scene to locate the loaded
- * model container. model-viewer v3.x stores the Three.js ModelScene behind
- * a private Symbol. We enumerate symbols to find the one that exposes
- * `modelContainer` — the Object3D root holding all loaded glTF nodes.
- */
 function getModelScene(modelViewerEl) {
   if (!modelViewerEl) return null;
   try {
@@ -89,14 +231,11 @@ function getModelScene(modelViewerEl) {
       }
     }
   } catch {
-    /* swallow – scene access unsupported */
+    /* swallow */
   }
   return null;
 }
 
-/**
- * Recursively find a mesh/node with `name` inside the scene graph.
- */
 function findNodeByName(root, name) {
   if (!root) return null;
   if (root.name === name) return root;
@@ -110,60 +249,76 @@ function findNodeByName(root, name) {
 }
 
 /* ────────────────────────────────────────────────────────────
-   Component
+   Main Component: InspectionHub
    ──────────────────────────────────────────────────────────── */
 
-/** Screen 5 — 3D WebGL Inspection & Deep Hotspot Hub with Exploded View */
+/** Screen 5 — 3D WebGL Inspection & Deep Hotspot Hub */
 export default function InspectionHub({ navigate }) {
   /* ── Store selectors ───────────────────────────────────── */
   const exhibit = useExhibitStore((state) => state.activeExhibit);
   const isLoading = useExhibitStore((state) => state.isLoading);
   const scanError = useExhibitStore((state) => state.scanError);
+  const loadExhibit = useExhibitStore((state) => state.loadExhibit);
   const persona = useSessionStore((state) => state.persona);
   const setPersona = useSessionStore((state) => state.setPersona);
   const markVisited = useSessionStore((state) => state.markVisited);
 
   /* ── Local state ───────────────────────────────────────── */
-  const hotspots = useMemo(
-    () => normaliseHotspots(exhibit?.hotspot_json),
-    [exhibit?.hotspot_json]
-  );
   const [activeTab, setActiveTab] = useState("material");
   const [selectedHotspotId, setSelectedHotspotId] = useState(null);
   const [autoRotate, setAutoRotate] = useState(true);
   const [exploded, setExploded] = useState(false);
   const [modelReady, setModelReady] = useState(false);
+  const [glbError, setGlbError] = useState(false);
+
+  /* Camera focus state for R3F Canvas */
+  const [focusTarget, setFocusTarget] = useState(DEFAULT_CAMERA_TARGET);
+  const [focusPos, setFocusPos] = useState(DEFAULT_CAMERA_POS);
 
   /* ── Refs ───────────────────────────────────────────────── */
+  const controlsRef = useRef(null);
   const modelViewerRef = useRef(null);
-  /** Map of meshName → { x0, y0, z0 } initial position vectors */
   const initialPositionsRef = useRef({});
-  /** Map of meshName → Three.js node reference */
   const meshNodesRef = useRef({});
-  /** Active GSAP tweens for cleanup */
   const tweensRef = useRef([]);
 
   /* ── Derived values ────────────────────────────────────── */
-  const selectedHotspot = hotspots.find((h) => h.id === selectedHotspotId);
+  const exhibitId = exhibit?.exhibit_id || "taytu_statue";
+  const isTaytu = exhibitId === "taytu_statue" || exhibitId === "menelik_taytu_statue";
+  const isShotel = exhibitId === "shotel_sword";
   const isInstrument = exhibit?.category === "instrument";
-  const modelSource = exhibit?.glb_url || "/models/shotel_sword.glb";
-  const exhibitId = exhibit?.exhibit_id || "shotel_sword";
+
+  const hotspots = useMemo(() => {
+    if (isTaytu) return TAYTU_HOTSPOTS;
+    return normaliseHotspots(exhibit?.hotspot_json);
+  }, [exhibit?.hotspot_json, isTaytu]);
+
+  const selectedHotspot = hotspots.find((h) => h.id === selectedHotspotId);
+  const modelSource = exhibit?.glb_url || "/models/taytu_statue.glb";
   const posterPath = `/models/posters/${exhibitId}_poster.webp`;
+
   const exhibitTrivia =
     exhibit?.persona_scripts?.usage ||
     exhibit?.persona_scripts?.craft ||
-    "The Shotel's unique semi-circular crescent curve enabled Ethiopian warriors to reach around enemy shields during close-quarters combat at Adwa.";
+    "Empress Taytu Betul was key strategist of the Ethiopian forces during the Battle of Adwa.";
 
   const activeTabText =
+    selectedHotspot?.description ||
     selectedHotspot?.content?.[activeTab] ||
     selectedHotspot?.[activeTab] ||
     exhibit?.persona_scripts?.[activeTab] ||
-    "Select a glowing point on the artifact to explore its story.";
+    "Select a glowing hotspot on the monument to inspect historical details.";
 
-  /* ── Model load handler ────────────────────────────────── */
+  /* Ensure Taytu exhibit loads if activeExhibit is null */
+  useEffect(() => {
+    if (!exhibit && !isLoading) {
+      loadExhibit("taytu_statue");
+    }
+  }, [exhibit, isLoading, loadExhibit]);
+
+  /* ── Model load handler for model-viewer fallback ──────── */
   const handleModelLoad = useCallback(() => {
     setModelReady(true);
-
     const mvEl = modelViewerRef.current;
     const scene = getModelScene(mvEl);
     if (!scene?.modelContainer) return;
@@ -176,7 +331,6 @@ export default function InspectionHub({ navigate }) {
       if (!part.meshName) continue;
       const node = findNodeByName(container, part.meshName);
       if (node) {
-        /* Store the initial local-space position (x0, y0, z0) */
         positions[part.meshName] = {
           x0: node.position.x,
           y0: node.position.y,
@@ -190,11 +344,10 @@ export default function InspectionHub({ navigate }) {
     meshNodesRef.current = nodes;
   }, []);
 
-  /* ── Exploded-view GSAP animation ──────────────────────── */
+  /* ── Exploded-view GSAP animation for Shotel ──────────── */
   useEffect(() => {
-    if (!modelReady) return;
+    if (!modelReady || !isShotel) return;
 
-    /* Kill any in-flight tweens to prevent overlaps */
     tweensRef.current.forEach((t) => t.kill());
     tweensRef.current = [];
 
@@ -221,9 +374,12 @@ export default function InspectionHub({ navigate }) {
         duration: 0.8,
         ease: "power3.inOut",
         onUpdate: () => {
-          /* Force model-viewer to re-render after each GSAP frame */
           if (mvEl) {
-            try { mvEl.requestUpdate?.(); } catch { /* noop */ }
+            try {
+              mvEl.requestUpdate?.();
+            } catch {
+              /* noop */
+            }
             mvEl.dispatchEvent?.(new CustomEvent("camera-change"));
           }
         }
@@ -231,20 +387,34 @@ export default function InspectionHub({ navigate }) {
       tweensRef.current.push(tween);
     }
 
-    /* Pause auto-rotate during exploded mode so parts stay visible */
     if (exploded) setAutoRotate(false);
 
     return () => {
       tweensRef.current.forEach((t) => t.kill());
       tweensRef.current = [];
     };
-  }, [exploded, modelReady]);
+  }, [exploded, modelReady, isShotel]);
 
   /* ── Interaction handlers ──────────────────────────────── */
   function chooseHotspot(hotspot) {
     setSelectedHotspotId(hotspot.id);
     setActiveTab(hotspot.tab || "material");
     setAutoRotate(false);
+
+    if (hotspot.cameraTarget && hotspot.cameraPos) {
+      setFocusTarget(hotspot.cameraTarget);
+      setFocusPos(hotspot.cameraPos);
+    }
+  }
+
+  function handleResetCamera() {
+    setSelectedHotspotId(null);
+    setFocusTarget(DEFAULT_CAMERA_TARGET);
+    setFocusPos(DEFAULT_CAMERA_POS);
+    setAutoRotate(true);
+    if (controlsRef.current) {
+      controlsRef.current.reset();
+    }
   }
 
   function handleModelInteraction() {
@@ -292,47 +462,109 @@ export default function InspectionHub({ navigate }) {
     );
   }
 
+  /* Fallback Card when GLB fails to render */
+  const canvasFallbackUI = (
+    <div className="grid h-full w-full place-items-center bg-obsidian bg-adwa-geometry p-6 text-center text-parchment">
+      <div className="max-w-md rounded-2xl border border-imperial-gold/40 bg-obsidian-raised/90 p-6 shadow-gold-glow">
+        <span className="mb-2 inline-block text-3xl">🗿</span>
+        <h3 className="font-display text-lg text-imperial-gold mb-2">
+          {exhibit?.name || "Empress Taytu Monument"}
+        </h3>
+        <p className="text-xs text-parchment/80 mb-4">
+          3D WebGL preview fallback active. You can still inspect historical hotspots and query the AI voice guide below.
+        </p>
+        <button
+          type="button"
+          className="adwa-btn-secondary text-xs"
+          onClick={() => setGlbError(false)}
+        >
+          Retry 3D Render
+        </button>
+      </div>
+    </div>
+  );
+
   /* ── Main render ───────────────────────────────────────── */
   return (
     <section className="relative min-h-screen overflow-hidden bg-obsidian text-parchment">
-      {/* ─ 3D Canvas ─────────────────────────────────────── */}
-      <InteractiveModelViewer
-        ref={modelViewerRef}
-        modelPath={modelSource}
-        posterPath={posterPath}
-        altText={exhibit?.name || "Shotel curved sword"}
-        exhibitTrivia={exhibitTrivia}
-        containerClassName="relative h-[72vh] w-full"
-        className="h-full w-full bg-adwa-geometry"
-        autoRotate={autoRotate}
-        cameraControls
-        shadowIntensity="1"
-        exposure="1"
-        onPointerDown={handleModelInteraction}
-        onTouchStart={handleModelInteraction}
-        onLoad={handleModelLoad}
-      >
-        {hotspots.map((hotspot) => (
-          <button
-            key={hotspot.id}
-            slot={`hotspot-${hotspot.id}`}
-            data-position={hotspot.position}
-            data-normal={hotspot.normal}
-            type="button"
-            aria-label={`Open ${hotspot.label || hotspot.id} details`}
-            aria-pressed={selectedHotspotId === hotspot.id}
-            className={`grid h-7 w-7 place-items-center rounded-full border-2 border-parchment bg-imperial-gold text-xs text-obsidian shadow-gold-glow transition hover:scale-110 focus:outline-none focus:ring-2 focus:ring-parchment ${
-              selectedHotspotId === hotspot.id ? "scale-125 ring-2 ring-parchment" : "animate-pulse"
-            }`}
-            onClick={() => chooseHotspot(hotspot)}
-          >
-            +
-          </button>
-        ))}
-      </InteractiveModelViewer>
+      {/* ─ 3D Canvas / Model Container ──────────────────── */}
+      <div className="relative h-[72vh] w-full">
+        {!glbError ? (
+          <CanvasErrorBoundary fallback={canvasFallbackUI}>
+            <Canvas
+              shadows
+              camera={{ position: DEFAULT_CAMERA_POS, fov: 45 }}
+              className="h-full w-full bg-adwa-geometry"
+              onPointerDown={handleModelInteraction}
+              onError={() => setGlbError(true)}
+            >
+              {/* Carved stone highlighting lights */}
+              <ambientLight intensity={0.7} />
+              <directionalLight
+                position={[5, 8, 5]}
+                intensity={1.5}
+                castShadow
+                shadow-mapSize-width={1024}
+                shadow-mapSize-height={1024}
+              />
+              <directionalLight position={[-5, -2, -3]} intensity={0.4} color="#ffd700" />
+              <hemisphereLight intensity={0.4} groundColor="#1a0f00" />
 
-      {/* ─ Floating Exploded-View Callout Cards ──────────── */}
-      {exploded && (
+              {/* Suspense Wrapper */}
+              <Suspense fallback={<CanvasLoader />}>
+                <TaytuModelMesh
+                  glbUrl={modelSource}
+                  selectedHotspotId={selectedHotspotId}
+                  onSelectHotspot={chooseHotspot}
+                  isTaytu={isTaytu}
+                />
+              </Suspense>
+
+              {/* Orbit Controls with Smooth Damping */}
+              <OrbitControls
+                ref={controlsRef}
+                enableDamping
+                dampingFactor={0.05}
+                autoRotate={autoRotate}
+                autoRotateSpeed={1.2}
+                minDistance={1.2}
+                maxDistance={6.0}
+                minPolarAngle={Math.PI / 6}
+                maxPolarAngle={Math.PI / 2 + 0.1}
+                target={DEFAULT_CAMERA_TARGET}
+              />
+
+              {/* Camera lerp controller */}
+              <CameraController
+                controlsRef={controlsRef}
+                focusTarget={focusTarget}
+                focusPos={focusPos}
+              />
+            </Canvas>
+          </CanvasErrorBoundary>
+        ) : (
+          canvasFallbackUI
+        )}
+      </div>
+
+      {/* ─ Exploded-View ModelViewer Fallback for Shotel Sword ── */}
+      {isShotel && (
+        <InteractiveModelViewer
+          ref={modelViewerRef}
+          modelPath={modelSource}
+          posterPath={posterPath}
+          altText={exhibit?.name || "Shotel curved sword"}
+          exhibitTrivia={exhibitTrivia}
+          containerClassName="hidden"
+          className="h-full w-full"
+          autoRotate={autoRotate}
+          cameraControls
+          onLoad={handleModelLoad}
+        />
+      )}
+
+      {/* ─ Floating Exploded-View Callout Cards (Shotel only) ─ */}
+      {exploded && isShotel && (
         <div className="pointer-events-none absolute inset-0 z-30" aria-live="polite">
           {EXPLODED_PARTS.map((part, i) => (
             <div
@@ -345,10 +577,7 @@ export default function InspectionHub({ navigate }) {
                 animation: `calloutFadeIn 0.35s ${i * 0.1}s both ease-out`
               }}
             >
-              {/* Connector dot */}
               <div className="absolute -left-1 top-1/2 h-2 w-2 -translate-y-1/2 rounded-full bg-imperial-gold shadow-gold-glow" />
-
-              {/* Card */}
               <div className="ml-3 max-w-[11rem] rounded-xl border border-imperial-gold/40 bg-obsidian/85 px-3 py-2.5 shadow-gold-glow backdrop-blur-lg">
                 <div className="mb-1 flex items-center gap-1.5">
                   <span className="text-sm" aria-hidden="true">{part.icon}</span>
@@ -365,27 +594,33 @@ export default function InspectionHub({ navigate }) {
         </div>
       )}
 
-      {/* ─ Top Bar: Exhibit Title + Persona Chips ────────── */}
+      {/* ─ Top Bar: Title, Category & Persona Selector ─── */}
       <div className="absolute left-4 top-4 right-4 flex items-start justify-between gap-3 z-20">
-        <div className="max-w-[70%] rounded-xl2 border border-imperial-gold/30 bg-obsidian/80 px-4 py-3 backdrop-blur">
-          <p className="text-xs uppercase tracking-[0.18em] text-imperial-gold">3D inspection</p>
-          <h1 className="font-display text-lg">{exhibit?.name || "Shotel Curved Sword"}</h1>
-          <p className="mt-1 text-xs text-parchment/65">
-            {exploded
-              ? "Exploded view — sub-components separated"
-              : autoRotate
-              ? "Drag or pinch to inspect"
-              : "Manual orbit and pinch zoom enabled"}
+        <div className="max-w-[70%] rounded-xl2 border border-imperial-gold/30 bg-obsidian/80 px-4 py-3 backdrop-blur shadow-md">
+          <div className="flex items-center gap-2">
+            <p className="text-[0.65rem] uppercase tracking-[0.18em] text-imperial-gold font-semibold">
+              3D Inspection
+            </p>
+            <span className="rounded-full bg-imperial-gold/20 px-2 py-0.5 text-[0.65rem] text-imperial-gold border border-imperial-gold/30">
+              {exhibit?.category || "Monument"}
+            </span>
+          </div>
+          <h1 className="font-display text-base sm:text-lg text-parchment">
+            {exhibit?.name || "Empress Taytu Monument"}
+          </h1>
+          <p className="mt-0.5 text-[0.7rem] text-parchment/65">
+            {autoRotate ? "Orbiting — click pins to inspect regalia" : "Interactive camera active"}
           </p>
         </div>
-        <div className="flex rounded-xl2 border border-imperial-gold/30 bg-obsidian/80 p-1 backdrop-blur">
+
+        <div className="flex rounded-xl2 border border-imperial-gold/30 bg-obsidian/80 p-1 backdrop-blur shadow-md">
           {PERSONAS.map((personaOption) => (
             <button
               key={personaOption.id}
               type="button"
               className={`grid h-9 w-9 place-items-center rounded-lg text-base transition ${
                 persona === personaOption.id
-                  ? "bg-imperial-gold text-obsidian"
+                  ? "bg-imperial-gold text-obsidian shadow-gold-glow font-bold"
                   : "text-parchment hover:bg-obsidian-overlay"
               }`}
               aria-label={`Switch to ${personaOption.label}`}
@@ -398,97 +633,94 @@ export default function InspectionHub({ navigate }) {
         </div>
       </div>
 
-      {/* ─ Bottom Drawer: Hotspot Details + Action Buttons ─ */}
+      {/* ─ Bottom Drawer: Hotspot Inspection & Actions ─── */}
       <aside className="absolute bottom-0 left-0 right-0 z-20 rounded-t-xl2 border-t border-imperial-gold/30 bg-obsidian-raised/95 p-4 shadow-gold-glow backdrop-blur">
         <div className="mb-3 flex items-center justify-between gap-3">
           <div>
-            <p className="text-xs uppercase tracking-[0.15em] text-imperial-gold">Hotspot details</p>
-            <h2 className="font-display text-base">{selectedHotspot?.label || "Explore the artifact"}</h2>
+            <p className="text-[0.65rem] uppercase tracking-[0.15em] text-imperial-gold font-semibold">
+              {selectedHotspot?.tag || "Hotspot Details"}
+            </p>
+            <h2 className="font-display text-base text-parchment">
+              {selectedHotspot?.title || selectedHotspot?.label || "Empress Taytu Betul Monument"}
+            </h2>
           </div>
-          {!autoRotate && (
+          <div className="flex items-center gap-2">
             <button
               type="button"
-              className="text-xs text-imperial-gold underline underline-offset-4"
-              onClick={() => setAutoRotate(true)}
+              className="flex items-center gap-1.5 rounded-full border border-imperial-gold/50 bg-obsidian/80 px-3 py-1.5 text-xs text-imperial-gold shadow-sm backdrop-blur hover:bg-imperial-gold hover:text-obsidian transition-colors"
+              onClick={handleResetCamera}
             >
-              Resume rotation
+              <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.035 8.035 0 01-15.357-2m15.357 2H15"
+                />
+              </svg>
+              Reset Camera View
             </button>
-          )}
+          </div>
         </div>
 
-        <div className="mb-3 flex gap-1 overflow-x-auto border-b border-parchment/15" role="tablist" aria-label="Artifact detail tabs">
+        {/* Tab Selection */}
+        <div
+          className="mb-3 flex gap-1 overflow-x-auto border-b border-parchment/15"
+          role="tablist"
+          aria-label="Artifact detail tabs"
+        >
           {TABS.map((tab) => (
             <button
               key={tab.id}
               type="button"
               role="tab"
               aria-selected={activeTab === tab.id}
-              className={`shrink-0 border-b-2 px-3 py-2 text-sm transition ${
+              className={`shrink-0 border-b-2 px-3 py-1.5 text-xs sm:text-sm transition ${
                 activeTab === tab.id
-                  ? "border-imperial-gold text-imperial-gold"
+                  ? "border-imperial-gold text-imperial-gold font-semibold"
                   : "border-transparent text-parchment/65 hover:text-parchment"
               }`}
               onClick={() => setActiveTab(tab.id)}
             >
-              <span aria-hidden="true" className="mr-1.5">{tab.icon}</span>
+              <span aria-hidden="true" className="mr-1.5">
+                {tab.icon}
+              </span>
               {tab.label}
             </button>
           ))}
         </div>
 
-        <p className="min-h-12 text-sm leading-6 text-parchment/85">{activeTabText}</p>
+        {/* Description Copy */}
+        <p className="min-h-12 text-xs sm:text-sm leading-6 text-parchment/85">
+          {activeTabText}
+        </p>
 
+        {/* Action Buttons */}
         <div className="mt-4 flex flex-wrap gap-2">
-          {/* ── Exploded-View / Assemble Toggle ──────────── */}
-          <button
-            id="exploded-view-toggle"
-            type="button"
-            aria-pressed={exploded}
-            className={`flex flex-1 items-center justify-center gap-2 rounded-full border px-5 py-3 text-sm font-semibold transition-all active:scale-95 ${
-              exploded
-                ? "border-imperial-gold bg-imperial-gold/15 text-imperial-gold shadow-gold-glow"
-                : "border-adwa-emerald bg-transparent text-adwa-emerald"
-            }`}
-            onClick={toggleExploded}
-          >
-            {/* Layer/Split SVG icon */}
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              className={`h-4 w-4 transition-transform ${exploded ? "rotate-180" : ""}`}
-              aria-hidden="true"
+          {isShotel && (
+            <button
+              id="exploded-view-toggle"
+              type="button"
+              aria-pressed={exploded}
+              className={`flex flex-1 items-center justify-center gap-2 rounded-full border px-5 py-3 text-xs sm:text-sm font-semibold transition-all active:scale-95 ${
+                exploded
+                  ? "border-imperial-gold bg-imperial-gold/15 text-imperial-gold shadow-gold-glow"
+                  : "border-adwa-emerald bg-transparent text-adwa-emerald"
+              }`}
+              onClick={toggleExploded}
             >
-              {exploded ? (
-                /* Assemble icon — layers collapsing */
-                <>
-                  <path d="M12 2 2 7l10 5 10-5-10-5Z" />
-                  <path d="m2 17 10 5 10-5" />
-                  <path d="m2 12 10 5 10-5" />
-                </>
-              ) : (
-                /* Exploded icon — layers expanding */
-                <>
-                  <path d="M12 2 2 7l10 5 10-5-10-5Z" />
-                  <path d="m2 17 10 5 10-5" opacity="0.5" />
-                  <path d="m2 12 10 5 10-5" opacity="0.7" />
-                </>
-              )}
-            </svg>
-            {exploded ? "Assemble" : "Exploded View"}
-          </button>
+              {exploded ? "Assemble" : "Exploded View"}
+            </button>
+          )}
 
           {isInstrument && (
             <button type="button" className="adwa-btn-secondary flex-1" onClick={openSensoryMode}>
               Sensory mode
             </button>
           )}
+
           <button type="button" className="adwa-btn-primary flex-1" onClick={openVoiceGuide}>
-            Ask a question
+            Ask Voice Guide
           </button>
         </div>
       </aside>

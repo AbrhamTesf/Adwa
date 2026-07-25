@@ -1,4 +1,4 @@
-import React, { forwardRef, useState } from 'react';
+import React, { forwardRef, useEffect, useRef, useState, useImperativeHandle } from 'react';
 
 /**
  * InteractiveModelViewer
@@ -26,17 +26,51 @@ const InteractiveModelViewer = forwardRef(function InteractiveModelViewer(
 ) {
   const [loadProgress, setLoadProgress] = useState(0);
   const [isLoaded, setIsLoaded] = useState(false);
+  const internalRef = useRef(null);
 
-  function handleProgress(e) {
-    const progress = Math.round((e.detail?.totalProgress || 0) * 100);
-    setLoadProgress(progress);
-    if (onProgress) onProgress(e);
-  }
+  // Expose internal ref to parent component
+  useImperativeHandle(ref, () => internalRef.current);
 
-  function handleLoad(e) {
-    setIsLoaded(true);
-    if (onLoad) onLoad(e);
-  }
+  useEffect(() => {
+    const el = internalRef.current;
+    if (!el) return;
+
+    // Reset loading state when modelPath changes
+    setIsLoaded(false);
+    setLoadProgress(0);
+
+    const handleModelLoad = (e) => {
+      console.log('[InteractiveModelViewer] 3D Model loaded successfully:', modelPath);
+      setIsLoaded(true);
+      if (onLoad) onLoad(e);
+    };
+
+    const handleModelProgress = (e) => {
+      const progress = Math.round((e.detail?.totalProgress || 0) * 100);
+      setLoadProgress(progress);
+      if (onProgress) onProgress(e);
+    };
+
+    const handleModelError = (e) => {
+      console.error('[InteractiveModelViewer] Error loading 3D model:', modelPath, e);
+    };
+
+    // Attach native DOM event listeners for Web Component events
+    el.addEventListener('load', handleModelLoad);
+    el.addEventListener('progress', handleModelProgress);
+    el.addEventListener('error', handleModelError);
+
+    // If model-viewer already finished loading before listeners attached
+    if (el.loaded) {
+      handleModelLoad({ target: el });
+    }
+
+    return () => {
+      el.removeEventListener('load', handleModelLoad);
+      el.removeEventListener('progress', handleModelProgress);
+      el.removeEventListener('error', handleModelError);
+    };
+  }, [modelPath, onLoad, onProgress]);
 
   return (
     <div className={containerClassName}>
@@ -44,7 +78,7 @@ const InteractiveModelViewer = forwardRef(function InteractiveModelViewer(
       <div className="absolute inset-0 bg-radial from-amber-500/20 via-yellow-600/10 to-transparent blur-3xl rounded-full pointer-events-none" />
 
       <model-viewer
-        ref={ref}
+        ref={internalRef}
         src={modelPath}
         poster={posterPath}
         alt={altText}
@@ -55,8 +89,6 @@ const InteractiveModelViewer = forwardRef(function InteractiveModelViewer(
         touch-action="pan-y"
         shadow-intensity={shadowIntensity}
         exposure={exposure}
-        onProgress={handleProgress}
-        onLoad={handleLoad}
         class={className}
         style={{
           width: '100%',

@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "node index.js"
+    "dev": "node --watch index.js"
   },
   "dependencies": {
     "@fastify/cors": "^11.0.0",

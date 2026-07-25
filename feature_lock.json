@@ -404,9 +404,9 @@
       "name": "Interactive Quiz Engine & Digital Badge Unlock",
       "description": "Build multiple-choice quiz engine (3-5 questions on visited exhibits) and digital badge unlock logic integrated into MemoryDeck.jsx.",
       "spec_reference": "docs/adwa_lens_architecture.md Section 2 'Screen 8 — Quiz & Badges'",
-      "status": "unlocked",
-      "claimed_by": null,
-      "claimed_at": null,
+      "status": "completed",
+      "claimed_by": "Antigravity",
+      "claimed_at": "2026-07-25T21:25:00+03:00",
       "estimated_hours": 4,
       "dependencies": [
         "FEAT-011"

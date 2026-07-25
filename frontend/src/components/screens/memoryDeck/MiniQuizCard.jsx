@@ -21,6 +21,16 @@ const QUIZ_BANK = {
     correctIndex: 1,
     explanation: "The Negarit was a sacred imperial kettledrum sounded to announce royal edicts and summon defenders."
   },
+  taytu_statue: {
+    question: "What crucial tactical contribution did Empress Taytu Betul make at Adwa?",
+    options: [
+      "She remained in Addis Ababa directing supply lines",
+      "She commanded her own troops and cut off enemy water access at Mekelle",
+      "She negotiated a temporary armistice before the main battle"
+    ],
+    correctIndex: 1,
+    explanation: "Empress Taytu commanded her own force of 6,000 warriors and strategically seized the vital water supply."
+  },
   menelik_taytu_statue: {
     question: "What crucial tactical contribution did Empress Taytu Betul make at Adwa?",
     options: [

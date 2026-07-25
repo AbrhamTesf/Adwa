@@ -56,11 +56,13 @@ function toExhibitId(itemStr) {
   if (!itemStr) return "unknown";
   const s = String(itemStr).toLowerCase().trim().replace(/\s+/g, "_");
   if (s.includes("shotel") || s.includes("sword")) return "shotel_sword";
-  if (s.includes("menelik") || s.includes("statue") || s.includes("taytu")) return "menelik_taytu_statue";
+  if (s.includes("menelik") || s.includes("statue") || s.includes("taytu")) return "taytu_statue";
   if (s.includes("negarit") || s.includes("drum")) return "negarit_drum";
   if (s.includes("embilta")) return "embilta";
   if (s.includes("meleket")) return "meleket";
-  if (["shotel_sword", "menelik_taytu_statue", "negarit_drum", "embilta", "meleket"].includes(s)) return s;
+  if (["shotel_sword", "taytu_statue", "menelik_taytu_statue", "negarit_drum", "embilta", "meleket"].includes(s)) {
+    return s === "menelik_taytu_statue" ? "taytu_statue" : s;
+  }
   return s;
 }
 

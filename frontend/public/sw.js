@@ -11,9 +11,10 @@ const PRECACHE_ASSETS = [
   "/index.html",
   "/exhibits/shotel_sword.json",
   "/exhibits/negarit_drum.json",
-  "/exhibits/menelik_taytu_statue.json",
+  "/exhibits/taytu_statue.json",
   "/exhibits/embilta.json",
   "/exhibits/meleket.json",
+  "/models/taytu_statue.glb",
   "/models/shotel_sword.glb"
 ];
 

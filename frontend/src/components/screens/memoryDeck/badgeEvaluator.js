@@ -27,8 +27,12 @@ export const BADGE_CONFIG = [
     id: "royal_historian",
     title: "Royal Historian",
     icon: "👑",
-    description: "Explored Emperor Menelik II & Empress Taytu monument.",
-    check: (ids, quizScores) => ids.includes("menelik_taytu_statue") || Boolean(quizScores.menelik_taytu_statue)
+    description: "Explored Empress Taytu monument.",
+    check: (ids, quizScores) =>
+      ids.includes("taytu_statue") ||
+      ids.includes("menelik_taytu_statue") ||
+      Boolean(quizScores.taytu_statue) ||
+      Boolean(quizScores.menelik_taytu_statue)
   },
   {
     id: "ceremonial_herald",

@@ -26,8 +26,8 @@ const MASTER_QUESTION_BANK = [
     explanation: "The Negarit was a sacred ceremonial kettledrum whose deep reverberations proclaimed imperial edicts across mountain valleys."
   },
   {
-    exhibitId: "menelik_taytu_statue",
-    exhibitName: "Emperor Menelik II & Empress Taytu Monument",
+    exhibitId: "taytu_statue",
+    exhibitName: "Empress Taytu Monument",
     question: "Which critical strategic maneuver did Empress Taytu Betul execute during the campaign?",
     options: [
       "She remained in Shewa directing agricultural logistics",

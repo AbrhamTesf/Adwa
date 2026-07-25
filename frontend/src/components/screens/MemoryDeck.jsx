@@ -4,10 +4,11 @@ import { useSessionStore } from "../../stores/useSessionStore";
 import BadgeShelf from "./memoryDeck/BadgeShelf";
 import VisitedExhibitShelf from "./memoryDeck/VisitedExhibitShelf";
 import ShareExportModal from "./memoryDeck/ShareExportModal";
+import QuizEngineModal from "./memoryDeck/QuizEngineModal";
 
 /**
  * Screen 8 — Post-Tour Memory Deck & Engagement
- * FEAT-011: Visited exhibit cards, mini-quizzes, digital badge collection shelf,
+ * FEAT-011 & FEAT-018: Visited exhibit cards, interactive quiz engine, digital badge collection shelf,
  * share/export souvenir modal, cross-device recovery, and reset tour orchestration.
  */
 export default function MemoryDeck({ navigate }) {
@@ -17,6 +18,7 @@ export default function MemoryDeck({ navigate }) {
   const sessionSyncStatus = useSessionStore((s) => s.sessionSyncStatus);
 
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
+  const [isQuizModalOpen, setIsQuizModalOpen] = useState(false);
   const [showResetConfirm, setShowResetConfirm] = useState(false);
   const [quizScores, setQuizScores] = useState({});
   const [recoveryLink, setRecoveryLink] = useState("");
@@ -26,6 +28,13 @@ export default function MemoryDeck({ navigate }) {
     setQuizScores((prev) => ({
       ...prev,
       [exhibitId]: isCorrect
+    }));
+  }, []);
+
+  const handleQuizCompleted = useCallback((completedScores) => {
+    setQuizScores((prev) => ({
+      ...prev,
+      ...completedScores
     }));
   }, []);
 
@@ -72,8 +81,25 @@ export default function MemoryDeck({ navigate }) {
           <div className="adwa-divider mt-4 max-w-xs mx-auto" />
         </div>
 
+        {/* ---- Quiz Challenge Trigger Hero Card ---- */}
+        <div className="adwa-glass p-4 rounded-xl mb-6 border border-imperial-gold/40 flex items-center justify-between shadow-gold-glow">
+          <div>
+            <span className="text-[10px] font-bold uppercase tracking-wider text-imperial-gold">FEAT-018 Quiz Engine</span>
+            <h3 className="text-base font-display text-parchment">Interactive Museum Quiz</h3>
+            <p className="text-xs text-parchment/70">
+              Test your knowledge on visited exhibits to unlock special badges!
+            </p>
+          </div>
+          <button
+            onClick={() => setIsQuizModalOpen(true)}
+            className="adwa-btn-primary py-2.5 px-4 text-xs font-semibold whitespace-nowrap"
+          >
+            Take Quiz 🏆
+          </button>
+        </div>
+
         {/* ---- Digital Badge Shelf ---- */}
-        <BadgeShelf visitedExhibitIds={visitedExhibitIds} />
+        <BadgeShelf visitedExhibitIds={visitedExhibitIds} quizScores={quizScores} />
 
         {/* ---- Visited Exhibit Cards & Mini Quizzes ---- */}
         <VisitedExhibitShelf visitedExhibitIds={visitedExhibitIds} onAnswer={handleQuizAnswer} />
@@ -159,6 +185,14 @@ export default function MemoryDeck({ navigate }) {
           </button>
         )}
       </div>
+
+      {/* ---- Interactive Quiz Engine Modal ---- */}
+      <QuizEngineModal
+        isOpen={isQuizModalOpen}
+        onClose={() => setIsQuizModalOpen(false)}
+        visitedExhibitIds={visitedExhibitIds}
+        onCompleteQuiz={handleQuizCompleted}
+      />
 
       {/* ---- Share/Export Modal ---- */}
       <ShareExportModal

@@ -10,7 +10,7 @@ import { useSessionStore } from "../../stores/useSessionStore";
 const FLOOR_ROOMS = [
   { exhibitId: "adwa_war_map", label: "Strategy Room", x: 16, y: 24, w: 88, h: 64 },
   { exhibitId: "shotel_sword", label: "Metallurgy Hall", x: 116, y: 24, w: 88, h: 64 },
-  { exhibitId: "menelik_taytu_statue", label: "Royal Gallery", x: 216, y: 24, w: 88, h: 64 },
+  { exhibitId: "taytu_statue", label: "Taytu Monument", x: 216, y: 24, w: 88, h: 64 },
   { exhibitId: "meleket", label: "Victory Hall", x: 16, y: 156, w: 88, h: 64 },
   { exhibitId: "embilta", label: "Wind Hall", x: 116, y: 156, w: 88, h: 64 },
   { exhibitId: "negarit_drum", label: "Drum Court", x: 216, y: 156, w: 88, h: 64 }

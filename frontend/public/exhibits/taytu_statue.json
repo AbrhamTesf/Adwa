@@ -1,0 +1,44 @@
+{
+  "exhibit_id": "taytu_statue",
+  "name": "Empress Taytu Monument",
+  "category": "monument",
+  "glb_url": "/models/taytu_statue.glb",
+  "hotspot_json": {
+    "albaso_braids": {
+      "position": "0.05428 0.97797 -0.11938",
+      "normal": "0.34714 0.93776 0.00986",
+      "tab": "craft",
+      "label": "Royal Braided Hairstyle (Albaso)",
+      "description": "Traditional Ethiopian royal braiding symbolizing dignity and leadership."
+    },
+    "kaba_dress": {
+      "position": "0.01891 0.72217 0.01232",
+      "normal": "-0.09936 0.80335 0.58716",
+      "tab": "material",
+      "label": "Ceremonial Kaba & Embroidered Dress",
+      "description": "Heavy royal cloak with chest clasp and detailed belt medallion."
+    },
+    "royal_sword": {
+      "position": "0.16982 0.48360 0.00620",
+      "normal": "0.98575 0.09235 0.14059",
+      "tab": "usage",
+      "label": "Sheathed Royal Sword",
+      "description": "Represents Empress Taytu's personal military command and troop deployment at Adwa."
+    },
+    "command_gesture": {
+      "position": "-0.16792 0.76356 0.26134",
+      "normal": "0.24948 0.16754 0.95378",
+      "tab": "usage",
+      "label": "Strategic Command Gesture",
+      "description": "Outstretched pointing hand highlighting her strategic mastermind during the Battle of Adwa."
+    }
+  },
+  "persona_scripts": {
+    "material": "Carved stone monument adorned with traditional royal Kaba cloak, chest clasp, and embroidered Kemis with an ornate belt medallion.",
+    "craft": "Sculpted to honor Empress Taytu Betul's noble dignity, regal attire, and decisive military intelligence as Empress of Ethiopia.",
+    "usage": "Empress Taytu led her own 6,000-strong force at Adwa and devised the vital siege strategy that cut off the enemy's water supply at Meqele."
+  },
+  "audio_profile": {
+    "ambient": "/audio/royal-hymn.mp3"
+  }
+}

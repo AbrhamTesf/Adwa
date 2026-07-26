@@ -2,6 +2,7 @@ import Fastify from "fastify";
 import cors from "@fastify/cors";
 import cookie from "@fastify/cookie";
 import rateLimit from "@fastify/rate-limit";
+import multipart from "@fastify/multipart";
 import dotenv from "dotenv";
 import visionScanRoute from "./routes/vision-scan.js";
 import sttRoute from "./routes/stt.js";
@@ -43,6 +44,11 @@ app.addContentTypeParser("application/json", { parseAs: "string" }, (req, body, 
   } catch (error) {
     error.statusCode = 400;
     done(error, undefined);
+  }
+});
+await app.register(multipart, {
+  limits: {
+    fileSize: 10 * 1024 * 1024 // 10 MB limit for audio file recordings
   }
 });
 

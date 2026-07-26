@@ -331,7 +331,7 @@ async function generateItineraryRoute({ timeBudgetMinutes, interests }) {
   const CATALOG = [
     { exhibit_id: "adwa_war_map", name: "Adwa War Strategy Room", minutes: 8, category: "Military Strategy", tags: ["War Strategy"], crowdStatus: "Optimal" },
     { exhibit_id: "shotel_sword", name: "Shotel Sword & Metallurgy Hall", minutes: 12, category: "Weaponry", tags: ["Metallurgy", "War Strategy"], crowdStatus: "Optimal" },
-    { exhibit_id: "menelik_taytu_statue", name: "Imperial Royal Gallery", minutes: 10, category: "Monuments", tags: ["Royal History"], crowdStatus: "Moderate" },
+    { exhibit_id: "taytu_statue", name: "Empress Taytu Monument", minutes: 10, category: "Monuments", tags: ["Royal History"], crowdStatus: "Moderate" },
     { exhibit_id: "negarit_drum", name: "Negarit Ceremonial Drum", minutes: 9, category: "Cultural Instruments", tags: ["Music & Culture"], crowdStatus: "Optimal" },
     { exhibit_id: "embilta", name: "Embilta Ceremonial Horn", minutes: 7, category: "Cultural Instruments", tags: ["Music & Culture"], crowdStatus: "Optimal" },
     { exhibit_id: "meleket", name: "Meleket Victory Trumpet", minutes: 6, category: "Cultural Instruments", tags: ["Music & Culture"], crowdStatus: "Optimal" }

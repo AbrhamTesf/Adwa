@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useNetworkStatus } from "./hooks/useNetworkStatus";
 import { getRecoveryTokenFromHash, startSessionSync } from "./lib/sessionSync";
 import { startAnalytics, trackEvent } from "./lib/analytics";
@@ -16,7 +16,20 @@ import ContentManager from "./components/admin/ContentManager.jsx";
 import AnalyticsDashboard from "./components/admin/AnalyticsDashboard.jsx";
 import StaffManager from "./components/admin/StaffManager.jsx";
 
-const SCREENS = { landing: Landing, planner: ItineraryPlanner, navigation: LiveNavigation, scanner: CameraScanner, inspection: InspectionHub, sensory: SensoryHub, voiceGuide: VoiceGuideOverlay, memoryDeck: MemoryDeck, resumeTour: ResumeTour, cms: ContentManager, analytics: AnalyticsDashboard, staff: StaffManager };
+const SCREENS = {
+  landing: Landing,
+  planner: ItineraryPlanner,
+  navigation: LiveNavigation,
+  scanner: CameraScanner,
+  inspection: InspectionHub,
+  sensory: SensoryHub,
+  voiceGuide: VoiceGuideOverlay,
+  memoryDeck: MemoryDeck,
+  resumeTour: ResumeTour,
+  cms: ContentManager,
+  analytics: AnalyticsDashboard,
+  staff: StaffManager
+};
 
 export default function App() {
   useNetworkStatus();
@@ -24,15 +37,73 @@ export default function App() {
   const [screen, setScreen] = useState(recoveryToken ? "resumeTour" : "landing");
   const ScreenComponent = SCREENS[screen] || Landing;
 
-  useEffect(() => startSessionSync(), []);
+  const navigate = (nextScreen, options = {}) => {
+    if (nextScreen === screen) return;
+    if (!options.replace) {
+      try {
+        window.history.pushState({ screen: nextScreen }, "", `#${nextScreen}`);
+      } catch {
+        /* fallback for environments restricting pushState */
+      }
+    }
+    setScreen(nextScreen);
+  };
+
+  useEffect(() => {
+    try {
+      window.history.replaceState({ screen }, "", `#${screen}`);
+    } catch {
+      /* fallback */
+    }
+
+    const handlePopState = (e) => {
+      const targetScreen = e.state?.screen;
+      if (targetScreen && SCREENS[targetScreen]) {
+        setScreen(targetScreen);
+      } else {
+        // Requirement 2: Browser / Phone Back Button Guard for active tour screens
+        if (["inspection", "sensory", "voiceGuide"].includes(screen)) {
+          setScreen("scanner");
+          try {
+            window.history.pushState({ screen: "scanner" }, "", "#scanner");
+          } catch {
+            /* noop */
+          }
+        } else if (["scanner", "navigation", "planner"].includes(screen)) {
+          const confirmExit = window.confirm("Exit active tour and return to main landing page?");
+          if (confirmExit) {
+            setScreen("landing");
+          } else {
+            try {
+              window.history.pushState({ screen }, "", `#${screen}`);
+            } catch {
+              /* noop */
+            }
+          }
+        } else {
+          setScreen("landing");
+        }
+      }
+    };
+
+    window.addEventListener("popstate", handlePopState);
+    return () => window.removeEventListener("popstate", handlePopState);
+  }, [screen]);
+
+  useEffect(() => {
+    return startSessionSync();
+  }, []);
+
   useEffect(() => startAnalytics(), []);
+
   useEffect(() => {
     trackEvent("screen_viewed", { exhibitId: screen });
   }, [screen]);
+
   return (
     <div className="min-h-screen w-full">
-      <ScreenComponent navigate={setScreen} recoveryToken={recoveryToken} />
-      <AuthProfileMenu navigate={setScreen} availableScreens={SCREENS} />
+      <ScreenComponent navigate={navigate} recoveryToken={recoveryToken} />
+      <AuthProfileMenu navigate={navigate} availableScreens={SCREENS} />
     </div>
   );
 }

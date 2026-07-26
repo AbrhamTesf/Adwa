@@ -1,21 +1,27 @@
 /**
- * ElevenLabs streaming TTS proxy. Client falls back to
- * window.speechSynthesis if this call fails (offline/quota).
+ * ElevenLabs streaming TTS proxy with auto-fallback and CORS protection.
+ * Client falls back to window.speechSynthesis if this call fails (offline/quota).
  */
 import { normalizeError } from "../lib/errors.js";
 import { PERSONA_VOICE_IDS } from "../lib/personas.js";
 
+const DEFAULT_PUBLIC_VOICE_ID = "cgSgspJ2msm6clMCkdW9"; // Jessica (Playful, Warm)
+
 export default async function ttsStreamRoute(app) {
   app.post("/tts-stream", async (req, res) => {
     try {
-      const { text, persona = "scholar", voiceId } = req.body;
+      const { text, persona = "scholar", voiceId } = req.body || {};
       if (!text) return res.code(400).send({ error: true, message: "Missing 'text'" });
 
-      const resolvedVoiceId = voiceId || PERSONA_VOICE_IDS[persona] || PERSONA_VOICE_IDS.scholar;
+      let resolvedVoiceId = voiceId || PERSONA_VOICE_IDS[persona] || PERSONA_VOICE_IDS.scholar || DEFAULT_PUBLIC_VOICE_ID;
 
-      const upstream = await fetch(
-        `https://api.elevenlabs.io/v1/text-to-speech/${resolvedVoiceId}/stream`,
-        {
+      // Sanitize placeholder / invalid voice IDs
+      if (!resolvedVoiceId || resolvedVoiceId.startsWith("voice_id_") || resolvedVoiceId.length < 15) {
+        resolvedVoiceId = DEFAULT_PUBLIC_VOICE_ID;
+      }
+
+      const attemptTts = async (vId) => {
+        return await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${vId}/stream`, {
           method: "POST",
           headers: {
             "xi-api-key": process.env.ELEVENLABS_API_KEY,
@@ -26,20 +32,33 @@ export default async function ttsStreamRoute(app) {
             model_id: "eleven_turbo_v2",
             voice_settings: { stability: 0.4, similarity_boost: 0.8 }
           })
-        }
-      );
+        });
+      };
+
+      let upstream = await attemptTts(resolvedVoiceId);
+
+      // Automatic fallback if initial voice ID is restricted or invalid
+      if (!upstream.ok && resolvedVoiceId !== DEFAULT_PUBLIC_VOICE_ID) {
+        console.warn(`[tts-stream] Voice ID '${resolvedVoiceId}' returned status ${upstream.status}. Retrying with default voice: ${DEFAULT_PUBLIC_VOICE_ID}`);
+        upstream = await attemptTts(DEFAULT_PUBLIC_VOICE_ID);
+      }
 
       if (!upstream.ok || !upstream.body) {
         const errText = await upstream.text();
+        console.error(`[tts-stream Error] ElevenLabs returned ${upstream.status}: ${errText}`);
         throw { status: upstream.status, message: errText, provider: "elevenlabs" };
       }
 
       res.header("Content-Type", "audio/mpeg");
+      res.header("Cache-Control", "no-cache");
+      res.header("Access-Control-Allow-Origin", "*");
+
       for await (const chunk of upstream.body) {
         res.raw.write(chunk);
       }
       res.raw.end();
     } catch (err) {
+      console.error("[tts-stream Error]:", err);
       return normalizeError(res, err);
     }
   });

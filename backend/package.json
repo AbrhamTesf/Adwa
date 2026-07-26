@@ -4,7 +4,8 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "node index.js",
+    "dev": "node --watch index.js",
+    "postinstall": "prisma generate",
     "db:generate": "prisma generate",
     "db:migrate": "prisma migrate dev",
     "db:deploy": "prisma migrate deploy",
@@ -14,6 +15,7 @@
   "dependencies": {
     "@fastify/cookie": "^11.1.2",
     "@fastify/cors": "^11.0.0",
+    "@fastify/multipart": "^10.1.0",
     "@fastify/rate-limit": "^11.1.0",
     "@fastify/static": "^10.1.2",
     "@google/generative-ai": "^0.24.1",
@@ -25,9 +27,11 @@
     "fastify": "^5.10.0",
     "jsonwebtoken": "^9.0.3",
     "node-fetch": "^3.3.2",
-    "pg": "^8.22.0"
-  },
-  "devDependencies": {
+    "pg": "^8.22.0",
     "prisma": "^7.9.0"
+  },
+  "overrides": {
+    "find-my-way": "^9.7.0",
+    "valibot": "^1.4.2"
   }
 }

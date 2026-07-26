@@ -11,6 +11,8 @@
   },
   "dependencies": {
     "@google/model-viewer": "^3.5.0",
+    "@react-three/drei": "^9.122.0",
+    "@react-three/fiber": "^8.18.0",
     "adwa-lens": "file:..",
     "gsap": "^3.12.5",
     "idb-keyval": "^6.2.1",

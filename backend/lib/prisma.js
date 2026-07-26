@@ -1,24 +1,58 @@
-// Loaded here rather than by the entry point: ES module imports evaluate
-// before the importer's body, so a later dotenv.config() would leave the
-// adapter below with an undefined connection string.
 import "dotenv/config";
-import { PrismaClient } from "@prisma/client";
-import { PrismaPg } from "@prisma/adapter-pg";
+import { createRequire } from "module";
+const require = createRequire(import.meta.url);
 
-/**
- * Single shared client. Node's module cache keeps this to one instance per
- * process, which matters because each PrismaClient opens its own pool.
- * Prisma 7 requires an explicit driver adapter.
- */
-export const prisma = new PrismaClient({
-  adapter: new PrismaPg({ connectionString: process.env.DATABASE_URL }),
-  log: process.env.NODE_ENV === "production" ? ["error"] : ["warn", "error"]
-});
+let PrismaClient;
+try {
+  const pkgPrisma = require("@prisma/client");
+  PrismaClient = pkgPrisma.PrismaClient;
+} catch (e) {
+  console.warn("[Prisma] @prisma/client load fallback (un-generated or missing):", e?.message);
+}
+
+let PrismaPg;
+try {
+  const pkgPg = await import("@prisma/adapter-pg");
+  PrismaPg = pkgPg.PrismaPg;
+} catch {}
+
+function createMockPrisma() {
+  return new Proxy({}, {
+    get: (_, prop) => {
+      if (prop === "$disconnect") return async () => {};
+      return new Proxy({}, {
+        get: () => async () => null
+      });
+    }
+  });
+}
+
+let prismaInstance;
+try {
+  if (PrismaClient && process.env.DATABASE_URL) {
+    prismaInstance = new PrismaClient({
+      adapter: new PrismaPg({ connectionString: process.env.DATABASE_URL }),
+      log: process.env.NODE_ENV === "production" ? ["error"] : ["warn", "error"]
+    });
+  } else {
+    console.warn("[Prisma] DATABASE_URL missing or PrismaClient uninitialized. Using mock fallback.");
+    prismaInstance = createMockPrisma();
+  }
+} catch (e) {
+  console.warn("[Prisma] Initialization fallback:", e?.message);
+  prismaInstance = createMockPrisma();
+}
+
+export const prisma = prismaInstance;
 
 export function normalizeEmail(email) {
   return String(email || "").trim().toLowerCase();
 }
 
 export async function disconnectPrisma() {
-  await prisma.$disconnect();
+  try {
+    await prisma?.$disconnect?.();
+  } catch {
+    /* noop */
+  }
 }

@@ -45,10 +45,30 @@ export default {
       },
       boxShadow: {
         "gold-glow": "0 0 24px rgba(212,175,55,0.35)",
-        "emerald-glow": "0 0 24px rgba(0,154,68,0.30)"
+        "gold-glow-lg": "0 0 40px rgba(212,175,55,0.50)",
+        "emerald-glow": "0 0 24px rgba(0,154,68,0.30)",
+        "crimson-glow": "0 0 20px rgba(224,0,0,0.40)",
+        "glass-depth": "0 25px 50px rgba(0,0,0,0.80), inset 0 1px 0 rgba(255,255,255,0.08)"
       },
       borderRadius: {
         xl2: "1.25rem"
+      },
+      zIndex: {
+        20: "20",
+        30: "30",
+        40: "40",
+        50: "50",
+        60: "60",
+        100: "100"
+      },
+      /* 3D card tilt perspective */
+      perspective: {
+        "800": "800px",
+        "1000": "1000px",
+        "1200": "1200px"
+      },
+      transitionDuration: {
+        250: "250ms"
       }
     }
   },

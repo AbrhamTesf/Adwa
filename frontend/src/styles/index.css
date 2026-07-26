@@ -1,6 +1,27 @@
 @import "tailwindcss";
 @config "../../tailwind.config.js";
 
+/* ═══════════════════════════════════════════════════════════
+   GLOBAL Z-INDEX ARCHITECTURE
+   z-0    — 3D Canvas / Video Feed / Background
+   z-20   — In-Canvas Hotspots & SVG Leader Lines
+   z-30   — Floating Action Buttons, Audio Controls
+   z-40   — Bottom Drawers / Slide-over Sheets
+   z-50   — Top Header Navigation & Language Toggle
+   z-60   — Modals, Fullscreen Voice Overlay, Viewfinder
+   z-[100] — Toast Notifications & Banners
+   ═══════════════════════════════════════════════════════════ */
+
+:root {
+  --z-canvas:   0;
+  --z-hotspot:  20;
+  --z-controls: 30;
+  --z-drawer:   40;
+  --z-header:   50;
+  --z-modal:    60;
+  --z-toast:    100;
+}
+
 @layer base {
   html, body, #root {
     height: 100%;
@@ -11,12 +32,54 @@
   h1, h2, h3 {
     @apply font-display;
   }
+
+  /* Custom scrollbar — thin, themed */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(212, 175, 55, 0.4) transparent;
+  }
+  *::-webkit-scrollbar {
+    width: 4px;
+    height: 4px;
+  }
+  *::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  *::-webkit-scrollbar-thumb {
+    background: rgba(212, 175, 55, 0.35);
+    border-radius: 999px;
+  }
+  *::-webkit-scrollbar-thumb:hover {
+    background: rgba(212, 175, 55, 0.6);
+  }
 }
 
-@layer components {
-  /* Warm metallic glassmorphism overlay — used for chat/voice drawers, bottom sheets */
+  /* ── High-Contrast Glassmorphic Card
+     Mobile: lighter blur to prevent GPU lag on WebGL screens
+     Desktop: full heavy blur
+  ── */
+  .glass-card {
+    background-color: rgba(2, 6, 23, 0.9);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.8);
+  }
+  @media (min-width: 768px) {
+    .glass-card {
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+    }
+  }
+
+  /* Warm metallic glassmorphism overlay — voice drawers, bottom sheets */
   .adwa-glass {
-    @apply bg-metallic-glass backdrop-blur-xl border border-imperial-gold/20 rounded-xl2 shadow-gold-glow;
+    background-color: rgba(26, 22, 18, 0.85);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border: 1px solid rgba(212, 175, 55, 0.2);
+    border-radius: 1.25rem;
+    box-shadow: 0 0 15px rgba(212, 175, 55, 0.2);
   }
 
   .adwa-card {
@@ -25,12 +88,14 @@
 
   .adwa-btn-primary {
     @apply bg-imperial-gold text-obsidian font-semibold rounded-full px-6 py-3
-           shadow-gold-glow active:scale-95 transition-transform;
+           shadow-gold-glow active:scale-95 transition-all duration-200
+           hover:bg-imperial-gold-light hover:shadow-gold-glow-lg;
   }
 
   .adwa-btn-secondary {
     @apply bg-transparent border border-adwa-emerald text-adwa-emerald font-semibold
-           rounded-full px-6 py-3 active:scale-95 transition-transform;
+           rounded-full px-6 py-3 active:scale-95 transition-all duration-200
+           hover:bg-adwa-emerald/10;
   }
 
   .adwa-chip {
@@ -40,65 +105,216 @@
     @apply bg-imperial-gold/20 border-imperial-gold text-imperial-gold-light;
   }
 
-  /* Cultural geometry accent — subtle triangular motif divider */
+  /* Cultural geometry accent — tricolor divider */
   .adwa-divider {
     height: 3px;
     background: linear-gradient(90deg, #D4AF37 0%, #009A44 50%, #E00000 100%);
     border-radius: 999px;
   }
 
+  /* ── 3D Spatial Hotspot Pin System ── */
+  .adwa-pin {
+    position: relative;
+    display: flex;
+    align-items: center;
+    pointer-events: all;
+  }
+
+  /* The focal dot */
+  .adwa-pin__dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: #D4AF37;
+    box-shadow: 0 0 10px rgba(212, 175, 55, 0.6);
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+  .adwa-pin__dot:hover,
+  .adwa-pin__dot--active {
+    transform: scale(1.5);
+    box-shadow: 0 0 0 4px rgba(212, 175, 55, 0.35);
+    animation: none;
+  }
+
+  /* SVG leader line between dot and info badge */
+  .adwa-pin__line {
+    position: absolute;
+    pointer-events: none;
+    overflow: visible;
+  }
+
+  /* The floating info badge */
+  .adwa-pin__badge {
+    background-color: rgba(2, 6, 23, 0.9);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(212, 175, 55, 0.3);
+    border-radius: 0.75rem;
+    padding: 0.5rem 0.75rem;
+    color: rgb(241, 245, 249);
+    box-shadow: 0 0 15px rgba(212, 175, 55, 0.2);
+    min-width: 130px;
+    max-width: 200px;
+    transform: translateX(0) scale(0.85);
+    opacity: 0;
+    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.25s ease;
+    pointer-events: none;
+  }
+  .adwa-pin__badge--visible {
+    transform: translateX(0) scale(1);
+    opacity: 1;
+    pointer-events: all;
+  }
+
+  /* Safe area bottom padding — scoped to mobile only */
+  .pb-safe {
+    padding-bottom: env(safe-area-inset-bottom, 24px);
+  }
+
+  /* Animated float */
   .animate-float {
     animation: float 5s ease-in-out infinite;
   }
-}
+
+  /* Audio Waveform Bars (5 bars) */
+  .waveform-bar {
+    display: inline-block;
+    width: 3px;
+    border-radius: 3px;
+    background: #D4AF37;
+    transform-origin: bottom;
+  }
+  .waveform-bar-1 { animation: waveformBar 0.9s 0.0s ease-in-out infinite alternate; }
+  .waveform-bar-2 { animation: waveformBar 0.9s 0.18s ease-in-out infinite alternate; }
+  .waveform-bar-3 { animation: waveformBar 0.9s 0.36s ease-in-out infinite alternate; }
+  .waveform-bar-4 { animation: waveformBar 0.9s 0.54s ease-in-out infinite alternate; }
+  .waveform-bar-5 { animation: waveformBar 0.9s 0.72s ease-in-out infinite alternate; }
+
+  /* ── 3D Card Tilt ── */
+  .card-3d {
+    transform-style: preserve-3d;
+    perspective: 1000px;
+    transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.35s ease;
+  }
+  .card-3d:hover {
+    transform: rotateY(4deg) rotateX(-2deg) translateY(-4px) scale(1.02);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5), 0 0 24px rgba(212, 175, 55, 0.25);
+  }
+
+  /* ── Slide-Up Entrance ── */
+  .animate-slide-up {
+    animation: slideUpEntrance 0.55s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  }
+  .animate-slide-up-delay {
+    animation: slideUpEntrance 0.55s 0.2s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  }
+
+  /* ── Fade + Scale Entrance ── */
+  .animate-fade-scale {
+    animation: fadeInScale 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  }
+  .animate-fade-scale-delay {
+    animation: fadeInScale 0.4s 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  }
+
+  /* Existing fade-in utility (ensure it exists) */
+  .animate-fade-in {
+    animation: fadeIn 0.35s ease-out both;
+  }
+  .animate-fadeIn {
+    animation: fadeIn 0.35s ease-out both;
+  }
+
+/* ══════════════════════════════════════════
+   KEYFRAMES
+   ══════════════════════════════════════════ */
 
 @keyframes float {
-  0%, 100% {
-    transform: translateY(0px);
-  }
-  50% {
-    transform: translateY(-10px);
-  }
+  0%, 100% { transform: translateY(0px); }
+  50%       { transform: translateY(-10px); }
 }
 
+@keyframes pinPulse {
+  0%   { box-shadow: 0 0 0 0 rgba(212, 175, 55, 0.70); }
+  70%  { box-shadow: 0 0 0 10px rgba(212, 175, 55, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(212, 175, 55, 0); }
+}
+
+@keyframes waveformBar {
+  from { transform: scaleY(0.2); opacity: 0.6; }
+  to   { transform: scaleY(1);   opacity: 1; }
+}
+
+/* Sci-fi scan ring rotation */
+@keyframes scanRing {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+.animate-scan-ring {
+  animation: scanRing 2s linear infinite;
+}
+
+/* Scan laser line (existing) */
 @keyframes scanLaser {
-  0% {
-    top: 0%;
-    opacity: 0.8;
-  }
-  50% {
-    top: 98%;
-    opacity: 1;
-  }
-  100% {
-    top: 0%;
-    opacity: 0.8;
-  }
+  0%   { top: 0%;  opacity: 0.8; }
+  50%  { top: 98%; opacity: 1;   }
+  100% { top: 0%;  opacity: 0.8; }
 }
-
 .animate-scan-laser {
   animation: scanLaser 2.2s ease-in-out infinite;
 }
 
+/* Shutter flash (existing) */
 @keyframes shutterFlash {
-  0% { opacity: 0; }
-  40% { opacity: 0.95; }
-  100% { opacity: 0; }
+  0%   { opacity: 0;    }
+  40%  { opacity: 0.95; }
+  100% { opacity: 0;    }
 }
-
 .shutter-flash {
   animation: shutterFlash 0.3s ease-out forwards;
 }
 
-/* FEAT-014: Exploded View callout card entrance animation */
+/* Callout card entrance (existing) */
 @keyframes calloutFadeIn {
-  0% {
-    opacity: 0;
-    transform: translate(-50%, -50%) scale(0.7);
-  }
-  100% {
-    opacity: 1;
-    transform: translate(-50%, -50%) scale(1);
-  }
+  0%   { opacity: 0; transform: translate(-50%, -50%) scale(0.7); }
+  100% { opacity: 1; transform: translate(-50%, -50%) scale(1);   }
 }
 
+/* Slide up from bottom */
+@keyframes slideUpEntrance {
+  from { opacity: 0; transform: translateY(24px) scale(0.97); }
+  to   { opacity: 1; transform: translateY(0)    scale(1);    }
+}
+
+/* Fade + scale pop */
+@keyframes fadeInScale {
+  from { opacity: 0; transform: scale(0.88); }
+  to   { opacity: 1; transform: scale(1);    }
+}
+
+/* Standard fade */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* Flowing route path — applied to SVG stroke-dashoffset */
+@keyframes flowPath {
+  from { stroke-dashoffset: 100; }
+  to   { stroke-dashoffset: 0;   }
+}
+.animate-flow-path {
+  animation: flowPath 1.5s ease-in-out infinite;
+}
+
+/* Breath/mic listening pulse ring */
+@keyframes breathRing {
+  0%   { transform: scale(1);    opacity: 0.6; }
+  50%  { transform: scale(1.12); opacity: 0.3; }
+  100% { transform: scale(1);    opacity: 0.6; }
+}
+.animate-breath-ring {
+  animation: breathRing 1.8s ease-in-out infinite;
+}

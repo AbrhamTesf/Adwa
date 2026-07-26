@@ -131,11 +131,19 @@ export default function LiveNavigation({ navigate }) {
       {/* SVG Map Canvas */}
       <div className="relative min-h-0 flex-1 overflow-hidden rounded-xl2 border border-imperial-gold/30 bg-obsidian-raised shadow-gold-glow">
         <svg viewBox="0 0 320 240" className="h-full w-full" aria-label="Museum floor plan">
+          <defs>
+            <filter id="gold-glow-filter" x="-20%" y="-20%" width="140%" height="140%">
+              <feDropShadow dx="0" dy="0" stdDeviation="3" floodColor="#D4AF37" floodOpacity="0.6" />
+            </filter>
+          </defs>
+
           {/* Gallery rooms */}
           {FLOOR_ROOMS.map((room) => {
             const isCurrentRoom = currentStop?.exhibit_id === room.exhibitId;
             const isVisitedRoom = visitedExhibitIds.includes(room.exhibitId);
             const roomTitle = getExhibitText(room.exhibitId, "title", language) || room.label;
+            const textX = room.x + room.w / 2;
+            const textY = room.y + room.h / 2;
             return (
               <g key={room.exhibitId}>
                 <rect
@@ -143,23 +151,38 @@ export default function LiveNavigation({ navigate }) {
                   y={room.y}
                   width={room.w}
                   height={room.h}
-                  rx="6"
+                  rx="8"
+                  filter={isCurrentRoom ? "url(#gold-glow-filter)" : undefined}
                   className={
                     isCurrentRoom
-                      ? "fill-imperial-gold/20 stroke-imperial-gold stroke-[1.5]"
+                      ? "fill-slate-900/90 stroke-imperial-gold stroke-[2]"
                       : isVisitedRoom
-                        ? "fill-adwa-emerald/10 stroke-adwa-emerald/60 stroke-1"
-                        : "fill-obsidian-overlay/60 stroke-parchment/20 stroke-1"
+                        ? "fill-adwa-emerald/15 stroke-adwa-emerald/60 stroke-1"
+                        : "fill-slate-950/80 stroke-white/10 stroke-1"
+                  }
+                />
+                {/* Native SVG Pill Badge for Room Label */}
+                <rect
+                  x={textX - 38}
+                  y={textY - 9}
+                  width="76"
+                  height="18"
+                  rx="9"
+                  className={
+                    isCurrentRoom
+                      ? "fill-imperial-gold/25 stroke-imperial-gold/50 stroke-1"
+                      : "fill-slate-900/70 stroke-white/10 stroke-1"
                   }
                 />
                 <text
-                  x={room.x + room.w / 2}
-                  y={room.y + room.h / 2}
+                  x={textX}
+                  y={textY + 3}
                   textAnchor="middle"
-                  dominantBaseline="middle"
-                  className="fill-parchment/80 font-sans text-[9px] font-medium"
+                  className={`font-sans text-[8.5px] font-semibold ${
+                    isCurrentRoom ? "fill-imperial-gold" : isVisitedRoom ? "fill-adwa-emerald-light" : "fill-slate-300"
+                  }`}
                 >
-                  {roomTitle}
+                  {roomTitle.length > 13 ? `${roomTitle.substring(0, 11)}…` : roomTitle}
                 </text>
               </g>
             );
@@ -171,8 +194,8 @@ export default function LiveNavigation({ navigate }) {
             y={CORRIDOR.y}
             width={CORRIDOR.w}
             height={CORRIDOR.h}
-            rx="4"
-            className="fill-obsidian/80 stroke-parchment/15 stroke-1"
+            rx="6"
+            className="fill-slate-950/90 stroke-white/10 stroke-1"
           />
 
           {/* Route path segments */}
@@ -181,16 +204,16 @@ export default function LiveNavigation({ navigate }) {
               key={`${seg.fromId}-${seg.toId}`}
               points={seg.points}
               fill="none"
-              strokeWidth={seg.walked ? "2" : "2.5"}
-              strokeDasharray={seg.walked ? "3,3" : "none"}
+              strokeWidth={seg.walked ? "2" : "3"}
+              strokeDasharray={seg.walked ? "3,3" : "6,4"}
               className={
                 seg.walked
-                  ? "stroke-parchment/30"
+                  ? "stroke-slate-600"
                   : seg.density === "high"
                     ? "stroke-adwa-crimson animate-pulse"
                     : seg.density === "medium"
-                      ? "stroke-imperial-gold"
-                      : "stroke-adwa-emerald"
+                      ? "stroke-imperial-gold animate-flow-path"
+                      : "stroke-adwa-emerald animate-flow-path"
               }
             />
           ))}
@@ -213,10 +236,10 @@ export default function LiveNavigation({ navigate }) {
         </svg>
 
         {/* Legend */}
-        <div className="absolute top-2 right-2 flex flex-col gap-1 rounded-lg border border-parchment/10 bg-obsidian/85 p-2 backdrop-blur-md">
+        <div className="absolute top-3 right-3 flex flex-col gap-1.5 rounded-xl border border-white/10 bg-slate-950/85 p-2.5 backdrop-blur-md">
           <div className="flex items-center gap-1.5 text-[10px]">
             <span className="h-2 w-2 rounded-full bg-adwa-emerald" />
-            <span className="text-parchment/80">{t("navigation.density.clear")}</span>
+            <span className="text-slate-300">{t("navigation.density.clear")}</span>
           </div>
           <div className="flex items-center gap-1.5 text-[10px]">
             <span className="h-2 w-2 rounded-full bg-imperial-gold" />

@@ -1,6 +1,7 @@
 import { Component, Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
 import { Html, OrbitControls, useGLTF } from "@react-three/drei";
+import { Vector3 } from "three";
 import gsap from "gsap";
 import { PERSONAS } from "../../personas/personas";
 import { useExhibitStore } from "../../stores/useExhibitStore";
@@ -143,6 +144,49 @@ function CanvasLoader() {
   );
 }
 
+/** Individual 3D Hotspot Pin with Dot-Product Camera Occlusion */
+function HotspotPin({ hotspot, isSelected, onSelectHotspot }) {
+  const [isVisible, setIsVisible] = useState(true);
+  const tempPos = useMemo(() => new Vector3(...hotspot.position), [hotspot.position]);
+  const tempCamDir = useMemo(() => new Vector3(), []);
+  const tempHotspotDir = useMemo(() => new Vector3(), []);
+
+  useFrame(({ camera }) => {
+    camera.getWorldDirection(tempCamDir);
+    tempHotspotDir.copy(tempPos).sub(camera.position).normalize();
+    const dot = tempCamDir.dot(tempHotspotDir);
+    setIsVisible(dot > 0.1);
+  });
+
+  return (
+    <group position={hotspot.position}>
+      <Html position={[0, 0, 0]} center distanceFactor={14} zIndexRange={[100, 0]}>
+        <div className={`adwa-pin group ${isVisible ? "opacity-100 scale-100" : "opacity-0 pointer-events-none scale-75"} transition-all duration-300`}>
+          <button
+            type="button"
+            aria-label={hotspot.title}
+            className={`adwa-pin__dot ${
+              isSelected
+                ? "adwa-pin__dot--active bg-imperial-gold ring-4 ring-imperial-gold/50 shadow-gold-glow scale-125"
+                : "bg-imperial-gold/90 hover:scale-125"
+            }`}
+            onClick={(e) => {
+              e.stopPropagation();
+              onSelectHotspot(hotspot);
+            }}
+          >
+            <span className="sr-only">{hotspot.title}</span>
+          </button>
+          <div className={`adwa-pin__badge ${isSelected ? "adwa-pin__badge--visible" : "group-hover:adwa-pin__badge--visible"}`}>
+            <span className="text-[9px] uppercase font-bold text-imperial-gold block tracking-wider leading-none mb-0.5">✦ {hotspot.tag}</span>
+            <span className="text-xs font-semibold text-slate-100 block leading-tight">{hotspot.title}</span>
+          </div>
+        </div>
+      </Html>
+    </group>
+  );
+}
+
 /** Taytu Monument 3D Mesh Loader using Drei useGLTF */
 function TaytuModelMesh({ glbUrl, selectedHotspotId, onSelectHotspot, isTaytu }) {
   const { scene } = useGLTF(glbUrl || "/models/taytu_statue.glb");
@@ -155,30 +199,12 @@ function TaytuModelMesh({ glbUrl, selectedHotspotId, onSelectHotspot, isTaytu })
         TAYTU_HOTSPOTS.map((hotspot) => {
           const isSelected = selectedHotspotId === hotspot.id;
           return (
-            <group key={hotspot.id} position={hotspot.position}>
-              <Html position={[0, 0, 0]} center distanceFactor={16} zIndexRange={[100, 0]}>
-                <button
-                  type="button"
-                  aria-label={hotspot.title}
-                  className={`group relative flex items-center justify-center rounded-full transition-all duration-300 ${
-                    isSelected
-                      ? "h-6 w-6 bg-imperial-gold ring-2 ring-imperial-gold/50 shadow-gold-glow scale-110"
-                      : "h-4 w-4 bg-obsidian/90 border border-imperial-gold/80 hover:scale-125 hover:bg-imperial-gold hover:text-obsidian"
-                  }`}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onSelectHotspot(hotspot);
-                  }}
-                >
-                  <span className={`text-[9px] font-bold ${isSelected ? "text-obsidian" : "text-imperial-gold group-hover:text-obsidian"}`}>
-                    ✦
-                  </span>
-                  <span className="pointer-events-none absolute bottom-full mb-2 hidden whitespace-nowrap rounded-md bg-obsidian-raised px-2 py-0.5 text-[0.65rem] text-parchment shadow-md border border-imperial-gold/30 group-hover:block">
-                    {hotspot.title}
-                  </span>
-                </button>
-              </Html>
-            </group>
+            <HotspotPin
+              key={hotspot.id}
+              hotspot={hotspot}
+              isSelected={isSelected}
+              onSelectHotspot={onSelectHotspot}
+            />
           );
         })}
     </group>
@@ -323,17 +349,21 @@ export default function InspectionHub({ navigate }) {
   const modelSource = exhibit?.glb_url || "/models/taytu_statue.glb";
   const posterPath = `/models/posters/${exhibitId}_poster.webp`;
 
-  const exhibitTrivia =
-    exhibit?.persona_scripts?.usage ||
-    exhibit?.persona_scripts?.craft ||
-    "Empress Taytu Betul was key strategist of the Ethiopian forces during the Battle of Adwa.";
+  const TAYTU_INITIAL_NARRATION =
+    "Empress Taytu Betul was the brilliant diplomat, strategist, and co-ruler of Ethiopia who played a pivotal role in the 1896 Battle of Adwa. Her monument showcases her iconic Albaso braided hairstyle—a traditional crown of braided rows representing royal dignity and leadership—and her heavy ceremonial royal Kaba cloak and dress, worn during imperial court and military council.";
+
+  const exhibitTrivia = isTaytu
+    ? TAYTU_INITIAL_NARRATION
+    : exhibit?.persona_scripts?.usage ||
+      exhibit?.persona_scripts?.craft ||
+      "Explore the historic artifact from the Battle of Adwa.";
 
   const activeTabText =
     selectedHotspot?.description ||
     selectedHotspot?.content?.[activeTab] ||
     selectedHotspot?.[activeTab] ||
     exhibit?.persona_scripts?.[activeTab] ||
-    "Select a glowing hotspot on the monument to inspect historical details.";
+    exhibitTrivia;
 
   /* Ensure Taytu exhibit loads if activeExhibit is null */
   useEffect(() => {
@@ -423,9 +453,6 @@ export default function InspectionHub({ navigate }) {
 
   /* ── Interaction handlers ──────────────────────────────── */
 
-  /**
-   * Requirement 3: Interactive Hotspot AI Explainer & Read-Aloud
-   */
   async function chooseHotspot(hotspot) {
     setSelectedHotspotId(hotspot.id);
     setActiveTab(hotspot.tab || "material");
@@ -438,9 +465,9 @@ export default function InspectionHub({ navigate }) {
 
     // Trigger AI Hotspot Explainer & Read-Aloud
     setIsGeneratingExplanation(true);
-    setHotspotAIExplanation("Generating deep AI historical analysis…");
+    setHotspotAIExplanation("Consulting AI archives for spot analysis…");
 
-    const prompt = `Explain the historical and strategic significance of ${hotspot.title} (${hotspot.description}) on the Empress Taytu Monument in 2 concise sentences.`;
+    const prompt = `Explain the historical significance of ${hotspot.title} (${hotspot.description}) on Empress Taytu Monument in 2 short sentences.`;
     const explanationText = await sendTextQuestion(prompt);
     const finalExplanation = explanationText || hotspot.description;
     setHotspotAIExplanation(finalExplanation);
@@ -476,9 +503,6 @@ export default function InspectionHub({ navigate }) {
     navigate?.("voiceGuide");
   }
 
-  /**
-   * Requirement 1: Finish Inspection Handler
-   */
   const handleFinishInspection = () => {
     if (exhibitId) {
       markVisited(exhibitId);
@@ -493,9 +517,6 @@ export default function InspectionHub({ navigate }) {
     }
   };
 
-  /**
-   * Requirement 1 & 4: Submit Handlers for Text & Voice
-   */
   const handleTextFormSubmit = async (e) => {
     e.preventDefault();
     if (!textQuery.trim()) return;
@@ -563,11 +584,13 @@ export default function InspectionHub({ navigate }) {
     </div>
   );
 
+  const isAudioActive = isPlaying || status === "speaking";
+
   /* ── Main render ───────────────────────────────────────── */
   return (
     <section className="relative min-h-screen overflow-hidden bg-obsidian text-parchment">
-      {/* ─ 3D Canvas / Model Container ──────────────────── */}
-      <div className="relative h-[72vh] w-full">
+      {/* ─ 3D Canvas Container ──────────────────── */}
+      <div className="absolute inset-0 z-0">
         {!glbError ? (
           <CanvasErrorBoundary fallback={canvasFallbackUI}>
             <Canvas
@@ -577,7 +600,6 @@ export default function InspectionHub({ navigate }) {
               onPointerDown={handleModelInteraction}
               onError={() => setGlbError(true)}
             >
-              {/* Carved stone highlighting lights */}
               <ambientLight intensity={0.7} />
               <directionalLight
                 position={[5, 8, 5]}
@@ -589,7 +611,6 @@ export default function InspectionHub({ navigate }) {
               <directionalLight position={[-5, -2, -3]} intensity={0.4} color="#ffd700" />
               <hemisphereLight intensity={0.4} groundColor="#1a0f00" />
 
-              {/* Suspense Wrapper */}
               <Suspense fallback={<CanvasLoader />}>
                 <TaytuModelMesh
                   glbUrl={modelSource}
@@ -599,7 +620,6 @@ export default function InspectionHub({ navigate }) {
                 />
               </Suspense>
 
-              {/* Orbit Controls with Smooth Damping */}
               <OrbitControls
                 ref={controlsRef}
                 enableDamping
@@ -613,7 +633,6 @@ export default function InspectionHub({ navigate }) {
                 target={DEFAULT_CAMERA_TARGET}
               />
 
-              {/* Camera lerp controller */}
               <CameraController
                 controlsRef={controlsRef}
                 focusTarget={focusTarget}
@@ -626,7 +645,7 @@ export default function InspectionHub({ navigate }) {
         )}
       </div>
 
-      {/* ─ Exploded-View ModelViewer Fallback for Shotel Sword ── */}
+      {/* ─ Exploded-View ModelViewer Fallback for Shotel ── */}
       {isShotel && (
         <InteractiveModelViewer
           ref={modelViewerRef}
@@ -673,54 +692,73 @@ export default function InspectionHub({ navigate }) {
         </div>
       )}
 
-      {/* ─ Requirement 1: Top Navigation Bar in InspectionHub ─── */}
-      <header className="absolute left-4 top-4 right-4 z-20 flex flex-col gap-2">
-        {/* Row 1: CTA Buttons */}
+      {/* ─ Top Overlay Header Bar ─ z-50 ─── */}
+      <header className="absolute top-4 left-4 right-4 z-50 flex flex-col gap-2 pointer-events-auto">
         <div className="flex items-center justify-between gap-2">
           <button
             type="button"
+            className="flex items-center gap-1.5 rounded-full border border-white/10 bg-slate-950/80 px-3.5 py-2 text-xs text-parchment shadow-md backdrop-blur hover:border-imperial-gold/50 transition-all font-semibold"
             onClick={() => navigate?.(itinerary.length > 0 ? "navigation" : "scanner")}
-            className="flex items-center gap-1.5 rounded-xl border border-imperial-gold/40 bg-obsidian/90 px-3.5 py-2 text-xs font-semibold text-imperial-gold shadow-md backdrop-blur hover:bg-imperial-gold/20 hover:border-imperial-gold transition-all active:scale-95"
           >
-            <span className="text-sm">←</span>
-            <span>{itinerary.length > 0 ? t("inspection.backToTourMap") : t("inspection.backToScanner")}</span>
+            <span>←</span>
+            <span>{itinerary.length > 0 ? t("inspection.backToTourMap", "Back to Map") : t("inspection.backToScanner", "Back to Scanner")}</span>
           </button>
+
+          {/* Universal Stop Narration Tiny Button */}
+          {isAudioActive && (
+            <button
+              type="button"
+              onClick={stopAudio}
+              className="flex items-center gap-2 rounded-full border border-adwa-crimson/60 bg-slate-950/90 px-3.5 py-1.5 text-xs text-white shadow-lg backdrop-blur hover:bg-adwa-crimson transition-all font-semibold animate-pulse"
+              title="Stop active AI voice narration"
+            >
+              <div className="flex items-end gap-0.5 h-3">
+                <span className="waveform-bar waveform-bar-1 h-2" />
+                <span className="waveform-bar waveform-bar-2 h-3" />
+                <span className="waveform-bar waveform-bar-3 h-2" />
+              </div>
+              <span>{t("inspection.playingAudio", "AI Voice Playing")}</span>
+              <span className="rounded bg-adwa-crimson px-2 py-0.5 text-[10px] font-bold text-white uppercase shadow-sm">
+                ⏹ Stop
+              </span>
+            </button>
+          )}
 
           <button
             type="button"
+            className="adwa-btn-primary flex items-center gap-1.5 px-4 py-2 text-xs font-bold shadow-gold-glow"
             onClick={handleFinishInspection}
-            className="flex items-center gap-1.5 rounded-xl border border-imperial-gold bg-imperial-gold px-4 py-2 text-xs font-bold text-obsidian shadow-gold-glow hover:bg-imperial-gold-light transition-all active:scale-95"
           >
-            <span>{t("inspection.finishInspection")}</span>
+            <span>{t("inspection.finishInspection", "Finish Inspection")}</span>
             <span className="text-sm">✓</span>
           </button>
         </div>
 
-        {/* Row 2: Title, Category & Persona Selector */}
+        {/* Title, Category & Persona Selector */}
         <div className="flex items-center justify-between gap-3">
-          <div className="max-w-[65%] rounded-xl border border-imperial-gold/30 bg-obsidian/85 px-3.5 py-2 backdrop-blur shadow-md">
+          <div className="max-w-[65%] glass-card rounded-xl px-3.5 py-2">
             <div className="flex items-center gap-2">
               <p className="text-[0.65rem] uppercase tracking-[0.18em] text-imperial-gold font-semibold">
-                {t("inspection.title")}
+                {t("inspection.title", "3D Inspection")}
               </p>
               <span className="rounded-full bg-imperial-gold/20 px-2 py-0.5 text-[0.65rem] text-imperial-gold border border-imperial-gold/30">
                 {getExhibitText(exhibitId, "category", language) || exhibit?.category || "Monument"}
               </span>
             </div>
-            <h1 className="font-display text-sm sm:text-base text-parchment truncate">
+            <h1 className="font-display text-sm sm:text-base text-slate-100 truncate">
               {getExhibitText(exhibitId, "title", language) || exhibit?.name || "Empress Taytu Monument"}
             </h1>
           </div>
 
-          <div className="flex rounded-xl border border-imperial-gold/30 bg-obsidian/85 p-1 backdrop-blur shadow-md">
+          <div className="flex glass-card rounded-xl p-1">
             {PERSONAS.map((personaOption) => (
               <button
                 key={personaOption.id}
                 type="button"
                 className={`grid h-8 w-8 place-items-center rounded-lg text-sm transition ${
                   persona === personaOption.id
-                    ? "bg-imperial-gold text-obsidian shadow-gold-glow font-bold"
-                    : "text-parchment hover:bg-obsidian-overlay"
+                    ? "bg-imperial-gold text-obsidian shadow-gold-glow font-bold scale-105"
+                    : "text-parchment hover:bg-white/10"
                 }`}
                 aria-label={`Switch to ${personaOption.label}`}
                 title={personaOption.label}
@@ -733,229 +771,163 @@ export default function InspectionHub({ navigate }) {
         </div>
       </header>
 
-      {/* ─ Requirement 2: Story Transcript HUD Overlay ─ */}
-      <div className="absolute left-4 top-28 right-4 z-20 max-w-lg transition-all duration-300">
-        <div className="rounded-xl border border-imperial-gold/30 bg-black/40 px-3.5 py-2.5 shadow-lg backdrop-blur-md text-parchment">
-          <div className="flex items-center justify-between gap-2 border-b border-imperial-gold/20 pb-1 mb-1.5">
-            <div className="flex items-center gap-2">
-              <span className="text-sm">📜</span>
+      {/* ─ Transparent Glass AI Narrative Overlay ─ z-30 ─── */}
+      <div className="pointer-events-none absolute inset-x-4 bottom-24 z-30 max-w-xl mx-auto">
+        {selectedHotspot ? (
+          <div className="pointer-events-auto rounded-2xl bg-slate-950/60 backdrop-blur-md border border-imperial-gold/40 p-4 shadow-2xl transition-all animate-fadeIn">
+            <div className="flex items-center justify-between gap-2 mb-1.5">
               <span className="text-xs font-bold uppercase tracking-wider text-imperial-gold">
-                {t("inspection.storyTranscript", "Story Transcript")}
+                ✦ {t(`inspection.hotspots.${selectedHotspot.id}.title`, selectedHotspot.title)}
               </span>
-              <span className="text-[10px] text-imperial-gold/80 bg-imperial-gold/15 px-2 py-0.5 rounded-full border border-imperial-gold/30 font-semibold">
-                {persona.toUpperCase()}
-              </span>
+              <button
+                type="button"
+                onClick={handleResetCamera}
+                className="text-[11px] text-slate-300 hover:text-imperial-gold transition-colors font-semibold px-2 py-0.5 rounded-full bg-white/10"
+              >
+                ✕ Close
+              </button>
             </div>
-            <button
-              type="button"
-              onClick={() => setShowTranscriptHUD((prev) => !prev)}
-              className="text-xs text-imperial-gold/80 hover:text-imperial-gold flex items-center gap-1 font-semibold transition-colors"
-            >
-              {showTranscriptHUD ? t("inspection.hideTranscript", "Hide ▲") : t("inspection.showTranscript", "Show ▼")}
-            </button>
+            <p className="text-xs text-slate-200 leading-relaxed mb-2">
+              {hotspotAIExplanation || t(`inspection.hotspots.${selectedHotspot.id}.description`, selectedHotspot.description)}
+            </p>
+            <div className="flex items-center justify-between pt-2 border-t border-white/10 text-[11px]">
+              <span className="text-imperial-gold font-medium">
+                {isGeneratingExplanation ? "Consulting AI…" : "3D Focus View Active"}
+              </span>
+              <button
+                type="button"
+                onClick={isAudioActive ? stopAudio : () => speakText(hotspotAIExplanation || selectedHotspot.description)}
+                className="px-3 py-1 rounded-full border border-imperial-gold/40 bg-imperial-gold/20 text-imperial-gold font-semibold hover:bg-imperial-gold hover:text-obsidian transition-all"
+              >
+                {isAudioActive ? "⏹ Stop Audio" : "🔊 Listen"}
+              </button>
+            </div>
           </div>
-
-          {showTranscriptHUD && (
-            <div className="animate-fadeIn max-h-32 overflow-y-auto pr-1">
-              <p className="text-xs leading-relaxed text-parchment/90 italic">
-                "{exhibit?.persona_scripts?.[persona] || exhibit?.persona_scripts?.[activeTab] || exhibitTrivia}"
-              </p>
-            </div>
-          )}
-        </div>
-      </div>
-
-      {/* ─ Requirement 3: Hotspot AI Explainer & Read-Aloud Card ─ */}
-      {selectedHotspot && (
-        <div className="absolute right-4 bottom-56 left-4 z-30 max-w-md mx-auto animate-fadeIn">
-          <div className="rounded-2xl border border-imperial-gold/50 bg-black/60 p-4 shadow-gold-glow backdrop-blur-xl text-parchment max-h-48 overflow-y-auto">
-            <div className="flex items-center justify-between gap-2 mb-2">
+        ) : showTranscriptHUD ? (
+          <div className="pointer-events-auto rounded-2xl bg-slate-950/40 backdrop-blur-md border border-white/10 p-4 shadow-2xl transition-all">
+            <div className="flex items-center justify-between gap-2 mb-1.5 border-b border-white/10 pb-1.5">
               <div className="flex items-center gap-2">
-                <span className="text-imperial-gold text-lg">✦</span>
-                <h3 className="font-display text-sm font-bold text-imperial-gold">
-                  {t(`inspection.hotspots.${selectedHotspot.id}.title`, selectedHotspot.title)}
-                </h3>
+                <span className="text-xs">📜</span>
+                <span className="text-[11px] font-bold uppercase tracking-wider text-imperial-gold">
+                  {t("inspection.storyTranscript", "AI Narrative Stream")}
+                </span>
               </div>
-
-              {/* Equalizer & Voice Control */}
               <div className="flex items-center gap-2">
-                {isPlaying && (
-                  <div className="flex items-end gap-0.5 h-4" title="Audio streaming active">
-                    <span className="w-1 bg-imperial-gold animate-bounce rounded-full h-3" />
-                    <span className="w-1 bg-imperial-gold animate-bounce delay-100 rounded-full h-4" />
-                    <span className="w-1 bg-imperial-gold animate-bounce delay-200 rounded-full h-2" />
-                  </div>
-                )}
                 <button
                   type="button"
-                  onClick={isPlaying ? stopAudio : () => speakText(hotspotAIExplanation || t(`inspection.hotspots.${selectedHotspot.id}.description`, selectedHotspot.description))}
-                  className="flex items-center gap-1 text-[11px] px-2.5 py-1 rounded-full border border-imperial-gold/40 bg-imperial-gold/20 text-imperial-gold hover:bg-imperial-gold hover:text-obsidian transition-colors font-semibold"
+                  onClick={() => speakText(captions || exhibitTrivia)}
+                  className="text-[11px] px-2.5 py-0.5 rounded-full border border-imperial-gold/40 bg-imperial-gold/20 text-imperial-gold font-semibold hover:bg-imperial-gold hover:text-obsidian transition-colors"
                 >
-                  {isPlaying ? t("inspection.pauseVoice", "⏸️ Pause Voice") : t("inspection.replayAudio", "🔊 Replay Audio")}
+                  🔊 Listen
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setShowTranscriptHUD(false)}
+                  className="text-xs text-slate-400 hover:text-slate-200"
+                >
+                  ✕
                 </button>
               </div>
             </div>
-
-            <p className="text-xs text-parchment/75 mb-2 leading-relaxed">
-              {t(`inspection.hotspots.${selectedHotspot.id}.description`, selectedHotspot.description)}
+            <p className="text-xs leading-relaxed text-slate-200 italic max-h-24 overflow-y-auto custom-scrollbar pr-1">
+              "{captions || exhibitTrivia}"
             </p>
-
-            {isGeneratingExplanation ? (
-              <div className="flex items-center gap-2 text-xs text-imperial-gold animate-pulse pt-2 border-t border-parchment/10">
-                <span className="inline-block h-3 w-3 animate-spin rounded-full border-2 border-imperial-gold border-t-transparent" />
-                <span>{t("inspection.generateExplanation", "Consulting Groq AI for deep coordinate analysis…")}</span>
-              </div>
-            ) : hotspotAIExplanation ? (
-              <div className="pt-2 border-t border-imperial-gold/20 text-xs leading-relaxed text-parchment font-medium bg-imperial-gold/10 p-2.5 rounded-xl border border-imperial-gold/30">
-                <span className="font-bold text-imperial-gold block mb-0.5">💡 AI Hotspot Explainer:</span>
-                {hotspotAIExplanation}
-              </div>
-            ) : null}
           </div>
-        </div>
-      )}
-
-      {/* ─ Bottom Drawer: Hotspot Inspection & Actions ─── */}
-      <aside className="absolute bottom-0 left-0 right-0 z-20 rounded-t-xl2 border-t border-imperial-gold/30 bg-obsidian-raised/95 p-4 shadow-gold-glow backdrop-blur max-h-[55vh] overflow-y-auto">
-        <div className="mb-3 flex items-center justify-between gap-3">
-          <div>
-            <p className="text-[0.65rem] uppercase tracking-[0.15em] text-imperial-gold font-semibold">
-              {selectedHotspot ? t(`inspection.hotspots.${selectedHotspot.id}.tag`, selectedHotspot.tag) : t("inspection.hotspots.title", "Hotspot Details")}
-            </p>
-            <h2 className="font-display text-base text-parchment">
-              {selectedHotspot ? t(`inspection.hotspots.${selectedHotspot.id}.title`, selectedHotspot.title) : getExhibitText(exhibitId, "title", language) || "Empress Taytu Betul Monument"}
-            </h2>
-          </div>
-          <div className="flex items-center gap-2">
-            <button
-              type="button"
-              className="flex items-center gap-1.5 rounded-full border border-imperial-gold/50 bg-obsidian/80 px-3 py-1.5 text-xs text-imperial-gold shadow-sm backdrop-blur hover:bg-imperial-gold hover:text-obsidian transition-colors"
-              onClick={handleResetCamera}
-            >
-              <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.035 8.035 0 01-15.357-2m15.357 2H15"
-                />
-              </svg>
-              {t("inspection.resetCamera", "Reset Camera View")}
-            </button>
-          </div>
-        </div>
-
-        {/* Tab Selection */}
-        <div
-          className="mb-3 flex gap-1 overflow-x-auto border-b border-parchment/15"
-          role="tablist"
-          aria-label="Artifact detail tabs"
-        >
-          {TABS.map((tab) => (
-            <button
-              key={tab.id}
-              type="button"
-              role="tab"
-              aria-selected={activeTab === tab.id}
-              className={`shrink-0 border-b-2 px-3 py-1.5 text-xs sm:text-sm transition ${
-                activeTab === tab.id
-                  ? "border-imperial-gold text-imperial-gold font-semibold"
-                  : "border-transparent text-parchment/65 hover:text-parchment"
-              }`}
-              onClick={() => setActiveTab(tab.id)}
-            >
-              <span aria-hidden="true" className="mr-1.5">
-                {tab.icon}
-              </span>
-              {t(`inspection.tabs.${tab.id}`, tab.label)}
-            </button>
-          ))}
-        </div>
-
-        {/* Description Copy */}
-        <div className="max-h-32 overflow-y-auto pr-1 mb-2">
-          <p className="min-h-10 text-xs sm:text-sm leading-6 text-parchment/85">
-            {activeTabText}
-          </p>
-        </div>
-
-        {/* ─ Requirement 1 & 4: Explicit Text Submit & Voice Input Bar ─ */}
-        <form onSubmit={handleTextFormSubmit} className="mt-3 flex items-center gap-2">
+        ) : (
           <button
             type="button"
-            onClick={handleMicToggle}
-            className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border transition-all ${
-              isMicActive || status === "listening"
-                ? "border-adwa-crimson bg-adwa-crimson text-white animate-pulse shadow-lg"
-                : "border-imperial-gold/40 bg-obsidian/80 text-imperial-gold hover:bg-imperial-gold/20"
-            }`}
-            aria-label="Toggle voice input"
-            title={isMicActive ? "Stop Listening & Send" : "Speak to Voice Guide"}
+            onClick={() => setShowTranscriptHUD(true)}
+            className="pointer-events-auto mx-auto block rounded-full border border-imperial-gold/40 bg-slate-950/80 px-4 py-1.5 text-xs text-imperial-gold shadow-lg backdrop-blur hover:bg-imperial-gold hover:text-obsidian transition-all font-semibold"
           >
-            🎤
+            📜 Show AI Story Transcript
           </button>
-
-          <input
-            type="text"
-            value={textQuery}
-            onChange={(e) => setTextQuery(e.target.value)}
-            placeholder={
-              status === "listening"
-                ? t("voiceGuide.status.listening", "Listening to your voice query…")
-                : status === "thinking"
-                ? t("voiceGuide.status.thinking", "Thinking…")
-                : t("inspection.askQuestion", "Ask AI persona about Empress Taytu…")
-            }
-            className="flex-1 rounded-xl border border-imperial-gold/30 bg-obsidian/80 px-3.5 py-2 text-xs text-parchment placeholder-parchment/50 focus:border-imperial-gold focus:outline-none backdrop-blur"
-          />
-
-          <button
-            type="submit"
-            disabled={!textQuery.trim() || status === "thinking"}
-            className="flex h-10 px-4 items-center justify-center gap-1.5 rounded-xl border border-imperial-gold bg-imperial-gold text-obsidian font-bold text-xs shadow-gold-glow hover:bg-imperial-gold-light disabled:opacity-40 disabled:pointer-events-none transition-all"
-            aria-label="Send question"
-          >
-            <span>{t("common.send", "Send")}</span>
-            <span className="text-sm">➔</span>
-          </button>
-        </form>
-
-        {captions && (
-          <div className="mt-2 text-xs text-imperial-gold bg-imperial-gold/10 p-2 rounded-lg border border-imperial-gold/30 animate-fadeIn flex items-center justify-between max-h-28 overflow-y-auto">
-            <span>{captions}</span>
-            {status === "thinking" && (
-              <span className="inline-block h-3 w-3 animate-spin rounded-full border-2 border-imperial-gold border-t-transparent" />
-            )}
-          </div>
         )}
+      </div>
 
-        {/* Action Buttons */}
-        <div className="mt-4 flex flex-wrap gap-2">
-          {isShotel && (
+      {/* ─ Sleek Minimal Bottom Controls Bar ─ z-40 ─── */}
+      <aside className="absolute bottom-4 left-4 right-4 z-40 max-w-2xl mx-auto pointer-events-auto">
+        <div className="glass-card rounded-2xl p-2.5 border border-white/10 shadow-2xl flex flex-wrap items-center gap-2">
+          {/* Quick Ask Form */}
+          <form onSubmit={handleTextFormSubmit} className="flex flex-1 items-center gap-2 min-w-[220px]">
             <button
-              id="exploded-view-toggle"
               type="button"
-              aria-pressed={exploded}
-              className={`flex flex-1 items-center justify-center gap-2 rounded-full border px-5 py-3 text-xs sm:text-sm font-semibold transition-all active:scale-95 ${
-                exploded
-                  ? "border-imperial-gold bg-imperial-gold/15 text-imperial-gold shadow-gold-glow"
-                  : "border-adwa-emerald bg-transparent text-adwa-emerald"
+              onClick={handleMicToggle}
+              className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border transition-all ${
+                isMicActive || status === "listening"
+                  ? "border-adwa-crimson bg-adwa-crimson text-white animate-pulse shadow-lg"
+                  : "border-white/10 bg-slate-900/80 text-imperial-gold hover:bg-imperial-gold/20"
               }`}
-              onClick={toggleExploded}
+              title={isMicActive ? "Stop Listening & Send" : "Speak to Voice Guide"}
             >
-              {exploded ? t("common.assemble", "Assemble") : t("inspection.explodedView", "Exploded View")}
+              🎤
             </button>
-          )}
 
-          {isInstrument && (
-            <button type="button" className="adwa-btn-secondary flex-1" onClick={openSensoryMode}>
-              {t("inspection.sensoryMode", "Sensory mode")}
+            <input
+              type="text"
+              value={textQuery}
+              onChange={(e) => setTextQuery(e.target.value)}
+              placeholder={
+                status === "listening"
+                  ? t("voiceGuide.status.listening", "Listening…")
+                  : status === "thinking"
+                  ? t("voiceGuide.status.thinking", "Thinking…")
+                  : t("inspection.askQuestion", "Ask AI persona about Empress Taytu…")
+              }
+              className="flex-1 rounded-xl border border-white/10 bg-slate-900/90 px-3 py-2 text-xs text-slate-100 placeholder-slate-400 focus:border-imperial-gold focus:outline-none"
+            />
+
+            <button
+              type="submit"
+              disabled={!textQuery.trim() || status === "thinking"}
+              className="flex h-9 px-3 items-center justify-center rounded-xl border border-imperial-gold bg-imperial-gold text-obsidian font-bold text-xs shadow-gold-glow hover:bg-imperial-gold-light disabled:opacity-40 disabled:pointer-events-none transition-all"
+            >
+              ➔
             </button>
-          )}
+          </form>
 
-          <button type="button" className="adwa-btn-primary flex-1" onClick={openVoiceGuide}>
-            {t("inspection.voiceGuide", "Full Voice Guide Overlay")} 🎙️
-          </button>
+          {/* Quick Action Buttons */}
+          <div className="flex items-center gap-1.5 shrink-0">
+            <button
+              type="button"
+              className="flex items-center gap-1 rounded-xl border border-white/10 bg-slate-900/90 px-3 py-2 text-xs text-imperial-gold hover:border-imperial-gold/50 transition-all font-semibold"
+              onClick={handleResetCamera}
+              title="Reset 3D camera"
+            >
+              ↺ Reset
+            </button>
+
+            {isShotel && (
+              <button
+                type="button"
+                className={`flex items-center gap-1 rounded-xl border px-3 py-2 text-xs font-semibold transition-all ${
+                  exploded
+                    ? "border-imperial-gold bg-imperial-gold/20 text-imperial-gold"
+                    : "border-white/10 bg-slate-900/90 text-slate-200"
+                }`}
+                onClick={toggleExploded}
+              >
+                {exploded ? "Assemble" : "Exploded"}
+              </button>
+            )}
+
+            {isInstrument && (
+              <button
+                type="button"
+                className="flex items-center gap-1 rounded-xl border border-adwa-emerald/50 bg-adwa-emerald/15 px-3 py-2 text-xs font-semibold text-adwa-emerald hover:bg-adwa-emerald/30 transition-all"
+                onClick={openSensoryMode}
+              >
+                🎵 Play
+              </button>
+            )}
+
+            <button
+              type="button"
+              className="flex items-center gap-1 rounded-xl border border-imperial-gold/40 bg-imperial-gold/15 px-3 py-2 text-xs font-semibold text-imperial-gold hover:bg-imperial-gold hover:text-obsidian transition-all shadow-gold-glow"
+              onClick={openVoiceGuide}
+            >
+              🎙️ Voice Guide
+            </button>
+          </div>
         </div>
       </aside>
     </section>

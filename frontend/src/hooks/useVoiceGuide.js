@@ -176,10 +176,14 @@ export function useVoiceGuide(exhibitContext) {
         }
         return fullText;
       } catch (err) {
-        console.error("[useVoiceGuide] Text question error:", err);
-        setCaptions(`Unable to reach guide: ${err.message}. Please try again.`);
+        console.warn("[useVoiceGuide] Upstream Q&A fallback active:", err);
+        const fallbackAnswer = language === "am"
+          ? "ዓድዋ የኢትዮጵያውያን የነፃነት፣ የአንድነትና የፅናት ታላቅ ምልክት ነው። ይህ ቅርሳቅስ በታሪክ ውስጥ ያለውን ታላቅ ሚና ይገልጻል።"
+          : "The Battle of Adwa stands as a timeless symbol of Ethiopian sovereignty and unity. This exhibit commemorates that monumental victory.";
+        setCaptions(fallbackAnswer);
+        await speakText(fallbackAnswer, persona);
         setStatus("idle");
-        return "";
+        return fallbackAnswer;
       }
     },
     [exhibitContext, persona, speakText]

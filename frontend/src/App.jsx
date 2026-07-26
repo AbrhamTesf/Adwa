@@ -15,6 +15,7 @@ import AuthProfileMenu from "./components/auth/AuthProfileMenu.jsx";
 import ContentManager from "./components/admin/ContentManager.jsx";
 import AnalyticsDashboard from "./components/admin/AnalyticsDashboard.jsx";
 import StaffManager from "./components/admin/StaffManager.jsx";
+import LanguageToggle from "./components/ui/LanguageToggle.jsx";
 
 const SCREENS = {
   landing: Landing,
@@ -103,7 +104,7 @@ export default function App() {
   return (
     <div className="min-h-screen w-full relative">
       <ScreenComponent navigate={navigate} recoveryToken={recoveryToken} />
-      <AuthProfileMenu navigate={navigate} availableScreens={SCREENS} />
+      {screen === "landing" && <LanguageToggle />}
     </div>
   );
 }

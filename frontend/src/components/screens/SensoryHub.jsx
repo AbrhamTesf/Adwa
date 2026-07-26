@@ -8,6 +8,8 @@ import {
 } from "../../lib/pitchDetection";
 import { useExhibitStore } from "../../stores/useExhibitStore";
 import InteractiveModelViewer from "../ui/InteractiveModelViewer.jsx";
+import { useTranslation } from "../../lib/i18n";
+import { getExhibitText } from "../../data/exhibitsData";
 
 const TAP_DISTANCE_PX = 14;
 const WAVE_DURATION_MS = 520;
@@ -98,6 +100,7 @@ export default function SensoryHub({ navigate }) {
 
 /** Embilta & Meleket — mic breath detection, Blow button, and airflow overlay. */
 function WindInstrumentStage({ navigate, exhibit, config }) {
+  const { t, language } = useTranslation();
   const modelRef = useRef(null);
   const canvasRef = useRef(null);
   const hotspotRef = useRef(null);
@@ -445,12 +448,12 @@ function WindInstrumentStage({ navigate, exhibit, config }) {
     <section className="flex min-h-screen flex-col overflow-hidden bg-obsidian bg-adwa-geometry px-5 pb-6 pt-5 text-parchment">
       <header className="mb-4 flex items-start justify-between gap-4">
         <div>
-          <p className="text-xs uppercase tracking-[0.18em] text-imperial-gold">Sensory interaction</p>
-          <h1 className="font-display text-2xl">{exhibit?.name || config.title}</h1>
+          <p className="text-xs uppercase tracking-[0.18em] text-imperial-gold">{t("sensory.title")}</p>
+          <h1 className="font-display text-2xl">{getExhibitText(exhibitId, "title", language) || exhibit?.name || config.title}</h1>
           <p className="mt-1 text-sm text-parchment/70">{config.hint}</p>
         </div>
         <button type="button" className="adwa-btn-secondary px-4 py-2 text-sm" onClick={() => navigate?.("inspection")}>
-          Back
+          ← {t("common.back")}
         </button>
       </header>
 
@@ -570,6 +573,7 @@ function createBreathVoice(context, config) {
 
 /** Negarit drum interaction with mesh taps, synth audio, and haptics. */
 function NegaritDrumStage({ navigate }) {
+  const { t, language } = useTranslation();
   const modelRef = useRef(null);
   const canvasRef = useRef(null);
   const audioContextRef = useRef(null);
@@ -687,12 +691,12 @@ function NegaritDrumStage({ navigate }) {
     <section className="flex min-h-screen flex-col overflow-hidden bg-obsidian bg-adwa-geometry px-5 pb-6 pt-5 text-parchment">
       <header className="mb-4 flex items-start justify-between gap-4">
         <div>
-          <p className="text-xs uppercase tracking-[0.18em] text-imperial-gold">Sensory interaction</p>
-          <h1 className="font-display text-2xl">Negarit Royal Drum</h1>
-          <p className="mt-1 text-sm text-parchment/70">Tap the 3D drum skin or strike the virtual mallet.</p>
+          <p className="text-xs uppercase tracking-[0.18em] text-imperial-gold">{t("sensory.title")}</p>
+          <h1 className="font-display text-2xl">{getExhibitText("negarit_drum", "title", language) || "Negarit Royal Drum"}</h1>
+          <p className="mt-1 text-sm text-parchment/70">{t("sensory.tapOrStrike")}</p>
         </div>
         <button type="button" className="adwa-btn-secondary px-4 py-2 text-sm" onClick={() => navigate?.("inspection")}>
-          Back
+          ← {t("common.back")}
         </button>
       </header>
 
@@ -713,7 +717,7 @@ function NegaritDrumStage({ navigate }) {
           onPointerUp={handleMeshTap}
         />
         <div className="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-obsidian-raised via-obsidian-raised/25 to-transparent px-4 pb-3 pt-16 z-20">
-          <p className="text-center text-xs font-medium uppercase tracking-[0.16em] text-parchment/75">Direct mesh tap enabled</p>
+          <p className="text-center text-xs font-medium uppercase tracking-[0.16em] text-parchment/75">{t("sensory.meshTapEnabled")}</p>
         </div>
       </div>
 
@@ -721,10 +725,10 @@ function NegaritDrumStage({ navigate }) {
 
       <div className="mt-3 grid grid-cols-2 gap-3">
         <button type="button" className="adwa-btn-secondary" onClick={() => strikeDrum("rim")}>
-          Rim tap
+          {t("sensory.rimTap")}
         </button>
         <button type="button" className="adwa-btn-primary" onClick={() => strikeDrum("center")}>
-          Strike drum
+          {t("sensory.strikeDrum")}
         </button>
       </div>
 

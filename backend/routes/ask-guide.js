@@ -18,7 +18,7 @@ import { classifyInput, getRedirection } from "../lib/guardrails.js";
 export default async function askGuideRoute(app) {
   app.post("/ask-guide", async (req, res) => {
     try {
-      const { transcript, exhibitContext, persona = "scholar" } = req.body || {};
+      const { transcript, exhibitContext, persona = "scholar", language = "en" } = req.body || {};
       if (!transcript) return res.code(400).send({ error: true, message: "Missing 'transcript'" });
 
       // ── Layer 1: Pre-LLM Guardrail Classification ──────────────────
@@ -50,11 +50,12 @@ export default async function askGuideRoute(app) {
       }
 
       // ── Layer 2: On-Topic → Groq LLM with Enhanced Safety Prompt ───
+      const langInstruction = language === "am" ? "\nIMPORTANT: Respond fluently in Amharic using Ge'ez script (አማርኛ). Maintain the character persona." : "";
       const systemPrompt = `${PERSONA_PROMPTS[persona] || PERSONA_PROMPTS.scholar}
 Exhibit context (ground your answer in this, do not invent facts):
 ${JSON.stringify(exhibitContext || {})}
 If the visitor asks something unrelated or inappropriate, politely redirect
-back to the exhibit's history, material, or cultural significance.`;
+back to the exhibit's history, material, or cultural significance.${langInstruction}`;
 
       const upstream = await fetch("https://api.groq.com/openai/v1/chat/completions", {
         method: "POST",

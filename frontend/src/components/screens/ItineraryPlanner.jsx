@@ -2,32 +2,15 @@ import React, { useState } from "react";
 import PrimaryButton from "../ui/PrimaryButton.jsx";
 import AdwaDivider from "../ui/AdwaDivider.jsx";
 import { useSessionStore } from "../../stores/useSessionStore";
-
-const INTEREST_OPTIONS = [
-  { id: "War Strategy", label: "War Strategy", icon: "⚔️", desc: "Tactical maps, battle lines & weapons" },
-  { id: "Metallurgy", label: "Metallurgy", icon: "🛠️", desc: "Craftsmanship of Shotel swords & armor" },
-  { id: "Royal History", label: "Royal History", icon: "👑", desc: "Emperor Menelik II & Empress Taytu regalia" },
-  { id: "Music & Culture", label: "Music & Culture", icon: "🥁", desc: "Negarit War Drums, Embilta & Meleket" }
-];
-
-const PARTY_OPTIONS = [
-  { id: "individual", label: "Individual Explorer", icon: "👤", desc: "Balanced historical depth & self-paced tour" },
-  { id: "family", label: "Family with Kids", icon: "👨‍👩‍👧", desc: "Fun stories, kid-friendly AI guide & interactive quizzes" },
-  { id: "scholar", label: "History Scholar", icon: "📜", desc: "Deep archival citations, primary sources & tactical analysis" }
-];
-
-const TIME_OPTIONS = [
-  { label: "20 min", sub: "Express Tour", value: 20, icon: "⚡" },
-  { label: "45 min", sub: "Standard Tour", value: 45, icon: "🧭" },
-  { label: "2 hrs", sub: "Deep Dive", value: 120, icon: "🏛️" },
-  { label: "No Limit", sub: "Full Day Pass", value: null, icon: "♾️" }
-];
+import { useTranslation } from "../../lib/i18n";
+import { getExhibitText } from "../../data/exhibitsData";
 
 /**
  * Screen 2 — Adaptive AI Itinerary Planner & Crowd Feed Wizard
  * Adheres strictly to docs/adwa_lens_architecture.md Section 2 (Screen 2)
  */
 export default function ItineraryPlanner({ navigate }) {
+  const { t, language } = useTranslation();
   const [step, setStep] = useState(0);
   const [isGenerating, setIsGenerating] = useState(false);
   const [generatedItinerary, setGeneratedItinerary] = useState(null);
@@ -40,6 +23,33 @@ export default function ItineraryPlanner({ navigate }) {
   const [partyType, setPartyType] = useState("individual");
   const [accessibilityOnly, setAccessibilityOnly] = useState(false);
 
+  const INTEREST_OPTIONS = [
+    { id: "War Strategy", label: t("planner.interests.warStrategy"), icon: "⚔️", desc: t("planner.interests.warStrategyDesc") },
+    { id: "Metallurgy", label: t("planner.interests.metallurgy"), icon: "🛠️", desc: t("planner.interests.metallurgyDesc") },
+    { id: "Royal History", label: t("planner.interests.royalHistory"), icon: "👑", desc: t("planner.interests.royalHistoryDesc") },
+    { id: "Music & Culture", label: t("planner.interests.musicCulture"), icon: "🥁", desc: t("planner.interests.musicCultureDesc") }
+  ];
+
+  const PARTY_OPTIONS = [
+    { id: "individual", label: t("planner.party.individual"), icon: "👤", desc: t("planner.party.individualDesc") },
+    { id: "family", label: t("planner.party.family"), icon: "👨‍👩‍👧", desc: t("planner.party.familyDesc") },
+    { id: "scholar", label: t("planner.party.scholar"), icon: "📜", desc: t("planner.party.scholarDesc") }
+  ];
+
+  const TIME_OPTIONS = [
+    { label: t("planner.time.20min"), sub: t("planner.time.20sub"), value: 20, icon: "⚡" },
+    { label: t("planner.time.45min"), sub: t("planner.time.45sub"), value: 45, icon: "🧭" },
+    { label: t("planner.time.2hrs"), sub: t("planner.time.2sub"), value: 120, icon: "🏛️" },
+    { label: t("planner.time.noLimit"), sub: t("planner.time.noLimitSub"), value: null, icon: "♾️" }
+  ];
+
+  const STEP_TITLES = [
+    { title: t("planner.steps.duration.title"), subtitle: t("planner.steps.duration.subtitle") },
+    { title: t("planner.steps.interests.title"), subtitle: t("planner.steps.interests.subtitle") },
+    { title: t("planner.steps.party.title"), subtitle: t("planner.steps.party.subtitle") },
+    { title: t("planner.steps.accessibility.title"), subtitle: t("planner.steps.accessibility.subtitle") }
+  ];
+
   function toggleInterest(interestId) {
     setInterests((prev) =>
       prev.includes(interestId) ? prev.filter((x) => x !== interestId) : [...prev, interestId]
@@ -50,7 +60,6 @@ export default function ItineraryPlanner({ navigate }) {
     setIsGenerating(true);
     setOnboarding({ timeBudgetMinutes, interests, partyType, accessibilityOnly });
 
-    // Simulate constraint-satisfaction route generation over exhibit graph + live crowd feed
     setTimeout(async () => {
       const stops = await generateItineraryRoute({ timeBudgetMinutes, interests, partyType, accessibilityOnly });
       setGeneratedItinerary(stops);
@@ -63,29 +72,22 @@ export default function ItineraryPlanner({ navigate }) {
     navigate("navigation");
   }
 
-  const STEP_TITLES = [
-    { title: "Select Duration", subtitle: "How much time do you have today?" },
-    { title: "Choose Interests", subtitle: "Select at least 1 historical theme" },
-    { title: "Party Type", subtitle: "Tailor the AI voice guide to your group" },
-    { title: "Accessibility & Crowd", subtitle: "Personalize route preferences" }
-  ];
-
   // If itinerary is already generated, display the generated route overview card stack
   if (generatedItinerary) {
     return (
       <div className="min-h-screen flex flex-col justify-between p-6 bg-obsidian text-parchment animate-fade-in">
         <div>
           <div className="flex items-center justify-between mb-2">
-            <h2 className="text-2xl font-display font-bold text-imperial-gold">Your Customized Tour</h2>
+            <h2 className="text-2xl font-display font-bold text-imperial-gold">{t("planner.customTour")}</h2>
             <button
               onClick={() => setGeneratedItinerary(null)}
               className="text-xs text-adwa-emerald hover:underline font-semibold flex items-center gap-1"
             >
-              ✏️ Edit Preferences
+              {t("planner.editPreferences")}
             </button>
           </div>
           <p className="text-xs text-parchment/70 mb-4">
-            AI-optimized route based on your {timeBudgetMinutes ? `${timeBudgetMinutes}m budget` : "full day pass"} & live museum crowd density.
+            {t("planner.aiOptimized").replace("{budget}", timeBudgetMinutes ? `${timeBudgetMinutes}m` : t("planner.time.noLimit"))}
           </p>
 
           <AdwaDivider className="mb-4" />
@@ -94,102 +96,97 @@ export default function ItineraryPlanner({ navigate }) {
           <div className="flex items-center justify-between p-3 rounded-xl bg-obsidian-raised/80 border border-imperial-gold/20 mb-4">
             <div className="flex items-center gap-2 text-xs">
               <span className="inline-block w-2.5 h-2.5 rounded-full bg-adwa-emerald animate-pulse" />
-              <span className="text-parchment font-medium">Live Museum Crowd Feed:</span>
+              <span className="text-parchment font-medium">{t("planner.liveCrowdFeed")}</span>
             </div>
             <span className="text-xs font-semibold text-adwa-emerald bg-adwa-emerald/10 px-2.5 py-0.5 rounded-full border border-adwa-emerald/30">
-              Low Congestion (18% Capacity)
+              {t("planner.lowCongestion")}
             </span>
           </div>
 
-          {/* Generated Stop Cards */}
-          <div className="space-y-3 max-h-[55vh] overflow-y-auto pr-1">
-            {generatedItinerary.map((stop, idx) => (
-              <div
-                key={stop.exhibit_id}
-                className="adwa-glass p-4 border border-imperial-gold/20 rounded-xl flex items-start justify-between gap-3 shadow-sm hover:border-imperial-gold/40 transition-all"
-              >
-                <div className="flex items-start gap-3">
-                  <div className="w-7 h-7 rounded-full bg-imperial-gold/20 text-imperial-gold border border-imperial-gold/40 flex items-center justify-center font-bold text-xs shrink-0 mt-0.5">
-                    {idx + 1}
-                  </div>
-                  <div>
-                    <h3 className="font-display font-bold text-base text-parchment mb-0.5">{stop.name}</h3>
-                    <div className="flex items-center gap-2 text-xs text-parchment/70">
-                      <span>⏱️ ~{stop.minutes} min dwell</span>
-                      <span>•</span>
-                      <span className="text-imperial-gold/90">{stop.category}</span>
+          {/* Generated Stops List */}
+          <div className="space-y-3 max-h-[50vh] overflow-y-auto pr-1">
+            {generatedItinerary.map((stop, idx) => {
+              const displayName = getExhibitText(stop.exhibit_id, "title", language) || stop.name;
+              return (
+                <div
+                  key={stop.exhibit_id || idx}
+                  className="adwa-glass p-4 rounded-xl border border-imperial-gold/30 flex items-center justify-between"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="w-7 h-7 rounded-full bg-imperial-gold/20 text-imperial-gold flex items-center justify-center font-bold text-xs border border-imperial-gold/40">
+                      {idx + 1}
+                    </div>
+                    <div>
+                      <h4 className="font-display font-semibold text-sm text-parchment">{displayName}</h4>
+                      <p className="text-[11px] text-parchment/60">
+                        {getExhibitText(stop.exhibit_id, "category", language) || stop.category} • {t("planner.minDwell").replace("{min}", stop.minutes)}
+                      </p>
                     </div>
                   </div>
+                  <span className="text-xs font-semibold text-adwa-emerald">{stop.crowdStatus}</span>
                 </div>
-                <span className="text-[10px] font-semibold text-adwa-emerald bg-adwa-emerald/10 border border-adwa-emerald/20 px-2 py-0.5 rounded-full">
-                  {stop.crowdStatus || "Optimal"}
-                </span>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
 
-        <div className="pt-4 border-t border-parchment/10">
-          <PrimaryButton onClick={handleStartTour} className="w-full py-3.5 text-base shadow-gold-glow">
-            Start Walking Tour
-          </PrimaryButton>
-        </div>
+        <PrimaryButton onClick={handleStartTour} className="w-full mt-6 py-3 shadow-gold-glow">
+          {t("planner.startWalking")}
+        </PrimaryButton>
       </div>
     );
   }
 
   return (
     <div className="min-h-screen flex flex-col justify-between p-6 bg-obsidian text-parchment">
-      {/* Header & Step Progress Bar */}
+      {/* Header & Step Indicator */}
       <div>
         <div className="flex items-center justify-between mb-2">
-          <h2 className="text-2xl font-display font-bold text-imperial-gold">Plan Your Tour</h2>
-          <span className="text-xs font-semibold text-imperial-gold/80 bg-imperial-gold/10 px-2.5 py-1 rounded-full border border-imperial-gold/30">
-            Step {step + 1} of 4
+          <h2 className="text-2xl font-display font-bold text-imperial-gold">{t("planner.title")}</h2>
+          <span className="text-xs font-semibold px-3 py-1 rounded-full bg-imperial-gold/10 text-imperial-gold border border-imperial-gold/30">
+            {t("planner.stepOf").replace("{step}", step + 1).replace("{total}", 4)}
           </span>
         </div>
 
-        {/* Step Progress Bar Indicator */}
-        <div className="w-full bg-obsidian-raised h-1.5 rounded-full overflow-hidden mb-4 border border-parchment/10">
+        {/* Progress Bar */}
+        <div className="w-full bg-obsidian-overlay h-1.5 rounded-full overflow-hidden mb-6 border border-wanza-wood/40">
           <div
-            className="bg-imperial-gold h-full transition-all duration-300 ease-out"
+            className="bg-imperial-gold h-full transition-all duration-300 shadow-gold-glow"
             style={{ width: `${((step + 1) / 4) * 100}%` }}
           />
         </div>
 
-        <div className="mb-4">
-          <h3 className="text-lg font-bold text-parchment">{STEP_TITLES[step].title}</h3>
-          <p className="text-xs text-parchment/70">{STEP_TITLES[step].subtitle}</p>
+        {/* Step Header */}
+        <div className="mb-6">
+          <h3 className="text-xl font-display font-semibold text-parchment">{STEP_TITLES[step].title}</h3>
+          <p className="text-xs text-parchment/70 mt-1">{STEP_TITLES[step].subtitle}</p>
         </div>
 
-        <AdwaDivider className="mb-6 opacity-30" />
-
-        {/* Wizard Step Content */}
+        {/* Step 0: Duration */}
         {step === 0 && (
           <div className="grid grid-cols-2 gap-3 animate-fade-in">
             {TIME_OPTIONS.map((opt) => {
-              const active = timeBudgetMinutes === opt.value;
+              const selected = timeBudgetMinutes === opt.value;
               return (
                 <button
                   key={opt.label}
                   onClick={() => setTimeBudgetMinutes(opt.value)}
-                  className={`p-4 rounded-xl text-left border transition-all flex flex-col justify-between h-28 ${
-                    active
-                      ? "adwa-glass border-imperial-gold bg-imperial-gold/15 shadow-gold-glow"
-                      : "bg-obsidian-raised/80 border-parchment/20 hover:border-imperial-gold/40 text-parchment/80"
+                  className={`p-4 rounded-xl border text-left transition-all ${
+                    selected
+                      ? "bg-imperial-gold/20 border-imperial-gold text-parchment shadow-gold-glow"
+                      : "bg-obsidian-raised/80 border-parchment/15 text-parchment/70 hover:border-parchment/40"
                   }`}
                 >
-                  <span className="text-2xl">{opt.icon}</span>
-                  <div>
-                    <div className="font-bold text-base text-parchment">{opt.label}</div>
-                    <div className="text-xs text-parchment/60">{opt.sub}</div>
-                  </div>
+                  <span className="text-2xl block mb-1">{opt.icon}</span>
+                  <div className="font-bold text-sm text-parchment">{opt.label}</div>
+                  <div className="text-xs text-parchment/60">{opt.sub}</div>
                 </button>
               );
             })}
           </div>
         )}
 
+        {/* Step 1: Interests */}
         {step === 1 && (
           <div className="space-y-3 animate-fade-in">
             {INTEREST_OPTIONS.map((item) => {
@@ -200,8 +197,8 @@ export default function ItineraryPlanner({ navigate }) {
                   onClick={() => toggleInterest(item.id)}
                   className={`w-full p-3.5 rounded-xl border text-left flex items-center justify-between transition-all ${
                     active
-                      ? "adwa-glass border-imperial-gold bg-imperial-gold/15 shadow-gold-glow"
-                      : "bg-obsidian-raised/80 border-parchment/20 hover:border-imperial-gold/30"
+                      ? "bg-imperial-gold/20 border-imperial-gold shadow-gold-glow"
+                      : "bg-obsidian-raised/80 border-parchment/15 hover:border-parchment/40"
                   }`}
                 >
                   <div className="flex items-center gap-3">
@@ -211,40 +208,37 @@ export default function ItineraryPlanner({ navigate }) {
                       <div className="text-xs text-parchment/60">{item.desc}</div>
                     </div>
                   </div>
-                  <div
-                    className={`w-5 h-5 rounded-md border flex items-center justify-center text-xs font-bold ${
-                      active ? "bg-imperial-gold border-imperial-gold text-obsidian" : "border-parchment/30"
-                    }`}
-                  >
-                    {active ? "✓" : ""}
-                  </div>
+                  <span className={`text-lg font-bold ${active ? "text-imperial-gold" : "text-parchment/20"}`}>
+                    {active ? "✓" : "+"}
+                  </span>
                 </button>
               );
             })}
             {interests.length === 0 && (
-              <p className="text-xs text-adwa-crimson font-medium pt-1">Please select at least 1 theme to continue.</p>
+              <p className="text-xs text-adwa-crimson mt-2">{t("planner.selectAtLeast1")}</p>
             )}
           </div>
         )}
 
+        {/* Step 2: Party Type */}
         {step === 2 && (
           <div className="space-y-3 animate-fade-in">
             {PARTY_OPTIONS.map((party) => {
-              const active = partyType === party.id;
+              const selected = partyType === party.id;
               return (
                 <button
                   key={party.id}
                   onClick={() => setPartyType(party.id)}
                   className={`w-full p-4 rounded-xl border text-left flex items-start gap-3 transition-all ${
-                    active
-                      ? "adwa-glass border-imperial-gold bg-imperial-gold/15 shadow-gold-glow"
-                      : "bg-obsidian-raised/80 border-parchment/20 hover:border-imperial-gold/30"
+                    selected
+                      ? "bg-imperial-gold/20 border-imperial-gold shadow-gold-glow"
+                      : "bg-obsidian-raised/80 border-parchment/15 hover:border-parchment/40"
                   }`}
                 >
                   <span className="text-3xl">{party.icon}</span>
                   <div>
-                    <div className="font-bold text-base text-parchment mb-0.5">{party.label}</div>
-                    <div className="text-xs text-parchment/70 leading-relaxed">{party.desc}</div>
+                    <div className="font-bold text-sm text-parchment">{party.label}</div>
+                    <div className="text-xs text-parchment/70 mt-0.5 leading-relaxed">{party.desc}</div>
                   </div>
                 </button>
               );
@@ -252,6 +246,7 @@ export default function ItineraryPlanner({ navigate }) {
           </div>
         )}
 
+        {/* Step 3: Accessibility */}
         {step === 3 && (
           <div className="space-y-4 animate-fade-in">
             {/* Accessibility Switch Card */}
@@ -259,8 +254,8 @@ export default function ItineraryPlanner({ navigate }) {
               <div className="flex items-center gap-3">
                 <span className="text-2xl">♿</span>
                 <div>
-                  <div className="font-bold text-sm text-parchment">Accessible Routes Only</div>
-                  <div className="text-xs text-parchment/70">Wheelchair & elevator accessible paths</div>
+                  <div className="font-bold text-sm text-parchment">{t("planner.accessibleRoutes")}</div>
+                  <div className="text-xs text-parchment/70">{t("planner.accessibleRoutesDesc")}</div>
                 </div>
               </div>
               <input
@@ -276,15 +271,15 @@ export default function ItineraryPlanner({ navigate }) {
               <div className="flex items-center gap-2 mb-2">
                 <span className="text-lg">📡</span>
                 <span className="font-bold text-xs uppercase tracking-wider text-imperial-gold">
-                  Live Crowd Density Feed
+                  {t("planner.crowdFeed")}
                 </span>
               </div>
               <p className="text-xs text-parchment/80 leading-relaxed mb-3">
-                Adwa Lens dynamically reroutes your tour to skip congested halls and optimize your dwell time at peak exhibits.
+                {t("planner.crowdFeedDesc")}
               </p>
               <div className="flex items-center gap-2 text-xs text-adwa-emerald bg-adwa-emerald/10 p-2.5 rounded-lg border border-adwa-emerald/20">
                 <span>✓</span>
-                <span>Real-time IoT crowd monitoring active</span>
+                <span>{t("planner.crowdActive")}</span>
               </div>
             </div>
           </div>
@@ -298,7 +293,7 @@ export default function ItineraryPlanner({ navigate }) {
           onClick={() => setStep((s) => Math.max(0, s - 1))}
           className="px-4 py-2.5 rounded-full text-xs font-semibold text-parchment/70 hover:text-parchment disabled:opacity-30 disabled:pointer-events-none transition-colors"
         >
-          ← Back
+          {t("planner.backBtn")}
         </button>
 
         {step < 3 ? (
@@ -307,7 +302,7 @@ export default function ItineraryPlanner({ navigate }) {
             onClick={() => setStep((s) => s + 1)}
             className="px-8 py-2.5 text-sm"
           >
-            Next Step →
+            {t("planner.nextStep")}
           </PrimaryButton>
         ) : (
           <PrimaryButton
@@ -315,7 +310,7 @@ export default function ItineraryPlanner({ navigate }) {
             disabled={isGenerating}
             className="px-6 py-2.5 text-sm shadow-gold-glow"
           >
-            {isGenerating ? "Generating Route..." : "Generate Itinerary"}
+            {isGenerating ? t("planner.generatingRoute") : t("planner.generateItinerary")}
           </PrimaryButton>
         )}
       </div>

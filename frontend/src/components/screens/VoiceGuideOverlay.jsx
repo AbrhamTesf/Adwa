@@ -1,17 +1,16 @@
 import React, { useCallback, useRef, useState } from "react";
 import { useVoiceGuide } from "../../hooks/useVoiceGuide";
 import { useExhibitStore } from "../../stores/useExhibitStore";
-import { PERSONAS } from "../../personas/personas";
+import { PERSONAS, getPersonaLabel, getPersonaGreeting } from "../../personas/personas";
 import { useSessionStore } from "../../stores/useSessionStore";
+import { useTranslation } from "../../lib/i18n";
+import { getExhibitText } from "../../data/exhibitsData";
 
 /**
  * Screen 7 — Dynamic Voice AI Tour Guide / Q&A
- *
- * FEAT-015: Mid-tour persona switcher with golden ring active indicator,
- * audio interruption on switch, transition greeting TTS playback,
- * and text submit input fallback.
  */
 export default function VoiceGuideOverlay({ navigate }) {
+  const { t, language } = useTranslation();
   const exhibit = useExhibitStore((s) => s.activeExhibit);
   const persona = useSessionStore((s) => s.persona);
   const setPersona = useSessionStore((s) => s.setPersona);
@@ -28,14 +27,13 @@ export default function VoiceGuideOverlay({ navigate }) {
   const [inputQuery, setInputQuery] = useState("");
   const transitionAudioRef = useRef(null);
 
-  /**
-   * FEAT-015: Handle persona chip selection.
-   */
+  const exhibitId = exhibit?.exhibit_id || "taytu_statue";
+  const exhibitName = getExhibitText(exhibitId, "title", language) || exhibit?.name || "Empress Taytu Monument";
+
   const handlePersonaSwitch = useCallback(
     async (newPersonaId) => {
       if (newPersonaId === persona) return;
 
-      /* ---- 1. Interrupt any in-flight audio ---- */
       if (stopAudio) stopAudio();
       if (transitionAudioRef.current) {
         transitionAudioRef.current.pause();
@@ -44,20 +42,17 @@ export default function VoiceGuideOverlay({ navigate }) {
       }
       window.speechSynthesis?.cancel();
 
-      /* ---- 2. Update store ---- */
       setPersona(newPersonaId);
 
-      /* ---- 3. Show transition greeting immediately ---- */
       const selected = PERSONAS.find((p) => p.id === newPersonaId);
-      const greeting = selected?.transitionGreeting || "";
+      const greeting = selected ? getPersonaGreeting(selected, language) : "";
       if (setCaptions) setCaptions(greeting);
 
-      /* ---- 4. Speak the transition greeting via TTS ---- */
       try {
         const res = await fetch("/api/tts-stream", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ text: greeting, persona: newPersonaId })
+          body: JSON.stringify({ text: greeting, persona: newPersonaId, language })
         });
         if (!res.ok) throw new Error("TTS upstream failed");
         const audio = new Audio(URL.createObjectURL(await res.blob()));
@@ -65,10 +60,11 @@ export default function VoiceGuideOverlay({ navigate }) {
         await audio.play();
       } catch {
         const utter = new SpeechSynthesisUtterance(greeting);
+        if (language === "am") utter.lang = "am-ET";
         window.speechSynthesis?.speak(utter);
       }
     },
-    [persona, setPersona, setCaptions, stopAudio]
+    [persona, setPersona, setCaptions, stopAudio, language]
   );
 
   const handleTextSubmit = (e) => {
@@ -80,36 +76,37 @@ export default function VoiceGuideOverlay({ navigate }) {
   };
 
   return (
-    <div className="min-h-screen flex flex-col justify-end bg-obsidian/60 bg-adwa-geometry p-4">
+    <div className="min-h-screen flex flex-col justify-end bg-obsidian/60 bg-adwa-geometry p-4 text-parchment">
       <div className="adwa-glass rounded-2xl p-6 shadow-gold-glow border border-imperial-gold/30">
         {/* ---- Top Header ---- */}
         <div className="flex items-center justify-between mb-3 border-b border-imperial-gold/20 pb-3">
           <div>
             <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-imperial-gold">
-              AI Voice Guide & RAG
+              {t("voiceGuide.header", "AI Voice Guide & RAG")}
             </p>
             <h2 className="font-display text-base text-parchment">
-              {exhibit?.name || "Empress Taytu Monument"}
+              {exhibitName}
             </h2>
           </div>
           <span className="rounded-full bg-imperial-gold/15 px-3 py-1 text-xs text-imperial-gold border border-imperial-gold/30">
             {status === "listening"
-              ? "🎙️ Listening…"
+              ? t("voiceGuide.status.listening", "🎙️ Listening…")
               : status === "thinking"
-              ? "🧠 Thinking…"
+              ? t("voiceGuide.status.thinking", "🧠 Thinking…")
               : status === "speaking"
-              ? "🔊 Speaking…"
-              : "✦ Ready"}
+              ? t("voiceGuide.status.speaking", "🔊 Speaking…")
+              : t("voiceGuide.status.ready", "✦ Ready")}
           </span>
         </div>
 
-        {/* ---- FEAT-015: Persona Switcher Section ---- */}
+        {/* ---- Persona Switcher Section ---- */}
         <p className="text-center text-[10px] font-semibold uppercase tracking-[0.2em] text-imperial-gold-light/60 mb-2">
-          SELECT GUIDE PERSONA
+          {t("voiceGuide.selectPersona", "Select Guide Persona")}
         </p>
         <div className="flex justify-center gap-3 mb-4">
           {PERSONAS.map((p) => {
             const isActive = persona === p.id;
+            const pLabel = getPersonaLabel(p, language);
             return (
               <button
                 key={p.id}
@@ -123,12 +120,12 @@ export default function VoiceGuideOverlay({ navigate }) {
                 data-active={isActive}
                 onClick={() => handlePersonaSwitch(p.id)}
                 aria-pressed={isActive}
-                aria-label={`Switch to ${p.label} guide persona`}
+                aria-label={`Switch to ${pLabel} guide persona`}
               >
                 <span className="text-sm" role="img" aria-hidden="true">
                   {p.icon}
                 </span>
-                <span className="font-medium">{p.label}</span>
+                <span className="font-medium">{pLabel}</span>
               </button>
             );
           })}
@@ -137,7 +134,7 @@ export default function VoiceGuideOverlay({ navigate }) {
         {/* ---- Captions / Response Display ---- */}
         <div className="min-h-[4.5em] max-h-[8em] overflow-y-auto rounded-xl bg-obsidian-raised/80 p-3.5 mb-4 border border-imperial-gold/20 text-center flex items-center justify-center">
           <p className="text-xs sm:text-sm text-parchment/90 leading-relaxed">
-            {captions || "Ask me anything about Empress Taytu or the Battle of Adwa."}
+            {captions || t("voiceGuide.defaultPrompt", "Ask me anything about Empress Taytu or the Battle of Adwa.")}
           </p>
         </div>
 
@@ -157,7 +154,7 @@ export default function VoiceGuideOverlay({ navigate }) {
             🎙️
           </button>
           <p className="mt-2 text-center text-xs text-parchment/60 font-medium">
-            Hold button to speak • Release to send
+            {t("voiceGuide.holdToSpeak", "Hold to speak • Release to send")}
           </p>
         </div>
 
@@ -167,7 +164,7 @@ export default function VoiceGuideOverlay({ navigate }) {
             type="text"
             value={inputQuery}
             onChange={(e) => setInputQuery(e.target.value)}
-            placeholder="Type your question here..."
+            placeholder={t("voiceGuide.typePlaceholder", "Type your question here...")}
             className="flex-1 bg-obsidian-raised/90 text-parchment placeholder-parchment/50 rounded-xl px-4 py-2.5 text-xs sm:text-sm border border-imperial-gold/30 focus:border-imperial-gold focus:outline-none"
             disabled={status !== "idle"}
           />
@@ -176,7 +173,7 @@ export default function VoiceGuideOverlay({ navigate }) {
             disabled={!inputQuery.trim() || status !== "idle"}
             className="adwa-btn-primary px-4 py-2.5 rounded-xl text-xs sm:text-sm font-semibold flex items-center gap-1.5 disabled:opacity-50 disabled:cursor-not-allowed shrink-0"
           >
-            <span>Send</span>
+            <span>{t("common.send", "Send")}</span>
             <span>➔</span>
           </button>
         </form>
@@ -187,7 +184,7 @@ export default function VoiceGuideOverlay({ navigate }) {
           className="mt-4 text-xs text-imperial-gold underline mx-auto block hover:text-parchment transition-colors"
           onClick={() => navigate?.("inspection")}
         >
-          Back to 3D Inspection
+          {t("voiceGuide.backToInspection", "Back to 3D Inspection")}
         </button>
       </div>
     </div>

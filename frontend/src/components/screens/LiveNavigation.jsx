@@ -2,6 +2,8 @@ import React, { useMemo, useState } from "react";
 import PrimaryButton from "../ui/PrimaryButton.jsx";
 import Chip from "../ui/Chip.jsx";
 import { useSessionStore } from "../../stores/useSessionStore";
+import { useTranslation } from "../../lib/i18n";
+import { getExhibitText } from "../../data/exhibitsData";
 
 /**
  * Venue floor plan — top-down gallery layout with a single spine corridor.
@@ -24,43 +26,8 @@ const ROOM_CENTERS = FLOOR_ROOMS.reduce((acc, room) => {
   return acc;
 }, {});
 
-/** Crowd density presentation — green / amber / red per Screen 3 spec. */
-const DENSITY = {
-  low: {
-    label: "Clear",
-    stroke: "stroke-adwa-emerald",
-    dot: "bg-adwa-emerald",
-    badge: "text-adwa-emerald border-adwa-emerald/30 bg-adwa-emerald/10",
-    weight: 0
-  },
-  medium: {
-    label: "Busy",
-    stroke: "stroke-imperial-gold",
-    dot: "bg-imperial-gold",
-    badge: "text-imperial-gold border-imperial-gold/30 bg-imperial-gold/10",
-    weight: 1
-  },
-  high: {
-    label: "Congested",
-    stroke: "stroke-adwa-crimson",
-    dot: "bg-adwa-crimson",
-    badge: "text-adwa-crimson border-adwa-crimson/30 bg-adwa-crimson/10",
-    weight: 2
-  }
-};
-
-const CROWD_STATUS_TO_DENSITY = {
-  optimal: "low",
-  clear: "low",
-  low: "low",
-  moderate: "medium",
-  busy: "medium",
-  congested: "high",
-  high: "high",
-  packed: "high"
-};
-
 export default function LiveNavigation({ navigate }) {
+  const { t, language } = useTranslation();
   const itinerary = useSessionStore((s) => s.itinerary);
   const currentStopIndex = useSessionStore((s) => s.currentStopIndex);
   const visitedExhibitIds = useSessionStore((s) => s.visitedExhibitIds);
@@ -68,8 +35,7 @@ export default function LiveNavigation({ navigate }) {
   const advanceStop = useSessionStore((s) => s.advanceStop);
   const markVisited = useSessionStore((s) => s.markVisited);
 
-  // Stops deferred by "Reroute to avoid crowd" — visual reorder only, the
-  // planner's stored itinerary stays untouched so tour progress is preserved.
+  // Stops deferred by "Reroute to avoid crowd" — visual reorder only
   const [deferredIds, setDeferredIds] = useState([]);
   const [checkInNotice, setCheckInNotice] = useState(null);
 
@@ -80,7 +46,14 @@ export default function LiveNavigation({ navigate }) {
   );
 
   const currentStop = route[currentStopIndex];
+  const currentStopName = currentStop
+    ? getExhibitText(currentStop.exhibit_id, "title", language) || currentStop.name
+    : "";
   const nextStop = route[currentStopIndex + 1];
+  const nextStopName = nextStop
+    ? getExhibitText(nextStop.exhibit_id, "title", language) || nextStop.name
+    : "";
+
   const isLastStop = route.length > 0 && currentStopIndex >= route.length - 1;
   const congestedAhead = findCongestedStopAhead(route, currentStopIndex, deferredIds);
   const position = currentStop ? positionForStop(currentStop, currentStopIndex) : null;
@@ -90,68 +63,79 @@ export default function LiveNavigation({ navigate }) {
     if (currentStop.exhibit_id) markVisited(currentStop.exhibit_id);
     setCheckInNotice(
       nextStop
-        ? `Checked in at ${currentStop.name}. Next: ${nextStop.name}.`
-        : `Checked in at ${currentStop.name}. That was your final stop.`
+        ? t("navigation.checkedIn").replace("{name}", currentStopName).replace("{next}", nextStopName)
+        : t("navigation.checkedInFinal").replace("{name}", currentStopName)
     );
     advanceStop();
   }
 
-  // Defers the busiest upcoming hall to the end of the walking order.
   function handleReroute() {
-    if (!congestedAhead?.stop?.exhibit_id) return;
-    setDeferredIds((prev) => [...prev, congestedAhead.stop.exhibit_id]);
-    setCheckInNotice(`Rerouted — ${congestedAhead.stop.name} moved to the end of your route.`);
+    if (!congestedAhead) return;
+    const targetId = congestedAhead.stop.exhibit_id;
+    if (!targetId || deferredIds.includes(targetId)) return;
+    const congestedName = getExhibitText(targetId, "title", language) || congestedAhead.stop.name;
+    setDeferredIds((prev) => [...prev, targetId]);
+    setCheckInNotice(t("navigation.rerouted").replace("{name}", congestedName));
   }
 
-  if (route.length === 0) {
+  const currentDensity = currentStop ? densityForStop(currentStop, deferredIds) : "low";
+
+  if (!route || route.length === 0) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center gap-4 p-6 text-center">
-        <span className="text-4xl">🗺️</span>
-        <h2 className="text-2xl font-display font-bold text-imperial-gold">No Route Yet</h2>
-        <p className="text-sm text-parchment/70 max-w-xs">
-          Plan your tour first and Adwa Lens will draw a walking route across the museum floor.
-        </p>
-        <PrimaryButton onClick={() => navigate("planner")}>Plan My Tour</PrimaryButton>
+      <div className="flex min-h-screen flex-col justify-between bg-obsidian bg-adwa-geometry px-5 pb-6 pt-5 text-parchment">
+        <header className="flex items-center justify-between">
+          <button type="button" className="adwa-btn-secondary px-3 py-1.5 text-xs" onClick={() => navigate("landing")}>
+            ← {t("common.back")}
+          </button>
+          <h1 className="font-display text-lg text-imperial-gold">{t("navigation.title")}</h1>
+          <div className="w-12" />
+        </header>
+
+        <div className="my-auto text-center adwa-card mx-auto max-w-sm border-imperial-gold/30">
+          <span className="text-4xl block mb-2">🗺️</span>
+          <h2 className="font-display text-xl text-imperial-gold mb-2">{t("navigation.noRoute")}</h2>
+          <p className="text-xs text-parchment/70 mb-5 leading-relaxed">
+            {t("navigation.noRouteDesc")}
+          </p>
+          <PrimaryButton className="w-full" onClick={() => navigate("planner")}>
+            {t("navigation.planMyTour")}
+          </PrimaryButton>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen flex flex-col p-6 pb-4">
-      <div className="flex items-start justify-between mb-3">
-        <div>
-          <h2 className="text-2xl font-display font-bold text-imperial-gold">Live Navigation</h2>
-          <p className="text-xs text-parchment/70">
-            Stop {Math.min(currentStopIndex + 1, route.length)} of {route.length}
-            {accessibilityOnly ? " · Accessible route" : ""}
+    <div className="flex min-h-screen flex-col overflow-hidden bg-obsidian bg-adwa-geometry px-5 pb-6 pt-5 text-parchment">
+      {/* Header */}
+      <header className="mb-3 flex items-center justify-between">
+        <button
+          type="button"
+          className="adwa-btn-secondary px-3 py-1.5 text-xs"
+          onClick={() => navigate("planner")}
+        >
+          ← {t("common.back")}
+        </button>
+        <div className="text-center">
+          <h1 className="font-display text-base text-imperial-gold">{t("navigation.title")}</h1>
+          <p className="text-[11px] text-parchment/60">
+            {t("navigation.stopOf").replace("{current}", currentStopIndex + 1).replace("{total}", route.length)}
+            {accessibilityOnly ? t("navigation.accessibleRoute") : ""}
           </p>
         </div>
-        <span className="text-[10px] font-semibold text-adwa-emerald bg-adwa-emerald/10 border border-adwa-emerald/30 px-2.5 py-1 rounded-full flex items-center gap-1.5">
-          <span className="inline-block w-1.5 h-1.5 rounded-full bg-adwa-emerald animate-pulse" />
-          Checkpoint mode
-        </span>
-      </div>
+        <button type="button" className="adwa-btn-secondary px-3 py-1.5 text-xs" onClick={() => navigate("memoryDeck")}>
+          {t("memoryDeck.title")}
+        </button>
+      </header>
 
-      {/* [1] 2D top-down SVG floor map with density-coloured route line */}
-      <div className="adwa-card mb-3">
-        <svg
-          viewBox="0 0 320 236"
-          className="w-full max-h-[45vh]"
-          role="img"
-          aria-label={`Museum floor map showing your route. You are at ${currentStop?.name ?? "the entrance"}.`}
-        >
-          <rect
-            x={CORRIDOR.x}
-            y={CORRIDOR.y}
-            width={CORRIDOR.w}
-            height={CORRIDOR.h}
-            rx="6"
-            className="fill-obsidian-overlay stroke-imperial-gold/25"
-            strokeWidth="1"
-          />
-
+      {/* SVG Map Canvas */}
+      <div className="relative min-h-0 flex-1 overflow-hidden rounded-xl2 border border-imperial-gold/30 bg-obsidian-raised shadow-gold-glow">
+        <svg viewBox="0 0 320 240" className="h-full w-full" aria-label="Museum floor plan">
+          {/* Gallery rooms */}
           {FLOOR_ROOMS.map((room) => {
-            const isRouteRoom = route.some((stop) => stop.exhibit_id === room.exhibitId);
+            const isCurrentRoom = currentStop?.exhibit_id === room.exhibitId;
+            const isVisitedRoom = visitedExhibitIds.includes(room.exhibitId);
+            const roomTitle = getExhibitText(room.exhibitId, "title", language) || room.label;
             return (
               <g key={room.exhibitId}>
                 <rect
@@ -159,118 +143,150 @@ export default function LiveNavigation({ navigate }) {
                   y={room.y}
                   width={room.w}
                   height={room.h}
-                  rx="8"
+                  rx="6"
                   className={
-                    isRouteRoom
-                      ? "fill-imperial-gold/10 stroke-imperial-gold/50"
-                      : "fill-obsidian-raised/60 stroke-wanza-wood-light"
+                    isCurrentRoom
+                      ? "fill-imperial-gold/20 stroke-imperial-gold stroke-[1.5]"
+                      : isVisitedRoom
+                        ? "fill-adwa-emerald/10 stroke-adwa-emerald/60 stroke-1"
+                        : "fill-obsidian-overlay/60 stroke-parchment/20 stroke-1"
                   }
-                  strokeWidth="1"
                 />
                 <text
                   x={room.x + room.w / 2}
-                  y={room.y + room.h - 8}
+                  y={room.y + room.h / 2}
                   textAnchor="middle"
-                  fontSize="7"
-                  className={isRouteRoom ? "fill-parchment/80" : "fill-parchment/35"}
+                  dominantBaseline="middle"
+                  className="fill-parchment/80 font-sans text-[9px] font-medium"
                 >
-                  {room.label}
+                  {roomTitle}
                 </text>
               </g>
             );
           })}
 
-          {segments.map((segment) => (
+          {/* Central spine corridor */}
+          <rect
+            x={CORRIDOR.x}
+            y={CORRIDOR.y}
+            width={CORRIDOR.w}
+            height={CORRIDOR.h}
+            rx="4"
+            className="fill-obsidian/80 stroke-parchment/15 stroke-1"
+          />
+
+          {/* Route path segments */}
+          {segments.map((seg) => (
             <polyline
-              key={`${segment.fromId}-${segment.toId}`}
-              points={segment.points}
+              key={`${seg.fromId}-${seg.toId}`}
+              points={seg.points}
               fill="none"
-              strokeWidth="2.5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeDasharray="6 5"
-              className={DENSITY[segment.density].stroke}
-              opacity={segment.walked ? 0.35 : 1}
+              strokeWidth={seg.walked ? "2" : "2.5"}
+              strokeDasharray={seg.walked ? "3,3" : "none"}
+              className={
+                seg.walked
+                  ? "stroke-parchment/30"
+                  : seg.density === "high"
+                    ? "stroke-adwa-crimson animate-pulse"
+                    : seg.density === "medium"
+                      ? "stroke-imperial-gold"
+                      : "stroke-adwa-emerald"
+              }
             />
           ))}
 
           {accessibilityOnly && <AccessibilityMarkers />}
 
-          {route.map((stop, index) => (
+          {/* Stop Markers */}
+          {route.map((stop, idx) => (
             <StopMarker
-              key={stop.exhibit_id ?? index}
+              key={stop.exhibit_id || idx}
               stop={stop}
-              index={index}
-              isCurrent={index === currentStopIndex}
+              index={idx}
+              isCurrent={idx === currentStopIndex}
               isVisited={visitedExhibitIds.includes(stop.exhibit_id)}
             />
           ))}
 
+          {/* User Position Dot */}
           {position && <UserPositionDot x={position.x} y={position.y} />}
         </svg>
 
-        <div className="flex items-center justify-center gap-4 pt-3 shrink-0 text-[10px] text-parchment/60">
-          {Object.entries(DENSITY).map(([key, style]) => (
-            <span key={key} className="flex items-center gap-1.5">
-              <span className={`inline-block w-2 h-2 rounded-full ${style.dot}`} />
-              {style.label}
-            </span>
-          ))}
+        {/* Legend */}
+        <div className="absolute top-2 right-2 flex flex-col gap-1 rounded-lg border border-parchment/10 bg-obsidian/85 p-2 backdrop-blur-md">
+          <div className="flex items-center gap-1.5 text-[10px]">
+            <span className="h-2 w-2 rounded-full bg-adwa-emerald" />
+            <span className="text-parchment/80">{t("navigation.density.clear")}</span>
+          </div>
+          <div className="flex items-center gap-1.5 text-[10px]">
+            <span className="h-2 w-2 rounded-full bg-imperial-gold" />
+            <span className="text-parchment/80">{t("navigation.density.busy")}</span>
+          </div>
+          <div className="flex items-center gap-1.5 text-[10px]">
+            <span className="h-2 w-2 rounded-full bg-adwa-crimson" />
+            <span className="text-parchment/80">{t("navigation.density.congested")}</span>
+          </div>
         </div>
       </div>
 
+      {/* Reroute Alert Banner */}
       {congestedAhead && (
-        <div className="mb-3">
-          <Chip label={`Reroute to avoid crowd in ${congestedAhead.stop.name}`} icon="⚠️" onClick={handleReroute} />
-        </div>
-      )}
-
-      {checkInNotice && (
-        <p className="text-xs text-adwa-emerald bg-adwa-emerald/10 border border-adwa-emerald/25 rounded-xl px-3 py-2 mb-3">
-          {checkInNotice}
-        </p>
-      )}
-
-      {/* [2] Bottom sheet — current stop detail + manual checkpoint check-in */}
-      <div className="adwa-glass p-4 mt-auto">
-        <div className="flex items-start justify-between gap-3 mb-1">
-          <div>
-            <p className="text-[11px] uppercase tracking-wider text-parchment/60 mb-0.5">
-              {isLastStop ? "Final stop" : "You are here"}
-            </p>
-            <p className="text-lg font-display font-bold text-parchment">{currentStop?.name}</p>
+        <div className="mt-3 flex items-center justify-between rounded-xl border border-adwa-crimson/40 bg-adwa-crimson/15 p-3 text-xs text-parchment">
+          <div className="flex items-center gap-2">
+            <span className="text-base">⚠️</span>
+            <span>
+              {t("navigation.reroute").replace("{name}", getExhibitText(congestedAhead.stop.exhibit_id, "title", language) || congestedAhead.stop.name)}
+            </span>
           </div>
-          <CrowdBadge density={densityForStop(currentStop, deferredIds)} />
+          <button
+            type="button"
+            className="adwa-btn-secondary py-1 px-2.5 text-[11px] whitespace-nowrap"
+            onClick={handleReroute}
+          >
+            {t("common.retry")}
+          </button>
+        </div>
+      )}
+
+      {/* Notice Banner */}
+      {checkInNotice && (
+        <div className="mt-2 text-center text-xs font-medium text-adwa-emerald bg-adwa-emerald/10 p-2 rounded-lg border border-adwa-emerald/30">
+          {checkInNotice}
+        </div>
+      )}
+
+      {/* Bottom Sheet */}
+      <div className="mt-3 adwa-card border-imperial-gold/30 p-4">
+        <div className="mb-2 flex items-center justify-between">
+          <span className="text-xs uppercase font-semibold tracking-wider text-imperial-gold">
+            {t("navigation.youAreHere")}
+          </span>
+          <CrowdBadge density={currentDensity} />
         </div>
 
+        <h2 className="font-display text-lg text-parchment mb-1">{currentStopName}</h2>
         <div className="flex items-center gap-2 text-xs text-parchment/70 mb-3">
-          {currentStop?.minutes && <span>⏱️ ~{currentStop.minutes} min dwell</span>}
-          {currentStop?.category && (
-            <>
-              <span>•</span>
-              <span className="text-imperial-gold/90">{currentStop.category}</span>
-            </>
-          )}
+          <span>{getExhibitText(currentStop.exhibit_id, "category", language) || currentStop.category}</span>
         </div>
 
-        {nextStop && (
+        {nextStopName && (
           <p className="text-xs text-parchment/60 mb-3">
-            Then walk to <span className="text-parchment/90">{nextStop.name}</span>
-            {accessibilityOnly ? " via the elevator corridor" : ""}.
+            {t("navigation.thenWalkTo")} <span className="text-parchment/90">{nextStopName}</span>
+            {accessibilityOnly ? t("navigation.viaElevator") : ""}.
           </p>
         )}
 
         <div className="flex flex-col gap-2">
           <button className="adwa-btn-primary w-full" onClick={() => navigate("scanner")}>
-            Scan This Exhibit
+            {t("navigation.scanExhibit")}
           </button>
           {isLastStop ? (
             <button className="adwa-btn-secondary w-full" onClick={() => navigate("memoryDeck")}>
-              I&apos;m here — Finish Tour
+              {t("navigation.finishTour")}
             </button>
           ) : (
             <button className="adwa-btn-secondary w-full" onClick={handleCheckIn}>
-              I&apos;m here — Check In &amp; Continue
+              {t("navigation.checkIn")}
             </button>
           )}
         </div>
@@ -326,7 +342,6 @@ function StopMarker({ stop, index, isCurrent, isVisited }) {
   );
 }
 
-/** Elevator / ramp affordances shown only when accessibility mode is on. */
 function AccessibilityMarkers() {
   const markers = [
     { x: 30, y: CORRIDOR_Y, glyph: "🛗" },
@@ -345,7 +360,13 @@ function AccessibilityMarkers() {
 }
 
 function CrowdBadge({ density }) {
-  const style = DENSITY[density];
+  const { t } = useTranslation();
+  const DENSITY_DISPLAY = {
+    low: { label: t("navigation.density.clear"), badge: "text-adwa-emerald border-adwa-emerald/30 bg-adwa-emerald/10" },
+    medium: { label: t("navigation.density.busy"), badge: "text-imperial-gold border-imperial-gold/30 bg-imperial-gold/10" },
+    high: { label: t("navigation.density.congested"), badge: "text-adwa-crimson border-adwa-crimson/30 bg-adwa-crimson/10" }
+  };
+  const style = DENSITY_DISPLAY[density] || DENSITY_DISPLAY.low;
   return (
     <span className={`text-[10px] font-semibold px-2.5 py-1 rounded-full border whitespace-nowrap ${style.badge}`}>
       {style.label}
@@ -356,20 +377,24 @@ function CrowdBadge({ density }) {
 function positionForStop(stop, index) {
   const known = ROOM_CENTERS[stop?.exhibit_id];
   if (known) return known;
-  // Unmapped exhibit — park it along the corridor spine so the route stays drawable.
   return { x: 48 + ((index * 64) % 224), y: CORRIDOR_Y };
 }
 
 function densityForStop(stop, deferredIds = []) {
   if (!stop) return "low";
-  // A deferred hall is expected to have cleared by the time the visitor loops back.
   if (deferredIds.includes(stop.exhibit_id)) return "low";
   const mapped = CROWD_STATUS_TO_DENSITY[String(stop.crowdStatus ?? "").trim().toLowerCase()];
   if (mapped) return mapped;
   return simulatedDensity(stop.exhibit_id ?? "");
 }
 
-/** Deterministic stand-in for the venue's IoT people-counter feed. */
+const DENSITY_WEIGHTS = { low: 0, medium: 1, high: 2 };
+const CROWD_STATUS_TO_DENSITY = {
+  optimal: "low", clear: "low", low: "low",
+  moderate: "medium", busy: "medium",
+  congested: "high", high: "high", packed: "high"
+};
+
 function simulatedDensity(exhibitId) {
   const hash = [...exhibitId].reduce((sum, char) => sum + char.charCodeAt(0), 0);
   const bucket = hash % 7;
@@ -379,10 +404,9 @@ function simulatedDensity(exhibitId) {
 }
 
 function worseDensity(a, b) {
-  return DENSITY[a].weight >= DENSITY[b].weight ? a : b;
+  return DENSITY_WEIGHTS[a] >= DENSITY_WEIGHTS[b] ? a : b;
 }
 
-// Route legs walk stop -> corridor spine -> corridor spine -> next stop.
 function buildRouteSegments(route, deferredIds, currentStopIndex) {
   const segments = [];
   for (let i = 0; i < route.length - 1; i += 1) {
@@ -404,8 +428,8 @@ function findCongestedStopAhead(route, currentStopIndex, deferredIds) {
   let worst = null;
   for (let i = currentStopIndex + 1; i < route.length; i += 1) {
     const density = densityForStop(route[i], deferredIds);
-    if (DENSITY[density].weight === 0) continue;
-    if (!worst || DENSITY[density].weight > DENSITY[worst.density].weight) {
+    if (DENSITY_WEIGHTS[density] === 0) continue;
+    if (!worst || DENSITY_WEIGHTS[density] > DENSITY_WEIGHTS[worst.density]) {
       worst = { stop: route[i], index: i, density };
     }
   }

@@ -1,5 +1,5 @@
 /**
- * FEAT-015 — Client-side persona display metadata.
+ * FEAT-015 — Client-side persona display metadata with Amharic & English support.
  *
  * Icons and labels only — full prompt engineering stays server-side
  * in backend/lib/personas.js. The transitionGreeting is duplicated
@@ -12,23 +12,50 @@
 export const PERSONAS = [
   {
     id: "kids",
-    label: "Explorer Kids",
+    label: {
+      en: "Explorer Kids",
+      am: "የሕፃናት አሳሽ"
+    },
     icon: "🎒",
-    transitionGreeting:
-      "Hey there, explorer! 🎒 Ready to discover something seriously amazing? Let's go on an adventure!"
+    transitionGreeting: {
+      en: "Hey there, explorer! 🎒 Ready to discover something seriously amazing? Let's go on an adventure!",
+      am: "ሰላም አሳሽ! 🎒 ድንቅ ነገር ለማወቅ ተዘጋጅተሃል? ወደ አስደሳች ጉዞ እንሂድ!"
+    }
   },
   {
     id: "scholar",
-    label: "History Scholar",
+    label: {
+      en: "History Scholar",
+      am: "የታሪክ ተመራማሪ"
+    },
     icon: "🎓",
-    transitionGreeting:
-      "Let us examine this artifact through the lens of documented historical record. I shall provide precise context drawn from primary sources and material analysis."
+    transitionGreeting: {
+      en: "Let us examine this artifact through the lens of documented historical record. I shall provide precise context drawn from primary sources and material analysis.",
+      am: "ይህንን ቅርሳዊ ማስረጃ በታሪካዊ መረጃዎች መነፅር እንመርምር። ከዋና ምንጮች የተቀዱ ትክክለኛ መረጃዎችን አቀርባለሁ።"
+    }
   },
   {
     id: "royal",
-    label: "Imperial Guide",
+    label: {
+      en: "Imperial Guide",
+      am: "የንግሥና መሪ"
+    },
     icon: "👑",
-    transitionGreeting:
-      "I am honored to receive you, esteemed visitor. Allow me to share with you the treasures of our great empire and the legacy of those who defended this sacred land."
+    transitionGreeting: {
+      en: "I am honored to receive you, esteemed visitor. Allow me to share with you the treasures of our great empire and the legacy of those who defended this sacred land.",
+      am: "ክቡር እንግዳችን፣ እንኳን ደህና መጡ። የዚህች የተቀደሰች ምድር የጀግኖች ታሪክና ቅርስ አካፍልዎታለሁ።"
+    }
   }
 ];
+
+export function getPersonaLabel(persona, lang = "en") {
+  if (!persona) return "";
+  if (typeof persona.label === "string") return persona.label;
+  return persona.label?.[lang] || persona.label?.en || "";
+}
+
+export function getPersonaGreeting(persona, lang = "en") {
+  if (!persona) return "";
+  if (typeof persona.transitionGreeting === "string") return persona.transitionGreeting;
+  return persona.transitionGreeting?.[lang] || persona.transitionGreeting?.en || "";
+}

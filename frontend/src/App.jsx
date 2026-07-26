@@ -10,6 +10,7 @@ import SensoryHub from "./components/screens/SensoryHub.jsx";
 import VoiceGuideOverlay from "./components/screens/VoiceGuideOverlay.jsx";
 import MemoryDeck from "./components/screens/MemoryDeck.jsx";
 import ResumeTour from "./components/screens/ResumeTour.jsx";
+import LanguageToggle from "./components/ui/LanguageToggle.jsx";
 
 const SCREENS = {
   landing: Landing,
@@ -87,8 +88,9 @@ export default function App() {
   }, []);
 
   return (
-    <div className="min-h-screen w-full">
+    <div className="min-h-screen w-full relative">
       <ScreenComponent navigate={navigate} recoveryToken={recoveryToken} />
+      {screen !== "landing" && <LanguageToggle />}
     </div>
   );
 }

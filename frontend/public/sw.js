@@ -4,7 +4,7 @@
  * 3D models, app shell, and static persona script fallbacks.
  */
 
-const CACHE_NAME = "adwa-lens-v1";
+const CACHE_NAME = "adwa-lens-v2";
 
 const PRECACHE_ASSETS = [
   "/",
@@ -48,13 +48,22 @@ self.addEventListener("activate", (event) => {
   );
 });
 
-// Fetch Event: Cache-First for exhibits/models, Network-First for APIs with offline fallbacks
+// Fetch Event: Network-First for App Code & Scripts, Cache-First for 3D Models/Assets
 self.addEventListener("fetch", (event) => {
   const { request } = event;
   const url = new URL(request.url);
 
   // Skip non-GET requests
   if (request.method !== "GET") {
+    return;
+  }
+
+  // Bypass cache entirely for Vite dev server HMR & source files
+  if (
+    url.pathname.startsWith("/@") ||
+    url.pathname.startsWith("/src/") ||
+    url.pathname.includes("node_modules")
+  ) {
     return;
   }
 
@@ -88,21 +97,19 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
-  // 3. General Static Assets → Cache First
+  // 3. General Static Code & Assets → Network First with Cache Fallback
   event.respondWith(
-    caches.match(request).then((cached) => {
-      if (cached) return cached;
-
-      return fetch(request)
-        .then((response) => {
-          if (response.status === 200 && (url.protocol === "http:" || url.protocol === "https:")) {
-            const responseToCache = response.clone();
-            caches.open(CACHE_NAME).then((cache) => cache.put(request, responseToCache));
-          }
-          return response;
-        })
-        .catch(() => {
-          // Synthetic fallback for exhibit requests if offline
+    fetch(request)
+      .then((response) => {
+        if (response.status === 200 && (url.protocol === "http:" || url.protocol === "https:")) {
+          const responseToCache = response.clone();
+          caches.open(CACHE_NAME).then((cache) => cache.put(request, responseToCache));
+        }
+        return response;
+      })
+      .catch(() => {
+        return caches.match(request).then((cached) => {
+          if (cached) return cached;
           if (url.pathname.endsWith(".json")) {
             return new Response(
               JSON.stringify({
@@ -116,6 +123,6 @@ self.addEventListener("fetch", (event) => {
             );
           }
         });
-    })
+      })
   );
 });

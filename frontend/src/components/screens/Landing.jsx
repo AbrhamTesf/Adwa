@@ -3,13 +3,14 @@ import PrimaryButton from "../ui/PrimaryButton.jsx";
 import AdwaDivider from "../ui/AdwaDivider.jsx";
 import InteractiveModelViewer from "../ui/InteractiveModelViewer.jsx";
 import { useSessionStore, SUPPORTED_LANGUAGES } from "../../stores/useSessionStore";
+import { useTranslation } from "../../lib/i18n";
 
 /**
  * Screen 1 — Landing / Onboarding with Static Regal Gasha Shield Hero Emblem
  * Adheres strictly to docs/adwa_lens_architecture.md Section 2
  */
 export default function Landing({ navigate }) {
-  const language = useSessionStore((s) => s.language);
+  const { t, language } = useTranslation();
   const setLanguage = useSessionStore((s) => s.setLanguage);
   const [showPrimingModal, setShowPrimingModal] = useState(false);
   const [isRequestingPermission, setIsRequestingPermission] = useState(false);
@@ -41,19 +42,21 @@ export default function Landing({ navigate }) {
   }
 
   return (
-    <div className="relative flex flex-col items-center justify-between min-h-screen px-6 py-8 overflow-hidden bg-obsidian">
+    <div className="relative flex flex-col items-center justify-between min-h-screen px-6 py-8 overflow-hidden bg-obsidian text-parchment">
       {/* Background Radial Geometry Overlay */}
       <div className="absolute inset-0 bg-gradient-to-t from-obsidian via-obsidian/60 to-transparent pointer-events-none z-0" />
 
       {/* Header Branding */}
       <div className="relative z-10 text-center pt-2">
         <div className="inline-block px-3.5 py-1 mb-2 rounded-full text-xs font-semibold uppercase tracking-widest text-adwa-emerald bg-adwa-emerald/10 border border-adwa-emerald/30 shadow-sm">
-          Victory of Adwa Centenary Companion
+          {t("landing.badge", "Victory of Adwa Centenary Companion")}
         </div>
         <h1 className="text-4xl sm:text-5xl font-display font-bold text-imperial-gold tracking-wide drop-shadow-md">
-          Adwa Lens
+          {t("common.adwaLens", "Adwa Lens")}
         </h1>
-        <p className="text-parchment/80 text-sm sm:text-base font-light">Your museum, brought to life.</p>
+        <p className="text-parchment/80 text-sm sm:text-base font-light">
+          {t("landing.tagline", "Your museum, brought to life.")}
+        </p>
       </div>
 
       {/* Regal Gasha Shield Hero Emblem with Interactive 2D Loading UX */}
@@ -75,9 +78,9 @@ export default function Landing({ navigate }) {
         <PrimaryButton
           id="btn-start-tour"
           onClick={() => setShowPrimingModal(true)}
-          className="w-full mb-3 py-3 text-base shadow-gold-glow"
+          className="w-full mb-3 py-3 text-base shadow-gold-glow font-bold"
         >
-          Start My Tour
+          {t("landing.startTour", "Start My Tour")}
         </PrimaryButton>
 
         {/* Secondary Navigation Link */}
@@ -86,7 +89,7 @@ export default function Landing({ navigate }) {
           className="text-adwa-emerald hover:text-adwa-emerald-light underline text-sm font-medium transition-colors"
           onClick={() => navigate("navigation")}
         >
-          I have a ticket QR
+          {t("landing.ticketQR", "I have a ticket QR")}
         </button>
 
         <AdwaDivider className="my-4 opacity-40" />
@@ -94,7 +97,7 @@ export default function Landing({ navigate }) {
         {/* Supported Languages Selector */}
         <div className="flex flex-col items-center gap-2">
           <span className="text-xs text-parchment/60 uppercase tracking-wider font-semibold">
-            Select Language / ቋንቋ ይምረጡ
+            {t("landing.selectLanguage", "Select Language / ቋንቋ ይምረጡ")}
           </span>
           <div className="flex justify-center gap-2">
             {SUPPORTED_LANGUAGES.map((lang) => {
@@ -125,7 +128,7 @@ export default function Landing({ navigate }) {
           <div className="w-full max-w-sm p-6 text-left adwa-glass border border-imperial-gold/40 rounded-xl2 shadow-gold-glow">
             <div className="flex items-center justify-between mb-3">
               <h3 className="text-lg font-bold text-imperial-gold">
-                Unlock Interactive Experience
+                {t("landing.modal.title", "Unlock Interactive Experience")}
               </h3>
               <button
                 onClick={handleSkipPermissions}
@@ -137,23 +140,31 @@ export default function Landing({ navigate }) {
             </div>
 
             <p className="text-xs text-parchment/80 mb-4 leading-relaxed">
-              To experience WebAR 3D exhibit scanning and real-time Voice AI guide answers, Adwa Lens requires device permissions.
+              {t("landing.modal.description", "To experience WebAR 3D exhibit scanning and real-time Voice AI guide answers, Adwa Lens requires device permissions.")}
             </p>
 
             <div className="space-y-3 mb-6 text-xs">
               <div className="flex items-start gap-3 p-2.5 rounded-lg bg-obsidian-overlay/60 border border-parchment/10">
                 <span className="text-lg">📷</span>
                 <div>
-                  <span className="font-semibold text-parchment block">Camera Access</span>
-                  <span className="text-parchment/70">Scan historical exhibits and view 3D AR overlays</span>
+                  <span className="font-semibold text-parchment block">
+                    {t("landing.modal.cameraAccess", "Camera Access")}
+                  </span>
+                  <span className="text-parchment/70">
+                    {t("landing.modal.cameraDesc", "Scan historical exhibits and view 3D AR overlays")}
+                  </span>
                 </div>
               </div>
 
               <div className="flex items-start gap-3 p-2.5 rounded-lg bg-obsidian-overlay/60 border border-parchment/10">
                 <span className="text-lg">🎙️</span>
                 <div>
-                  <span className="font-semibold text-parchment block">Microphone Access</span>
-                  <span className="text-parchment/70">Ask your AI voice guide questions hands-free</span>
+                  <span className="font-semibold text-parchment block">
+                    {t("landing.modal.micAccess", "Microphone Access")}
+                  </span>
+                  <span className="text-parchment/70">
+                    {t("landing.modal.micDesc", "Ask your AI voice guide questions hands-free")}
+                  </span>
                 </div>
               </div>
             </div>
@@ -165,7 +176,9 @@ export default function Landing({ navigate }) {
                 disabled={isRequestingPermission}
                 className="w-full text-sm"
               >
-                {isRequestingPermission ? "Requesting Access..." : "Grant Access & Continue"}
+                {isRequestingPermission
+                  ? t("landing.modal.requestingAccess", "Requesting Access...")
+                  : t("landing.modal.grantAccess", "Grant Access & Continue")}
               </PrimaryButton>
 
               <button
@@ -173,7 +186,7 @@ export default function Landing({ navigate }) {
                 onClick={handleSkipPermissions}
                 className="w-full py-2 text-xs text-parchment/60 hover:text-parchment text-center underline"
               >
-                Continue without media permissions
+                {t("landing.modal.skipPermissions", "Continue without media permissions")}
               </button>
             </div>
           </div>

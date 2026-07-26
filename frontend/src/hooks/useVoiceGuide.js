@@ -9,6 +9,7 @@ import { useSessionStore } from "../stores/useSessionStore";
  */
 export function useVoiceGuide(exhibitContext) {
   const persona = useSessionStore((s) => s.persona);
+  const language = useSessionStore((s) => s.language);
   const [status, setStatus] = useState("idle"); // idle | listening | thinking | speaking
   const [captions, setCaptions] = useState("");
   const [isPlaying, setIsPlaying] = useState(false);
@@ -47,7 +48,7 @@ export function useVoiceGuide(exhibitContext) {
       const res = await fetch("/api/tts-stream", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ text, persona: activePersona })
+        body: JSON.stringify({ text, persona: activePersona, language })
       });
       if (!res.ok) throw new Error("TTS upstream failed");
       const audioBlob = await res.blob();
@@ -113,7 +114,7 @@ export function useVoiceGuide(exhibitContext) {
         const guideRes = await fetch("/api/ask-guide", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ transcript: trimmed, exhibitContext, persona })
+          body: JSON.stringify({ transcript: trimmed, exhibitContext, persona, language })
         });
 
         if (!guideRes.ok) {

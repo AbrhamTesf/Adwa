@@ -2,33 +2,19 @@ import React, { useEffect, useState } from "react";
 import { useCameraScanner } from "../../hooks/useCameraScanner";
 import { useExhibitStore } from "../../stores/useExhibitStore";
 import { useSessionStore } from "../../stores/useSessionStore";
-
-const HINT_TEXT = {
-  more_light: "Try adding more light",
-  move_closer: "Move closer to exhibit",
-  hold_steady: "Hold camera steady"
-};
-
-/** getUserMedia rejection names — a generic message hides the actual fix. */
-const CAMERA_ERROR_TEXT = {
-  NotAllowedError:
-    "Camera access is blocked for this site. Allow it in your browser's site settings, then reload.",
-  SecurityError: "Camera access needs a secure (https) connection.",
-  NotFoundError: "No camera was found on this device.",
-  NotReadableError: "Another app or browser tab is already using the camera. Close it and retry.",
-  OverconstrainedError: "No rear-facing camera is available on this device.",
-  AbortError: "The camera stopped unexpectedly. Reload the page to try again."
-};
+import { useTranslation } from "../../lib/i18n";
+import { getExhibitText } from "../../data/exhibitsData";
 
 /** Screen 4 — Camera AI Vision Scanner with Interactive Shutter & Laser Animation */
 export default function CameraScanner({ navigate }) {
+  const { t, language } = useTranslation();
   const loadExhibit = useExhibitStore((s) => s.loadExhibit);
   const markVisited = useSessionStore((s) => s.markVisited);
   const [matched, setMatched] = useState(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [isFlashing, setIsFlashing] = useState(false);
   const [errorMsg, setErrorMsg] = useState(null);
-  const [statusMsg, setStatusMsg] = useState("Position exhibit inside reticle");
+  const [statusMsg, setStatusMsg] = useState(t("scanner.positionExhibit", "Position exhibit inside reticle"));
 
   const { videoRef, hint, startStream, stopStream, captureFrame } = useCameraScanner({
     onFrameReady: () => {}
@@ -42,19 +28,18 @@ export default function CameraScanner({ navigate }) {
         await startStream();
       } catch (err) {
         if (cancelled) return;
+        const errKey = err?.name;
         setErrorMsg(
-          CAMERA_ERROR_TEXT[err?.name] || "Unable to access camera feed. Please check permissions."
+          t(`scanner.errors.${errKey}`, t("scanner.errors.fallback", "Unable to access camera feed. Please check permissions."))
         );
       }
     })();
 
-    // Without this the camera keeps running after leaving the scanner, which
-    // can block the microphone the sensory screen needs.
     return () => {
       cancelled = true;
       stopStream();
     };
-  }, [startStream, stopStream]);
+  }, [startStream, stopStream, t]);
 
   async function triggerScan() {
     if (isAnalyzing || matched) return;
@@ -65,13 +50,13 @@ export default function CameraScanner({ navigate }) {
 
     const frameBase64 = captureFrame();
     if (!frameBase64) {
-      setErrorMsg("Frame captured was too dark. Please align exhibit clearly.");
+      setErrorMsg(t("scanner.errors.darkFrame", "Frame captured was too dark. Please align exhibit clearly."));
       return;
     }
 
     setIsAnalyzing(true);
     setErrorMsg(null);
-    setStatusMsg("Analyzing exhibit with Gemini AI...");
+    setStatusMsg(t("scanner.analyzing", "Analyzing exhibit with Gemini AI..."));
 
     try {
       const res = await fetch("/api/vision-scan", {
@@ -84,9 +69,9 @@ export default function CameraScanner({ navigate }) {
 
       if (!res.ok && !data.quotaFallback) {
         if (res.status === 429 || data.error === "QUOTA_EXCEEDED") {
-          setErrorMsg("Gemini API rate limit reached. Retrying in a few moments...");
+          setErrorMsg(t("scanner.errors.rateLimit", "Gemini API rate limit reached. Retrying in a few moments..."));
         } else {
-          setErrorMsg(data.message || "Failed to analyze frame.");
+          setErrorMsg(data.message || t("scanner.errors.analyzeFailed", "Failed to analyze frame."));
         }
         setIsAnalyzing(false);
         return;
@@ -96,16 +81,18 @@ export default function CameraScanner({ navigate }) {
         const exhibit = await loadExhibit(data.exhibit_id);
         markVisited(data.exhibit_id);
         setMatched({ ...data, exhibit });
-        setStatusMsg("Exhibit identified!");
+        setStatusMsg(t("scanner.matchFound", "Exhibit identified!"));
       } else {
-        setErrorMsg("Exhibit not recognized with high confidence. Try repositioning.");
+        setErrorMsg(t("scanner.errors.lowConfidence", "Exhibit not recognized with high confidence. Try repositioning."));
       }
     } catch (err) {
-      setErrorMsg("Network error contacting vision proxy.");
+      setErrorMsg(t("scanner.errors.network", "Network error contacting vision proxy."));
     } finally {
       setIsAnalyzing(false);
     }
   }
+
+  const hintText = hint ? t(`scanner.hints.${hint}`, hint) : null;
 
   return (
     <div className="relative min-h-screen bg-obsidian text-parchment overflow-hidden flex flex-col justify-between">
@@ -130,10 +117,10 @@ export default function CameraScanner({ navigate }) {
             navigate(itinerary && itinerary.length > 0 ? "navigation" : "landing");
           }}
         >
-          ← Back
+          ← {t("common.back", "Back")}
         </button>
         <span className="text-imperial-gold font-display font-bold text-sm uppercase tracking-wider">
-          Adwa Lens AI Scanner
+          {t("scanner.title", "Adwa Lens AI Scanner")}
         </span>
         <div className="w-16" />
       </div>
@@ -164,11 +151,11 @@ export default function CameraScanner({ navigate }) {
                 <span className="w-3 h-3 rounded-full bg-imperial-gold animate-ping" />
                 <p className="text-sm font-medium text-imperial-gold-light">{statusMsg}</p>
               </div>
-            ) : hint ? (
-              <p className="text-xs text-parchment/90 adwa-glass px-4 py-2">{HINT_TEXT[hint]}</p>
+            ) : hintText ? (
+              <p className="text-xs text-parchment/90 adwa-glass px-4 py-2">{hintText}</p>
             ) : (
               <p className="text-xs text-parchment/70 bg-obsidian/60 px-4 py-2 rounded-full backdrop-blur-md">
-                Align exhibit inside reticle and tap scan
+                {t("scanner.alignAndTap", "Position exhibit inside reticle")}
               </p>
             )}
           </div>
@@ -194,13 +181,13 @@ export default function CameraScanner({ navigate }) {
           >
             📷
           </button>
-          <p className="text-xs text-parchment/60 font-medium">Tap button to capture & scan</p>
+          <p className="text-xs text-parchment/60 font-medium">{t("scanner.tapToScan", "Tap button to capture & scan")}</p>
 
           <button
             className="text-xs text-adwa-emerald hover:underline py-1"
             onClick={() => navigate("navigation")}
           >
-            Scan QR code instead →
+            {t("scanner.scanQR", "Scan QR code instead →")}
           </button>
         </div>
       )}
@@ -211,32 +198,32 @@ export default function CameraScanner({ navigate }) {
           <div className="flex justify-between items-start mb-2">
             <div>
               <span className="text-xs font-semibold uppercase tracking-wider text-adwa-emerald">
-                Match Found ({(matched.confidence * 100).toFixed(0)}%)
+                {t("scanner.matchFound", "Match Found")} ({((matched.confidence || 0.95) * 100).toFixed(0)}%)
               </span>
               <h3 className="text-2xl font-display font-bold text-imperial-gold capitalize">
-                {matched.exhibit_id.replace(/_/g, " ")}
+                {getExhibitText(matched.exhibit_id, "title", language) || matched.exhibit_id.replace(/_/g, " ")}
               </h3>
             </div>
             <button
               className="text-xs text-parchment/60 underline"
               onClick={() => {
                 setMatched(null);
-                setStatusMsg("Position exhibit inside reticle");
+                setStatusMsg(t("scanner.positionExhibit", "Position exhibit inside reticle"));
               }}
             >
-              Rescan
+              {t("scanner.rescan", "Rescan")}
             </button>
           </div>
 
           <p className="text-xs text-parchment/80 mb-6 bg-obsidian-overlay p-3 rounded-lg border border-wanza-wood/50">
-            {matched.material_guess}
+            {getExhibitText(matched.exhibit_id, "history", language) || matched.material_guess}
           </p>
 
           <button
             className="adwa-btn-primary w-full text-center flex items-center justify-center gap-2"
             onClick={() => navigate("inspection")}
           >
-            Explore Exhibit in 3D →
+            {t("scanner.explore3D", "Explore Exhibit in 3D →")}
           </button>
         </div>
       )}

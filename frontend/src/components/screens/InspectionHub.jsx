@@ -7,6 +7,8 @@ import { useExhibitStore } from "../../stores/useExhibitStore";
 import { useSessionStore } from "../../stores/useSessionStore";
 import { useVoiceGuide } from "../../hooks/useVoiceGuide";
 import InteractiveModelViewer from "../ui/InteractiveModelViewer.jsx";
+import { useTranslation } from "../../lib/i18n";
+import { getExhibitText } from "../../data/exhibitsData";
 
 /* ────────────────────────────────────────────────────────────
    Constants & Metadata
@@ -255,6 +257,7 @@ function findNodeByName(root, name) {
 
 /** Screen 5 — 3D WebGL Inspection & Deep Hotspot Hub */
 export default function InspectionHub({ navigate }) {
+  const { t, language } = useTranslation();
   /* ── Store selectors ───────────────────────────────────── */
   const exhibit = useExhibitStore((state) => state.activeExhibit);
   const isLoading = useExhibitStore((state) => state.isLoading);
@@ -517,7 +520,7 @@ export default function InspectionHub({ navigate }) {
       <section className="grid min-h-screen place-items-center bg-obsidian bg-adwa-geometry px-6 text-center text-parchment">
         <div>
           <div className="mx-auto mb-4 h-10 w-10 animate-spin rounded-full border-2 border-imperial-gold border-t-transparent" />
-          <p className="font-display text-lg">Preparing the artifact…</p>
+          <p className="font-display text-lg">{t("inspection.preparing", "Preparing the artifact…")}</p>
         </div>
       </section>
     );
@@ -528,10 +531,10 @@ export default function InspectionHub({ navigate }) {
     return (
       <section className="grid min-h-screen place-items-center bg-obsidian bg-adwa-geometry px-6 text-center text-parchment">
         <div className="max-w-sm rounded-xl2 border border-adwa-crimson/60 bg-obsidian-raised p-6">
-          <p className="mb-2 font-display text-xl text-imperial-gold">Artifact unavailable</p>
+          <p className="mb-2 font-display text-xl text-imperial-gold">{t("inspection.unavailable", "Artifact unavailable")}</p>
           <p className="mb-5 text-sm text-parchment/75">{scanError}</p>
           <button className="adwa-btn-primary" onClick={() => navigate?.("scanner")}>
-            Return to scanner
+            {t("inspection.returnToScanner", "Return to scanner")}
           </button>
         </div>
       </section>
@@ -544,17 +547,17 @@ export default function InspectionHub({ navigate }) {
       <div className="max-w-md rounded-2xl border border-imperial-gold/40 bg-obsidian-raised/90 p-6 shadow-gold-glow">
         <span className="mb-2 inline-block text-3xl">🗿</span>
         <h3 className="font-display text-lg text-imperial-gold mb-2">
-          {exhibit?.name || "Empress Taytu Monument"}
+          {getExhibitText(exhibitId, "title", language) || exhibit?.name || "Empress Taytu Monument"}
         </h3>
         <p className="text-xs text-parchment/80 mb-4">
-          3D WebGL preview fallback active. You can still inspect historical hotspots and query the AI voice guide below.
+          {t("inspection.webglFallback", "3D WebGL preview fallback active. You can still inspect historical hotspots and query the AI voice guide below.")}
         </p>
         <button
           type="button"
           className="adwa-btn-secondary text-xs"
           onClick={() => setGlbError(false)}
         >
-          Retry 3D Render
+          {t("inspection.retry3D", "Retry 3D Render")}
         </button>
       </div>
     </div>
@@ -680,7 +683,7 @@ export default function InspectionHub({ navigate }) {
             className="flex items-center gap-1.5 rounded-xl border border-imperial-gold/40 bg-obsidian/90 px-3.5 py-2 text-xs font-semibold text-imperial-gold shadow-md backdrop-blur hover:bg-imperial-gold/20 hover:border-imperial-gold transition-all active:scale-95"
           >
             <span className="text-sm">←</span>
-            <span>Back to {itinerary.length > 0 ? "Tour Map" : "Scanner"}</span>
+            <span>{itinerary.length > 0 ? t("inspection.backToTourMap") : t("inspection.backToScanner")}</span>
           </button>
 
           <button
@@ -688,7 +691,7 @@ export default function InspectionHub({ navigate }) {
             onClick={handleFinishInspection}
             className="flex items-center gap-1.5 rounded-xl border border-imperial-gold bg-imperial-gold px-4 py-2 text-xs font-bold text-obsidian shadow-gold-glow hover:bg-imperial-gold-light transition-all active:scale-95"
           >
-            <span>Finish Inspection</span>
+            <span>{t("inspection.finishInspection")}</span>
             <span className="text-sm">✓</span>
           </button>
         </div>
@@ -698,14 +701,14 @@ export default function InspectionHub({ navigate }) {
           <div className="max-w-[65%] rounded-xl border border-imperial-gold/30 bg-obsidian/85 px-3.5 py-2 backdrop-blur shadow-md">
             <div className="flex items-center gap-2">
               <p className="text-[0.65rem] uppercase tracking-[0.18em] text-imperial-gold font-semibold">
-                3D Inspection
+                {t("inspection.title")}
               </p>
               <span className="rounded-full bg-imperial-gold/20 px-2 py-0.5 text-[0.65rem] text-imperial-gold border border-imperial-gold/30">
-                {exhibit?.category || "Monument"}
+                {getExhibitText(exhibitId, "category", language) || exhibit?.category || "Monument"}
               </span>
             </div>
             <h1 className="font-display text-sm sm:text-base text-parchment truncate">
-              {exhibit?.name || "Empress Taytu Monument"}
+              {getExhibitText(exhibitId, "title", language) || exhibit?.name || "Empress Taytu Monument"}
             </h1>
           </div>
 
@@ -737,7 +740,7 @@ export default function InspectionHub({ navigate }) {
             <div className="flex items-center gap-2">
               <span className="text-sm">📜</span>
               <span className="text-xs font-bold uppercase tracking-wider text-imperial-gold">
-                Story Transcript
+                {t("inspection.storyTranscript", "Story Transcript")}
               </span>
               <span className="text-[10px] text-imperial-gold/80 bg-imperial-gold/15 px-2 py-0.5 rounded-full border border-imperial-gold/30 font-semibold">
                 {persona.toUpperCase()}
@@ -748,7 +751,7 @@ export default function InspectionHub({ navigate }) {
               onClick={() => setShowTranscriptHUD((prev) => !prev)}
               className="text-xs text-imperial-gold/80 hover:text-imperial-gold flex items-center gap-1 font-semibold transition-colors"
             >
-              {showTranscriptHUD ? "Hide ▲" : "Show ▼"}
+              {showTranscriptHUD ? t("inspection.hideTranscript", "Hide ▲") : t("inspection.showTranscript", "Show ▼")}
             </button>
           </div>
 
@@ -770,7 +773,7 @@ export default function InspectionHub({ navigate }) {
               <div className="flex items-center gap-2">
                 <span className="text-imperial-gold text-lg">✦</span>
                 <h3 className="font-display text-sm font-bold text-imperial-gold">
-                  {selectedHotspot.title}
+                  {t(`inspection.hotspots.${selectedHotspot.id}.title`, selectedHotspot.title)}
                 </h3>
               </div>
 
@@ -785,22 +788,22 @@ export default function InspectionHub({ navigate }) {
                 )}
                 <button
                   type="button"
-                  onClick={isPlaying ? stopAudio : () => speakText(hotspotAIExplanation || selectedHotspot.description)}
+                  onClick={isPlaying ? stopAudio : () => speakText(hotspotAIExplanation || t(`inspection.hotspots.${selectedHotspot.id}.description`, selectedHotspot.description))}
                   className="flex items-center gap-1 text-[11px] px-2.5 py-1 rounded-full border border-imperial-gold/40 bg-imperial-gold/20 text-imperial-gold hover:bg-imperial-gold hover:text-obsidian transition-colors font-semibold"
                 >
-                  {isPlaying ? "⏸️ Pause Voice" : "🔊 Replay Audio"}
+                  {isPlaying ? t("inspection.pauseVoice", "⏸️ Pause Voice") : t("inspection.replayAudio", "🔊 Replay Audio")}
                 </button>
               </div>
             </div>
 
             <p className="text-xs text-parchment/75 mb-2 leading-relaxed">
-              {selectedHotspot.description}
+              {t(`inspection.hotspots.${selectedHotspot.id}.description`, selectedHotspot.description)}
             </p>
 
             {isGeneratingExplanation ? (
               <div className="flex items-center gap-2 text-xs text-imperial-gold animate-pulse pt-2 border-t border-parchment/10">
                 <span className="inline-block h-3 w-3 animate-spin rounded-full border-2 border-imperial-gold border-t-transparent" />
-                <span>Consulting Groq AI for deep coordinate analysis…</span>
+                <span>{t("inspection.generateExplanation", "Consulting Groq AI for deep coordinate analysis…")}</span>
               </div>
             ) : hotspotAIExplanation ? (
               <div className="pt-2 border-t border-imperial-gold/20 text-xs leading-relaxed text-parchment font-medium bg-imperial-gold/10 p-2.5 rounded-xl border border-imperial-gold/30">
@@ -817,10 +820,10 @@ export default function InspectionHub({ navigate }) {
         <div className="mb-3 flex items-center justify-between gap-3">
           <div>
             <p className="text-[0.65rem] uppercase tracking-[0.15em] text-imperial-gold font-semibold">
-              {selectedHotspot?.tag || "Hotspot Details"}
+              {selectedHotspot ? t(`inspection.hotspots.${selectedHotspot.id}.tag`, selectedHotspot.tag) : t("inspection.hotspots.title", "Hotspot Details")}
             </p>
             <h2 className="font-display text-base text-parchment">
-              {selectedHotspot?.title || selectedHotspot?.label || "Empress Taytu Betul Monument"}
+              {selectedHotspot ? t(`inspection.hotspots.${selectedHotspot.id}.title`, selectedHotspot.title) : getExhibitText(exhibitId, "title", language) || "Empress Taytu Betul Monument"}
             </h2>
           </div>
           <div className="flex items-center gap-2">
@@ -837,7 +840,7 @@ export default function InspectionHub({ navigate }) {
                   d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.035 8.035 0 01-15.357-2m15.357 2H15"
                 />
               </svg>
-              Reset Camera View
+              {t("inspection.resetCamera", "Reset Camera View")}
             </button>
           </div>
         </div>
@@ -864,7 +867,7 @@ export default function InspectionHub({ navigate }) {
               <span aria-hidden="true" className="mr-1.5">
                 {tab.icon}
               </span>
-              {tab.label}
+              {t(`inspection.tabs.${tab.id}`, tab.label)}
             </button>
           ))}
         </div>
@@ -898,10 +901,10 @@ export default function InspectionHub({ navigate }) {
             onChange={(e) => setTextQuery(e.target.value)}
             placeholder={
               status === "listening"
-                ? "Listening to your voice query…"
+                ? t("voiceGuide.status.listening", "Listening to your voice query…")
                 : status === "thinking"
-                ? "Thinking…"
-                : "Ask AI persona about Empress Taytu…"
+                ? t("voiceGuide.status.thinking", "Thinking…")
+                : t("inspection.askQuestion", "Ask AI persona about Empress Taytu…")
             }
             className="flex-1 rounded-xl border border-imperial-gold/30 bg-obsidian/80 px-3.5 py-2 text-xs text-parchment placeholder-parchment/50 focus:border-imperial-gold focus:outline-none backdrop-blur"
           />
@@ -912,7 +915,7 @@ export default function InspectionHub({ navigate }) {
             className="flex h-10 px-4 items-center justify-center gap-1.5 rounded-xl border border-imperial-gold bg-imperial-gold text-obsidian font-bold text-xs shadow-gold-glow hover:bg-imperial-gold-light disabled:opacity-40 disabled:pointer-events-none transition-all"
             aria-label="Send question"
           >
-            <span>Send</span>
+            <span>{t("common.send", "Send")}</span>
             <span className="text-sm">➔</span>
           </button>
         </form>
@@ -940,18 +943,18 @@ export default function InspectionHub({ navigate }) {
               }`}
               onClick={toggleExploded}
             >
-              {exploded ? "Assemble" : "Exploded View"}
+              {exploded ? t("common.assemble", "Assemble") : t("inspection.explodedView", "Exploded View")}
             </button>
           )}
 
           {isInstrument && (
             <button type="button" className="adwa-btn-secondary flex-1" onClick={openSensoryMode}>
-              Sensory mode
+              {t("inspection.sensoryMode", "Sensory mode")}
             </button>
           )}
 
           <button type="button" className="adwa-btn-primary flex-1" onClick={openVoiceGuide}>
-            Full Voice Guide Overlay 🎙️
+            {t("inspection.voiceGuide", "Full Voice Guide Overlay")} 🎙️
           </button>
         </div>
       </aside>

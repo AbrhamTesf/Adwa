@@ -1,4 +1,6 @@
 import React, { useState, useMemo } from "react";
+import { useTranslation } from "../../../lib/i18n";
+import { getExhibitText } from "../../../data/exhibitsData";
 
 const MASTER_QUESTION_BANK = [
   {
@@ -64,13 +66,14 @@ const MASTER_QUESTION_BANK = [
 ];
 
 export default function QuizEngineModal({ isOpen, onClose, visitedExhibitIds = [], onCompleteQuiz }) {
+  const { t, language } = useTranslation();
+
   // Dynamically select 3 to 5 questions based on visited exhibits
   const questions = useMemo(() => {
     const visitedSet = new Set(visitedExhibitIds || []);
     const visitedQuestions = MASTER_QUESTION_BANK.filter((q) => visitedSet.has(q.exhibitId));
     const unvisitedQuestions = MASTER_QUESTION_BANK.filter((q) => !visitedSet.has(q.exhibitId));
 
-    // Combine visited questions first, then pad with unvisited until 3-5 total
     const combined = [...visitedQuestions, ...unvisitedQuestions];
     return combined.slice(0, Math.max(3, Math.min(5, combined.length)));
   }, [JSON.stringify(visitedExhibitIds)]);
@@ -85,6 +88,13 @@ export default function QuizEngineModal({ isOpen, onClose, visitedExhibitIds = [
 
   const currentQ = questions[currentIndex];
   const progressPercent = Math.round(((currentIndex + 1) / questions.length) * 100);
+
+  const exhibitName = getExhibitText(currentQ.exhibitId, "title", language) || currentQ.exhibitName;
+  const questionText = t(`quiz.questions.${currentQ.exhibitId}.question`, currentQ.question);
+  const optionsText = currentQ.options.map((opt, i) =>
+    t(`quiz.questions.${currentQ.exhibitId}.options.${i}`, opt)
+  );
+  const explanationText = t(`quiz.questions.${currentQ.exhibitId}.explanation`, currentQ.explanation);
 
   const handleSelectOption = (index) => {
     if (submitted) return;
@@ -120,8 +130,8 @@ export default function QuizEngineModal({ isOpen, onClose, visitedExhibitIds = [
   const scorePercent = Math.round((totalCorrect / questions.length) * 100);
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-obsidian/85 backdrop-blur-md animate-fadeIn">
-      <div className="adwa-glass max-w-md w-full p-6 relative max-h-[90vh] overflow-y-auto">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-obsidian/85 backdrop-blur-md animate-fadeIn text-parchment">
+      <div className="adwa-glass max-w-md w-full p-6 relative max-h-[90vh] overflow-y-auto border border-imperial-gold/40">
         <button
           onClick={onClose}
           className="absolute top-4 right-4 text-parchment/60 hover:text-parchment text-lg"
@@ -135,15 +145,17 @@ export default function QuizEngineModal({ isOpen, onClose, visitedExhibitIds = [
             {/* ---- Header ---- */}
             <div className="flex items-center justify-between mb-2">
               <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-imperial-gold-light/80">
-                Interactive Museum Quiz
+                {t("quiz.title", "Interactive Museum Quiz")}
               </span>
               <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-imperial-gold/20 text-imperial-gold border border-imperial-gold/30">
-                Question {currentIndex + 1} of {questions.length}
+                {t("quiz.questionOf", "Question {current} of {total}")
+                  .replace("{current}", currentIndex + 1)
+                  .replace("{total}", questions.length)}
               </span>
             </div>
 
             {/* ---- Progress Bar ---- */}
-            <div className="w-full h-1.5 bg-obsidian-overlay rounded-full overflow-hidden mb-5 border border-wanza-wood/30">
+            <div className="w-full h-1.5 bg-obsidian-overlay rounded-full overflow-hidden mb-5 border border-anza-wood/30">
               <div
                 className="h-full bg-gradient-to-r from-imperial-gold to-adwa-emerald transition-all duration-300 rounded-full"
                 style={{ width: `${progressPercent}%` }}
@@ -152,16 +164,16 @@ export default function QuizEngineModal({ isOpen, onClose, visitedExhibitIds = [
 
             {/* ---- Question ---- */}
             <span className="text-[10px] uppercase font-semibold text-adwa-emerald tracking-wider block mb-1">
-              Exhibit: {currentQ.exhibitName}
+              {t("quiz.exhibitLabel", "Exhibit")}: {exhibitName}
             </span>
             <h3 className="text-base font-display text-parchment leading-snug mb-4">
-              {currentQ.question}
+              {questionText}
             </h3>
 
             {/* ---- Options ---- */}
             <div className="flex flex-col gap-2.5 mb-4">
-              {currentQ.options.map((option, idx) => {
-                let style = "bg-obsidian-raised border-wanza-wood/50 text-parchment/90 hover:border-imperial-gold/50";
+              {optionsText.map((option, idx) => {
+                let style = "bg-obsidian-raised border-anza-wood/50 text-parchment/90 hover:border-imperial-gold/50";
                 if (submitted) {
                   if (idx === currentQ.correctIndex) {
                     style = "bg-adwa-emerald/20 border-adwa-emerald text-parchment font-semibold shadow-gold-glow ring-1 ring-adwa-emerald/50";
@@ -191,10 +203,10 @@ export default function QuizEngineModal({ isOpen, onClose, visitedExhibitIds = [
             {submitted && (
               <div className="p-3 bg-imperial-gold/10 border border-imperial-gold/30 rounded-xl text-left mb-4 animate-fadeIn">
                 <p className="text-xs text-imperial-gold font-semibold mb-1">
-                  {selectedOption === currentQ.correctIndex ? "🎉 Correct!" : "💡 Historical Fact:"}
+                  {selectedOption === currentQ.correctIndex ? t("quiz.correct", "🎉 Correct!") : t("quiz.incorrect", "💡 Historical Fact:")}
                 </p>
                 <p className="text-xs text-parchment/80 italic leading-relaxed">
-                  {currentQ.explanation}
+                  {explanationText}
                 </p>
               </div>
             )}
@@ -206,9 +218,9 @@ export default function QuizEngineModal({ isOpen, onClose, visitedExhibitIds = [
                 className="w-full adwa-btn-primary py-3 text-xs font-semibold shadow-gold-glow flex items-center justify-center gap-2"
               >
                 {currentIndex < questions.length - 1 ? (
-                  <>Next Question ➔</>
+                  t("quiz.nextQuestion", "Next Question ➔")
                 ) : (
-                  <>View Quiz Results 🏆</>
+                  t("quiz.viewResults", "View Quiz Results 🏆")
                 )}
               </button>
             )}
@@ -217,21 +229,25 @@ export default function QuizEngineModal({ isOpen, onClose, visitedExhibitIds = [
           /* ---- Quiz Completion Summary ---- */
           <div className="text-center py-2 animate-fadeIn">
             <span className="text-4xl block mb-2">🏆</span>
-            <h3 className="text-2xl font-display text-imperial-gold mb-1">Quiz Completed!</h3>
+            <h3 className="text-2xl font-display text-imperial-gold mb-1">
+              {t("quiz.completed", "Quiz Completed!")}
+            </h3>
             <p className="text-xs text-parchment/70 mb-4">
-              You scored <strong className="text-imperial-gold-light">{totalCorrect}</strong> out of{" "}
-              <strong className="text-parchment">{questions.length}</strong> ({scorePercent}% Mastery)
+              {t("quiz.scoreMsg", "You scored {correct} out of {total} ({percent}% Mastery)")
+                .replace("{correct}", totalCorrect)
+                .replace("{total}", questions.length)
+                .replace("{percent}", scorePercent)}
             </p>
 
             <div className="p-4 bg-obsidian-raised border border-imperial-gold/30 rounded-xl mb-6">
               <p className="text-xs font-semibold text-imperial-gold-light mb-2">
                 {scorePercent >= 80
-                  ? "🎖️ Unlocked Title: Adwa Scholar & Heritage Master"
-                  : "📜 Quiz Complete — Review Badges on Memory Deck"}
+                  ? t("quiz.scholarTitle", "🎖️ Unlocked Title: Adwa Scholar & Heritage Master")
+                  : t("quiz.completeTitle", "📜 Quiz Complete — Review Badges on Memory Deck")}
               </p>
               <div className="adwa-divider my-2" />
               <p className="text-xs text-parchment/80">
-                Your performance has been evaluated. Digital badges on your Memory Deck have been updated!
+                {t("quiz.badgesUpdated", "Your performance has been evaluated. Digital badges on your Memory Deck have been updated!")}
               </p>
             </div>
 
@@ -240,13 +256,13 @@ export default function QuizEngineModal({ isOpen, onClose, visitedExhibitIds = [
                 onClick={handleRestart}
                 className="adwa-btn-secondary flex-1 py-2.5 text-xs font-semibold"
               >
-                Retake Quiz
+                {t("quiz.retake", "Retake Quiz")}
               </button>
               <button
                 onClick={onClose}
                 className="adwa-btn-primary flex-1 py-2.5 text-xs font-semibold"
               >
-                Back to Memory Deck
+                {t("quiz.backToMemoryDeck", "Back to Memory Deck")}
               </button>
             </div>
           </div>

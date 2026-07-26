@@ -101,7 +101,7 @@ export default function App() {
   }, [screen]);
 
   return (
-    <div className="min-h-screen w-full">
+    <div className="min-h-screen w-full relative">
       <ScreenComponent navigate={navigate} recoveryToken={recoveryToken} />
       <AuthProfileMenu navigate={navigate} availableScreens={SCREENS} />
     </div>

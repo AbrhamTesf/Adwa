@@ -14,6 +14,12 @@ Migration: <what other streams need to do>
 
 ---
 
+### 2026-07-25 — Analytics event contract (FEAT-030)
+Stream: E
+Changed: backend/routes/analytics.js, frontend/src/lib/analytics.js
+Reason: Add privacy-safe, allowlisted journey metrics for the museum dashboard.
+Migration: Additive only; client events must use the approved catalog and never include sensitive visitor content.
+
 ### 2026-07-25 — Recovery-session snapshot contract (FEAT-028)
 Stream: C
 Changed: frontend/src/stores/useSessionStore.js, backend/routes/sessions.js

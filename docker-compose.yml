@@ -1,19 +1,42 @@
-version: "3.9"
-
 services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: adwa_lens
+      POSTGRES_USER: adwa
+      POSTGRES_PASSWORD: adwa_dev_password
+    ports:
+      - '5432:5432'
+    volumes:
+      - adwa-postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U adwa -d adwa_lens']
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
   adwa-lens:
     build:
       context: .
       target: dev
     container_name: adwa-lens-dev
+    depends_on:
+      postgres:
+        condition: service_healthy
     ports:
       - "5173:5173"   # Vite client
       - "8787:8787"   # Fastify BFF (Gemini/Groq/ElevenLabs proxy)
     env_file:
       - backend/.env
+    environment:
+      # Inside the compose network the database is reached by service name.
+      DATABASE_URL: postgresql://adwa:adwa_dev_password@postgres:5432/adwa_lens?schema=public
     volumes:
       - .:/app
       - /app/node_modules
       - /app/frontend/node_modules
       - /app/backend/node_modules
     command: ["npm", "run", "dev:all"]
+
+volumes:
+  adwa-postgres:

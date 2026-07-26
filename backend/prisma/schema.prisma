@@ -1,0 +1,234 @@
+// Adwa Lens — identity, roles, tours, CMS and analytics.
+// Passwords, refresh tokens, recovery tokens and invitation codes are only
+// ever persisted as hashes; nothing in this schema stores them in plaintext.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+// The connection URL lives in prisma.config.js — Prisma 7 no longer accepts
+// `url` here, and the runtime client gets it through the pg driver adapter.
+datasource db {
+  provider = "postgresql"
+}
+
+/// Account lifecycle. Admin staff land in `pending` until approved, so an
+/// invitation code alone cannot grant privileged access.
+enum UserStatus {
+  active
+  pending
+  suspended
+}
+
+model User {
+  id String @id @default(cuid())
+
+  /// Lower-cased and trimmed before write, so uniqueness is case-insensitive.
+  email        String     @unique
+  passwordHash String     @map("password_hash")
+  displayName  String     @map("display_name")
+  status       UserStatus @default(active)
+
+  lastSignInAt DateTime? @map("last_sign_in_at")
+  createdAt    DateTime  @default(now()) @map("created_at")
+  updatedAt    DateTime  @updatedAt @map("updated_at")
+
+  roles             UserRole[]
+  refreshTokens     RefreshToken[]
+  tourSessions      TourSession[]
+  badges            UserBadge[]
+  auditLogs         AdminAuditLog[]
+  approvedUsers     User[]            @relation("UserApprover")
+  approvedBy        User?             @relation("UserApprover", fields: [approvedById], references: [id])
+  approvedById      String?           @map("approved_by_id")
+  createdInvitations StaffInvitation[] @relation("InvitationCreator")
+
+  @@index([status])
+  @@map("users")
+}
+
+model Role {
+  id          String  @id @default(cuid())
+  /// tourist | admin_staff | super_admin
+  name        String  @unique
+  description String?
+
+  users UserRole[]
+
+  @@map("roles")
+}
+
+model UserRole {
+  userId     String   @map("user_id")
+  roleId     String   @map("role_id")
+  assignedAt DateTime @default(now()) @map("assigned_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role Role @relation(fields: [roleId], references: [id], onDelete: Cascade)
+
+  @@id([userId, roleId])
+  @@map("user_roles")
+}
+
+/// One row per issued refresh token. Rotation writes a new row and points the
+/// old one at it via `replacedById`, so a replayed token is detectable.
+model RefreshToken {
+  id        String   @id @default(cuid())
+  userId    String   @map("user_id")
+  tokenHash String   @unique @map("token_hash")
+  expiresAt DateTime @map("expires_at")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  revokedAt    DateTime? @map("revoked_at")
+  replacedById String?   @unique @map("replaced_by_id")
+  userAgent    String?   @map("user_agent")
+  ipAddress    String?   @map("ip_address")
+
+  user       User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  replacedBy RefreshToken? @relation("TokenRotation", fields: [replacedById], references: [id])
+  replaces   RefreshToken? @relation("TokenRotation")
+
+  @@index([userId])
+  @@map("refresh_tokens")
+}
+
+model StaffInvitation {
+  id        String   @id @default(cuid())
+  email     String
+  codeHash  String   @unique @map("code_hash")
+  role      String   @default("admin_staff")
+  status    String   @default("pending")
+  expiresAt DateTime @map("expires_at")
+  createdAt DateTime @default(now()) @map("created_at")
+  usedAt    DateTime? @map("used_at")
+
+  createdById String? @map("created_by_id")
+  createdBy   User?   @relation("InvitationCreator", fields: [createdById], references: [id])
+
+  @@index([email])
+  @@map("staff_invitations")
+}
+
+/// A tour belongs to a signed-in user, an anonymous recovery link, or both
+/// once a visitor claims their accountless tour.
+model TourSession {
+  id     String  @id @default(cuid())
+  userId String? @map("user_id")
+
+  recoveryTokenHash String?   @unique @map("recovery_token_hash")
+  snapshot          Json
+  expiresAt         DateTime? @map("expires_at")
+  createdAt         DateTime  @default(now()) @map("created_at")
+  updatedAt         DateTime  @updatedAt @map("updated_at")
+
+  user     User?         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  exhibits TourExhibit[]
+  badges   UserBadge[]
+
+  @@index([userId])
+  @@map("tour_sessions")
+}
+
+model TourExhibit {
+  id            String   @id @default(cuid())
+  tourSessionId String   @map("tour_session_id")
+  exhibitId     String   @map("exhibit_id")
+  visitedAt     DateTime @default(now()) @map("visited_at")
+
+  tourSession TourSession @relation(fields: [tourSessionId], references: [id], onDelete: Cascade)
+
+  @@unique([tourSessionId, exhibitId])
+  @@map("tour_exhibits")
+}
+
+model Badge {
+  id          String  @id @default(cuid())
+  code        String  @unique
+  name        String
+  description String?
+
+  userBadges UserBadge[]
+
+  @@map("badges")
+}
+
+/// Earned badges are attributed to a user when signed in and otherwise to the
+/// tour, so an accountless visitor keeps their badges after claiming the tour.
+model UserBadge {
+  id            String   @id @default(cuid())
+  userId        String?  @map("user_id")
+  tourSessionId String?  @map("tour_session_id")
+  badgeId       String   @map("badge_id")
+  earnedAt      DateTime @default(now()) @map("earned_at")
+
+  user        User?        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tourSession TourSession? @relation(fields: [tourSessionId], references: [id], onDelete: Cascade)
+  badge       Badge        @relation(fields: [badgeId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, badgeId])
+  @@unique([tourSessionId, badgeId])
+  @@map("user_badges")
+}
+
+model ContentItem {
+  id        String   @id @default(cuid())
+  exhibitId String   @unique @map("exhibit_id")
+  status    String   @default("draft")
+  draft     Json?
+  published Json?
+  version   Int      @default(0)
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  versions ContentVersion[]
+
+  @@map("content_items")
+}
+
+/// Append-only publish history; rollback writes a new version rather than
+/// mutating an old one.
+model ContentVersion {
+  id            String   @id @default(cuid())
+  contentItemId String   @map("content_item_id")
+  version       Int
+  content       Json
+  publishedAt   DateTime @default(now()) @map("published_at")
+  editorId      String?  @map("editor_id")
+
+  contentItem ContentItem @relation(fields: [contentItemId], references: [id], onDelete: Cascade)
+
+  @@unique([contentItemId, version])
+  @@map("content_versions")
+}
+
+/// Privacy-safe telemetry only. Never store audio, camera frames, transcript
+/// text, recovery tokens or free-text personal data on this table.
+model AnalyticsEvent {
+  id         String   @id @default(cuid())
+  name       String
+  sessionId  String   @map("session_id")
+  exhibitId  String?  @map("exhibit_id")
+  persona    String?
+  durationMs Int?     @map("duration_ms")
+  stopIndex  Int?     @map("stop_index")
+  service    String?
+  code       String?
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  @@index([name, createdAt])
+  @@map("analytics_events")
+}
+
+model AdminAuditLog {
+  id        String   @id @default(cuid())
+  actorId   String   @map("actor_id")
+  action    String
+  resource  String
+  metadata  Json?
+  ipAddress String?  @map("ip_address")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  actor User @relation(fields: [actorId], references: [id])
+
+  @@index([actorId, createdAt])
+  @@map("admin_audit_logs")
+}

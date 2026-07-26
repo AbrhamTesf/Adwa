@@ -22,9 +22,10 @@ RUN npm run build
 # ---- Production (static client served by fastify from backend/) ----
 FROM node:20-alpine AS prod
 WORKDIR /app
-COPY backend/package.json ./backend/package.json
-RUN npm --prefix backend install --omit=dev
+# The backend sources are copied before installing because the install runs
+# `prisma generate`, which needs prisma/schema.prisma to already be present.
 COPY backend ./backend
+RUN npm --prefix backend install --omit=dev
 COPY --from=build /app/frontend/dist ./frontend/dist
 COPY frontend/public ./frontend/public
 EXPOSE 8787

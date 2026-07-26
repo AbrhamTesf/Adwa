@@ -32,6 +32,33 @@ npm run install:all   # installs frontend/ and backend/ deps
 npm run dev:all       # runs the Vite client and Fastify BFF together
 \`\`\`
 
+## Database & Accounts
+
+Identity, tours, CMS content and analytics live in PostgreSQL, accessed through
+Prisma. From a clean checkout:
+
+\`\`\`bash
+docker compose up -d postgres    # PostgreSQL 16 on localhost:5432
+cd backend
+npm run db:migrate               # applies prisma/migrations
+npm run db:seed                  # roles, badge catalogue, optional bootstrap admin
+\`\`\`
+
+\`DATABASE_URL\` is read from \`backend/.env\` by both the Prisma CLI
+(\`prisma.config.js\`) and the runtime client. Useful extras: \`npm run db:studio\`
+to browse the data, and \`npm run db:deploy\` to apply migrations in production
+without generating new ones.
+
+Visitors can still use the whole experience without an account — the profile
+icon in the app shell is optional. Signing in adds cross-device persistence, and
+an existing accountless recovery link can be imported into an account without
+being invalidated.
+
+Museum staff cannot self-register: staff sign-up requires an invitation code and
+the account stays \`pending\` until an administrator approves it. Set
+\`BOOTSTRAP_ADMIN_EMAIL\` and \`BOOTSTRAP_ADMIN_PASSWORD\` before seeding to create
+the first \`super_admin\`.
+
 ## Project Docs
 
 - \`docs/ARCHITECTURE.md\` — full data-flow & screen spec

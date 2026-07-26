@@ -93,44 +93,49 @@ export default function ItineraryPlanner({ navigate }) {
           <AdwaDivider className="mb-4" />
 
           {/* Live Crowd Density Status Badge */}
-          <div className="flex items-center justify-between p-3 rounded-xl bg-obsidian-raised/80 border border-imperial-gold/20 mb-4">
+          <div className="flex items-center justify-between p-3.5 rounded-xl glass-card border border-imperial-gold/30 mb-5">
             <div className="flex items-center gap-2 text-xs">
               <span className="inline-block w-2.5 h-2.5 rounded-full bg-adwa-emerald animate-pulse" />
-              <span className="text-parchment font-medium">{t("planner.liveCrowdFeed")}</span>
+              <span className="text-slate-100 font-medium">{t("planner.liveCrowdFeed")}</span>
             </div>
-            <span className="text-xs font-semibold text-adwa-emerald bg-adwa-emerald/10 px-2.5 py-0.5 rounded-full border border-adwa-emerald/30">
+            <span className="text-xs font-semibold text-adwa-emerald bg-adwa-emerald/15 px-3 py-1 rounded-full border border-adwa-emerald/40 shadow-sm">
               {t("planner.lowCongestion")}
             </span>
           </div>
 
           {/* Generated Stops List */}
-          <div className="space-y-3 max-h-[50vh] overflow-y-auto pr-1">
+          <div className="space-y-3.5 max-h-[50vh] overflow-y-auto custom-scrollbar pr-1">
             {generatedItinerary.map((stop, idx) => {
               const displayName = getExhibitText(stop.exhibit_id, "title", language) || stop.name;
               return (
                 <div
                   key={stop.exhibit_id || idx}
-                  className="adwa-glass p-4 rounded-xl border border-imperial-gold/30 flex items-center justify-between"
+                  className="animate-slide-up"
+                  style={{ animationDelay: `${idx * 0.08}s` }}
                 >
-                  <div className="flex items-center gap-3">
-                    <div className="w-7 h-7 rounded-full bg-imperial-gold/20 text-imperial-gold flex items-center justify-center font-bold text-xs border border-imperial-gold/40">
-                      {idx + 1}
+                  <div className="glass-card p-4 rounded-xl border border-imperial-gold/30 flex items-center justify-between hover:border-imperial-gold/60 transition-all gap-3">
+                    <div className="flex items-center gap-3.5 min-w-0 pr-1">
+                      <div className="shrink-0 w-8 h-8 rounded-full bg-slate-950 text-imperial-gold flex items-center justify-center font-bold text-xs border-2 border-imperial-gold shadow-gold-glow">
+                        {idx + 1}
+                      </div>
+                      <div className="min-w-0">
+                        <h4 className="font-display font-semibold text-sm text-slate-100 truncate">{displayName}</h4>
+                        <p className="text-[11px] text-slate-300/80 truncate">
+                          {getExhibitText(stop.exhibit_id, "category", language) || stop.category} • {t("planner.minDwell").replace("{min}", stop.minutes)}
+                        </p>
+                      </div>
                     </div>
-                    <div>
-                      <h4 className="font-display font-semibold text-sm text-parchment">{displayName}</h4>
-                      <p className="text-[11px] text-parchment/60">
-                        {getExhibitText(stop.exhibit_id, "category", language) || stop.category} • {t("planner.minDwell").replace("{min}", stop.minutes)}
-                      </p>
-                    </div>
+                    <span className="shrink-0 text-[10px] uppercase font-bold text-adwa-emerald bg-adwa-emerald/15 border border-adwa-emerald/40 px-2.5 py-1 rounded-full">
+                      {stop.crowdStatus}
+                    </span>
                   </div>
-                  <span className="text-xs font-semibold text-adwa-emerald">{stop.crowdStatus}</span>
                 </div>
               );
             })}
           </div>
         </div>
 
-        <PrimaryButton onClick={handleStartTour} className="w-full mt-6 py-3 shadow-gold-glow">
+        <PrimaryButton onClick={handleStartTour} className="w-full mt-6 py-3.5 shadow-gold-glow text-sm font-bold">
           {t("planner.startWalking")}
         </PrimaryButton>
       </div>
@@ -138,28 +143,34 @@ export default function ItineraryPlanner({ navigate }) {
   }
 
   return (
-    <div className="min-h-screen flex flex-col justify-between p-6 bg-obsidian text-parchment">
+    <div className="min-h-screen flex flex-col justify-between p-6 bg-obsidian text-parchment pb-safe">
       {/* Header & Step Indicator */}
       <div>
-        <div className="flex items-center justify-between mb-2">
+        <div className="flex items-center justify-between mb-3">
           <h2 className="text-2xl font-display font-bold text-imperial-gold">{t("planner.title")}</h2>
-          <span className="text-xs font-semibold px-3 py-1 rounded-full bg-imperial-gold/10 text-imperial-gold border border-imperial-gold/30">
+          <span className="text-xs font-semibold px-3 py-1 rounded-full glass-card text-imperial-gold border border-imperial-gold/30">
             {t("planner.stepOf").replace("{step}", step + 1).replace("{total}", 4)}
           </span>
         </div>
 
-        {/* Progress Bar */}
-        <div className="w-full bg-obsidian-overlay h-1.5 rounded-full overflow-hidden mb-6 border border-wanza-wood/40">
-          <div
-            className="bg-imperial-gold h-full transition-all duration-300 shadow-gold-glow"
-            style={{ width: `${((step + 1) / 4) * 100}%` }}
-          />
+        {/* Segmented Progress Indicator */}
+        <div className="flex items-center gap-1.5 mb-6">
+          {[0, 1, 2, 3].map((i) => (
+            <div
+              key={i}
+              className={`h-2 flex-1 rounded-full transition-all duration-300 ${
+                i <= step
+                  ? "bg-gradient-to-r from-imperial-gold to-imperial-gold-light shadow-gold-glow"
+                  : "bg-obsidian-raised/80 border border-white/10"
+              }`}
+            />
+          ))}
         </div>
 
         {/* Step Header */}
         <div className="mb-6">
-          <h3 className="text-xl font-display font-semibold text-parchment">{STEP_TITLES[step].title}</h3>
-          <p className="text-xs text-parchment/70 mt-1">{STEP_TITLES[step].subtitle}</p>
+          <h3 className="text-xl font-display font-semibold text-slate-100">{STEP_TITLES[step].title}</h3>
+          <p className="text-xs text-slate-300 mt-1">{STEP_TITLES[step].subtitle}</p>
         </div>
 
         {/* Step 0: Duration */}
@@ -171,15 +182,24 @@ export default function ItineraryPlanner({ navigate }) {
                 <button
                   key={opt.label}
                   onClick={() => setTimeBudgetMinutes(opt.value)}
-                  className={`p-4 rounded-xl border text-left transition-all ${
+                  className={`p-4 rounded-xl text-left transition-all duration-200 relative ${
                     selected
-                      ? "bg-imperial-gold/20 border-imperial-gold text-parchment shadow-gold-glow"
-                      : "bg-obsidian-raised/80 border-parchment/15 text-parchment/70 hover:border-parchment/40"
+                      ? "bg-imperial-gold/25 border-2 border-imperial-gold ring-2 ring-imperial-gold/60 text-slate-100 shadow-gold-glow scale-[1.02]"
+                      : "glass-card border border-white/10 text-slate-300 hover:border-imperial-gold/40"
                   }`}
                 >
-                  <span className="text-2xl block mb-1">{opt.icon}</span>
-                  <div className="font-bold text-sm text-parchment">{opt.label}</div>
-                  <div className="text-xs text-parchment/60">{opt.sub}</div>
+                  <div className="flex items-center justify-between mb-1.5">
+                    <span className="text-2xl block">{opt.icon}</span>
+                    {selected && (
+                      <span className="bg-imperial-gold text-obsidian text-[10px] font-black uppercase px-2.5 py-0.5 rounded-full shadow-md">
+                        ✓ Selected
+                      </span>
+                    )}
+                  </div>
+                  <div className={`font-bold text-sm ${selected ? "text-imperial-gold-light" : "text-slate-100"}`}>
+                    {opt.label}
+                  </div>
+                  <div className="text-xs text-slate-300/80">{opt.sub}</div>
                 </button>
               );
             })}
@@ -195,27 +215,33 @@ export default function ItineraryPlanner({ navigate }) {
                 <button
                   key={item.id}
                   onClick={() => toggleInterest(item.id)}
-                  className={`w-full p-3.5 rounded-xl border text-left flex items-center justify-between transition-all ${
-                    active
-                      ? "bg-imperial-gold/20 border-imperial-gold shadow-gold-glow"
-                      : "bg-obsidian-raised/80 border-parchment/15 hover:border-parchment/40"
-                  }`}
+                  className="w-full p-3.5 rounded-xl text-left flex items-center justify-between transition-all duration-200 glass-card border border-white/10 hover:border-imperial-gold/40"
                 >
                   <div className="flex items-center gap-3">
                     <span className="text-2xl">{item.icon}</span>
                     <div>
-                      <div className="font-bold text-sm text-parchment">{item.label}</div>
-                      <div className="text-xs text-parchment/60">{item.desc}</div>
+                      <div className="font-bold text-sm text-slate-100">
+                        {item.label}
+                      </div>
+                      <div className="text-xs text-slate-300/80">{item.desc}</div>
                     </div>
                   </div>
-                  <span className={`text-lg font-bold ${active ? "text-imperial-gold" : "text-parchment/20"}`}>
-                    {active ? "✓" : "+"}
-                  </span>
+                  <div className="flex items-center gap-2">
+                    <span
+                      className={`flex items-center justify-center w-7 h-7 rounded-full text-sm font-bold transition-all ${
+                        active
+                          ? "bg-imperial-gold text-obsidian shadow-gold-glow scale-110"
+                          : "bg-slate-800/80 text-slate-400 border border-white/10"
+                      }`}
+                    >
+                      {active ? "✓" : "+"}
+                    </span>
+                  </div>
                 </button>
               );
             })}
             {interests.length === 0 && (
-              <p className="text-xs text-adwa-crimson mt-2">{t("planner.selectAtLeast1")}</p>
+              <p className="text-xs text-adwa-crimson mt-2 font-medium">{t("planner.selectAtLeast1")}</p>
             )}
           </div>
         )}
@@ -229,17 +255,26 @@ export default function ItineraryPlanner({ navigate }) {
                 <button
                   key={party.id}
                   onClick={() => setPartyType(party.id)}
-                  className={`w-full p-4 rounded-xl border text-left flex items-start gap-3 transition-all ${
+                  className={`w-full p-4 rounded-xl text-left flex items-center justify-between transition-all duration-200 ${
                     selected
-                      ? "bg-imperial-gold/20 border-imperial-gold shadow-gold-glow"
-                      : "bg-obsidian-raised/80 border-parchment/15 hover:border-parchment/40"
+                      ? "bg-imperial-gold/25 border-2 border-imperial-gold ring-2 ring-imperial-gold/60 shadow-gold-glow scale-[1.01]"
+                      : "glass-card border border-white/10 hover:border-imperial-gold/40"
                   }`}
                 >
-                  <span className="text-3xl">{party.icon}</span>
-                  <div>
-                    <div className="font-bold text-sm text-parchment">{party.label}</div>
-                    <div className="text-xs text-parchment/70 mt-0.5 leading-relaxed">{party.desc}</div>
+                  <div className="flex items-start gap-3">
+                    <span className="text-3xl">{party.icon}</span>
+                    <div>
+                      <div className={`font-bold text-sm ${selected ? "text-imperial-gold-light" : "text-slate-100"}`}>
+                        {party.label}
+                      </div>
+                      <div className="text-xs text-slate-300/80 mt-0.5 leading-relaxed">{party.desc}</div>
+                    </div>
                   </div>
+                  {selected && (
+                    <span className="bg-imperial-gold text-obsidian text-[10px] font-black uppercase px-2.5 py-0.5 rounded-full shadow-md shrink-0">
+                      ✓ Selected
+                    </span>
+                  )}
                 </button>
               );
             })}

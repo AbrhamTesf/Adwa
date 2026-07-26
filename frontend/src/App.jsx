@@ -90,7 +90,7 @@ export default function App() {
   return (
     <div className="min-h-screen w-full relative">
       <ScreenComponent navigate={navigate} recoveryToken={recoveryToken} />
-      {screen !== "landing" && <LanguageToggle />}
+      {screen === "landing" && <LanguageToggle />}
     </div>
   );
 }

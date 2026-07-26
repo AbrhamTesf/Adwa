@@ -445,21 +445,21 @@ function WindInstrumentStage({ navigate, exhibit, config }) {
               : config.callLabel;
 
   return (
-    <section className="flex min-h-screen flex-col overflow-hidden bg-obsidian bg-adwa-geometry px-5 pb-6 pt-5 text-parchment">
+    <section className="flex min-h-screen flex-col overflow-hidden bg-obsidian bg-adwa-geometry px-5 pb-6 pt-5 text-parchment pb-safe">
       <header className="mb-4 flex items-start justify-between gap-4">
-        <div>
-          <p className="text-xs uppercase tracking-[0.18em] text-imperial-gold">{t("sensory.title")}</p>
-          <h1 className="font-display text-2xl">{getExhibitText(exhibitId, "title", language) || exhibit?.name || config.title}</h1>
-          <p className="mt-1 text-sm text-parchment/70">{config.hint}</p>
+        <div className="glass-card rounded-xl p-3.5 flex-1">
+          <p className="text-xs uppercase tracking-[0.18em] text-imperial-gold font-semibold">{t("sensory.title")}</p>
+          <h1 className="font-display text-2xl font-bold text-slate-100">{getExhibitText(exhibitId, "title", language) || exhibit?.name || config.title}</h1>
+          <p className="mt-1 text-xs text-slate-300">{config.hint}</p>
         </div>
-        <button type="button" className="adwa-btn-secondary px-4 py-2 text-sm" onClick={() => navigate?.("inspection")}>
+        <button type="button" className="glass-card border border-white/10 px-4 py-2.5 text-sm text-slate-100 hover:border-imperial-gold/50 transition-colors font-semibold rounded-xl" onClick={() => navigate?.("inspection")}>
           ← {t("common.back")}
         </button>
       </header>
 
       <div
-        className={`relative min-h-0 flex-1 overflow-hidden rounded-xl2 border bg-obsidian-raised transition-shadow ${
-          isBlowing ? "border-imperial-gold shadow-gold-glow" : "border-imperial-gold/30"
+        className={`relative min-h-0 flex-1 overflow-hidden rounded-xl2 glass-card transition-shadow ${
+          isBlowing ? "border border-imperial-gold shadow-gold-glow" : "border border-white/10"
         }`}
       >
         <InteractiveModelViewer
@@ -468,7 +468,7 @@ function WindInstrumentStage({ navigate, exhibit, config }) {
           posterPath={`/models/posters/${exhibitId}_poster.webp`}
           altText={config.altText}
           exhibitTrivia={exhibit?.persona_scripts?.usage || config.fallbackTrivia}
-          containerClassName="h-full w-full flex items-center justify-center"
+          containerClassName="h-full w-full flex items-center justify-center pointer-events-auto"
           className="h-full min-h-[360px] w-full"
           cameraControls
           autoRotate
@@ -500,21 +500,21 @@ function WindInstrumentStage({ navigate, exhibit, config }) {
           aria-hidden="true"
         />
 
-        <div className="pointer-events-none absolute inset-x-0 bottom-0 z-20 bg-gradient-to-t from-obsidian-raised via-obsidian-raised/25 to-transparent px-4 pb-3 pt-16">
-          <p className="text-center text-xs font-medium uppercase tracking-[0.16em] text-parchment/75">
+        <div className="pointer-events-none absolute inset-x-0 bottom-0 z-20 bg-gradient-to-t from-slate-950 via-slate-950/40 to-transparent px-4 pb-3 pt-16">
+          <p className="text-center text-xs font-medium uppercase tracking-[0.16em] text-imperial-gold">
             {modelReady ? "Blowhole tap enabled" : "Loading instrument mesh…"}
           </p>
         </div>
       </div>
 
-      <div className="mt-3">
-        <div className="mb-1 flex items-center justify-between text-xs uppercase tracking-[0.16em] text-parchment/60">
+      <div className="mt-3 glass-card rounded-xl p-3">
+        <div className="mb-1.5 flex items-center justify-between text-xs uppercase tracking-[0.16em] text-slate-300">
           <span>Breath intensity</span>
-          <span className={isListening ? "text-imperial-gold" : "text-parchment/40"}>
+          <span className={isListening ? "text-imperial-gold font-bold" : "text-slate-500"}>
             {isListening ? "Mic live" : "Mic off"}
           </span>
         </div>
-        <div className="h-2 w-full overflow-hidden rounded-full border border-imperial-gold/30 bg-obsidian-overlay">
+        <div className="h-2.5 w-full overflow-hidden rounded-full border border-white/10 bg-slate-900">
           <div
             ref={meterRef}
             className="h-full w-full origin-left bg-gradient-to-r from-imperial-gold-dark via-imperial-gold to-imperial-gold-light"
@@ -526,18 +526,18 @@ function WindInstrumentStage({ navigate, exhibit, config }) {
       <div className="mt-3 grid grid-cols-2 gap-3">
         <button
           type="button"
-          className="adwa-btn-secondary"
+          className="glass-card border border-white/10 py-3 text-xs font-bold text-slate-100 hover:border-imperial-gold/50 rounded-xl transition-all"
           onClick={toggleMic}
           disabled={micState === "requesting"}
         >
           {isListening ? "Stop mic" : "Blow to Play"}
         </button>
-        <button type="button" className="adwa-btn-primary" onClick={handleBlow}>
+        <button type="button" className="adwa-btn-primary py-3 text-xs font-bold shadow-gold-glow rounded-xl" onClick={handleBlow}>
           Blow
         </button>
       </div>
 
-      <p className="mt-3 min-h-5 text-center text-sm text-parchment/75" role="status">
+      <p className="mt-3 min-h-5 text-center text-xs text-slate-300/80 font-medium" role="status">
         {statusMessage}
       </p>
     </section>

@@ -18,6 +18,7 @@ export default function VoiceGuideOverlay({ navigate }) {
     status,
     captions,
     setCaptions,
+    isPlaying,
     startListening,
     stopListeningAndSend,
     sendTextQuestion,
@@ -88,15 +89,27 @@ export default function VoiceGuideOverlay({ navigate }) {
               {exhibitName}
             </h2>
           </div>
-          <span className="rounded-full bg-imperial-gold/15 px-3 py-1 text-xs text-imperial-gold border border-imperial-gold/30">
-            {status === "listening"
-              ? t("voiceGuide.status.listening", "🎙️ Listening…")
-              : status === "thinking"
-              ? t("voiceGuide.status.thinking", "🧠 Thinking…")
-              : status === "speaking"
-              ? t("voiceGuide.status.speaking", "🔊 Speaking…")
-              : t("voiceGuide.status.ready", "✦ Ready")}
-          </span>
+          <div className="flex items-center gap-2">
+            {(isPlaying || status === "speaking") && (
+              <button
+                type="button"
+                onClick={stopAudio}
+                className="flex items-center gap-1.5 rounded-full border border-adwa-crimson/60 bg-adwa-crimson/20 px-2.5 py-1 text-xs text-white hover:bg-adwa-crimson transition-all font-semibold"
+              >
+                <span>🔊</span>
+                <span>⏹ Stop</span>
+              </button>
+            )}
+            <span className="rounded-full bg-imperial-gold/15 px-3 py-1 text-xs text-imperial-gold border border-imperial-gold/30">
+              {status === "listening"
+                ? t("voiceGuide.status.listening", "🎙️ Listening…")
+                : status === "thinking"
+                ? t("voiceGuide.status.thinking", "🧠 Thinking…")
+                : status === "speaking"
+                ? t("voiceGuide.status.speaking", "🔊 Speaking…")
+                : t("voiceGuide.status.ready", "✦ Ready")}
+            </span>
+          </div>
         </div>
 
         {/* ---- Persona Switcher Section ---- */}

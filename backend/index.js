@@ -6,6 +6,7 @@ import sttRoute from "./routes/stt.js";
 import askGuideRoute from "./routes/ask-guide.js";
 import ttsStreamRoute from "./routes/tts-stream.js";
 import sessionsRoute from "./routes/sessions.js";
+import contentRoute from "./routes/admin-content.js";
 
 dotenv.config();
 
@@ -21,6 +22,7 @@ app.register(sttRoute, { prefix: "/api" });
 app.register(askGuideRoute, { prefix: "/api" });
 app.register(ttsStreamRoute, { prefix: "/api" });
 app.register(sessionsRoute, { prefix: "/api" });
+app.register(contentRoute, { prefix: "/api" });
 
 app.get("/api/health", async () => ({ status: "ok", service: "adwa-lens-bff" }));
 

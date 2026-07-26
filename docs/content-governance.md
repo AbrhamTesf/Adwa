@@ -1,0 +1,3 @@
+# Museum content governance
+
+Only authorized museum staff may use the environment-gated content manager. Save edits as drafts, review historical accuracy and translations, then publish. Every publication creates a version; use rollback to restore a previous version into a new draft. The visitor API returns published content only. If it is unavailable, clients must fall back to the static exhibit JSON. The MVP file store is for local/hackathon use only; production requires authenticated roles and durable managed storage.

@@ -10,13 +10,14 @@ import SensoryHub from "./components/screens/SensoryHub.jsx";
 import VoiceGuideOverlay from "./components/screens/VoiceGuideOverlay.jsx";
 import MemoryDeck from "./components/screens/MemoryDeck.jsx";
 import ResumeTour from "./components/screens/ResumeTour.jsx";
+import ContentManager from "./components/admin/ContentManager.jsx";
 
-const SCREENS = { landing: Landing, planner: ItineraryPlanner, navigation: LiveNavigation, scanner: CameraScanner, inspection: InspectionHub, sensory: SensoryHub, voiceGuide: VoiceGuideOverlay, memoryDeck: MemoryDeck, resumeTour: ResumeTour };
+const SCREENS = { landing: Landing, planner: ItineraryPlanner, navigation: LiveNavigation, scanner: CameraScanner, inspection: InspectionHub, sensory: SensoryHub, voiceGuide: VoiceGuideOverlay, memoryDeck: MemoryDeck, resumeTour: ResumeTour, contentManager: ContentManager };
 
 export default function App() {
   useNetworkStatus();
   const recoveryToken = getRecoveryTokenFromHash();
-  const [screen, setScreen] = useState(recoveryToken ? "resumeTour" : "landing");
+  const [screen, setScreen] = useState(recoveryToken ? "resumeTour" : window.location.hash === "#content-admin" ? "contentManager" : "landing");
   const ScreenComponent = SCREENS[screen] || Landing;
 
   useEffect(() => startSessionSync(), []);

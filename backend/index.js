@@ -37,7 +37,7 @@ await app.register(rateLimit, {
 // Sign-out and refresh carry no payload, but clients routinely still send a
 // JSON content-type header. Fastify's default parser rejects that as a 400, so
 // an empty body is read as an empty object instead.
-app.addContentTypeParser("application/json", { parseAs: "string" }, (req, body, done) => {
+app.addContentTypeParser("application/json", { parseAs: "string", bodyLimit: 10 * 1024 * 1024 }, (req, body, done) => {
   if (!body || body.trim() === "") return done(null, {});
   try {
     done(null, JSON.parse(body));

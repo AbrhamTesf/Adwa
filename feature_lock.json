@@ -1,687 +1,1146 @@
 {
-  "project_name": "Adwa Lens — AI-Powered WebAR Museum Companion",
-  "last_updated": "2026-07-26T02:05:00+03:00",
-  "total_features": 30,
-  "completed_count": 20,
-  "features": [
-    {
-      "id": "FEAT-001",
-      "priority_rank": 1,
-      "stream": "Stream C — Adwa UI/UX",
-      "name": "Design System Tokens & CSS Utilities",
-      "description": "Establish Imperial Gold, Adwa Emerald, Adwa Crimson, Obsidian, Wanza Wood, and Parchment design system tokens in Tailwind & index.css.",
-      "spec_reference": "docs/adwa_lens_architecture.md Section 1 'Design System' & docs/PHASES_AND_ROLES.md Stream C Phase 1",
-      "status": "completed",
-      "claimed_by": "Stream-C-Lead",
-      "claimed_at": "2026-07-24T09:00:00Z",
-      "estimated_hours": 2,
-      "dependencies": [],
-      "deliverables": [
-        "frontend/tailwind.config.js",
-        "frontend/src/styles/index.css"
-      ],
-      "verification_criteria": [
-        "Tailwind config exports all custom color tokens",
-        "No raw hex colors used in component styling"
-      ]
-    },
-    {
-      "id": "FEAT-002",
-      "priority_rank": 2,
-      "stream": "Stream C — Adwa UI/UX",
-      "name": "Central Session & Exhibit State Stores",
-      "description": "Implement Zustand state stores for user session, party type, persona selection, itinerary, visited exhibit IDs, and network status.",
-      "spec_reference": "docs/adwa_lens_architecture.md Section 1.1 'App State Manager' & docs/AGENT_INSTRUCTIONS.md Rule 1",
-      "status": "completed",
-      "claimed_by": "Stream-C-Lead",
-      "claimed_at": "2026-07-24T09:15:00Z",
-      "estimated_hours": 2,
-      "dependencies": [
-        "FEAT-001"
-      ],
-      "deliverables": [
-        "frontend/src/stores/useSessionStore.js",
-        "frontend/src/stores/useExhibitStore.js"
-      ],
-      "verification_criteria": [
-        "Zustand store manages persona (kids|scholar|royal), itinerary array, and visited exhibit IDs",
-        "resetSession resets store cleanly"
-      ]
-    },
-    {
-      "id": "FEAT-003",
-      "priority_rank": 3,
-      "stream": "Stream B — Vision AI & Voice RAG",
-      "name": "Fastify BFF Gateway Proxy & Error Handling",
-      "description": "Build Fastify server gateway with CORS, environment variable API keys, and error normalization middleware.",
-      "spec_reference": "docs/adwa_lens_architecture.md Section 1.1 'BFF Gateway' & docs/AGENT_INSTRUCTIONS.md Rule 5",
-      "status": "completed",
-      "claimed_by": "Stream-B-Lead",
-      "claimed_at": "2026-07-24T09:30:00Z",
-      "estimated_hours": 2,
-      "dependencies": [],
-      "deliverables": [
-        "backend/index.js",
-        "backend/lib/errors.js"
-      ],
-      "verification_criteria": [
-        "Fastify listens on port 8787 with CORS enabled",
-        "/api/health endpoint returns status ok",
-        "Errors are normalized via normalizeError"
-      ]
-    },
-    {
-      "id": "FEAT-004",
-      "priority_rank": 4,
-      "stream": "Stream A — WebGL/3D Asset Lead",
-      "name": "Exhibit Metadata Schemas & Catalog Definitions",
-      "description": "Create strict metadata JSON definitions for all 5 catalog exhibits: shotel_sword, menelik_taytu_statue, negarit_drum, embilta, and meleket.",
-      "spec_reference": "docs/PHASES_AND_ROLES.md Section 1 'Complete Artifact Roster' & docs/GOVERNANCE.md Section 4",
-      "status": "completed",
-      "claimed_by": "Stream-A-Lead",
-      "claimed_at": "2026-07-24T09:45:00Z",
-      "estimated_hours": 3,
-      "dependencies": [
-        "FEAT-002"
-      ],
-      "deliverables": [
-        "frontend/public/exhibits/shotel_sword.json",
-        "frontend/public/exhibits/menelik_taytu_statue.json",
-        "frontend/public/exhibits/negarit_drum.json",
-        "frontend/public/exhibits/embilta.json",
-        "frontend/public/exhibits/meleket.json"
-      ],
-      "verification_criteria": [
-        "All 5 exhibit JSON files contain valid exhibit_id, glb_url, hotspot_json, persona_scripts, and audio_profile fields"
-      ]
-    },
-    {
-      "id": "FEAT-005",
-      "priority_rank": 5,
-      "stream": "Stream A — WebGL/3D Asset Lead",
-      "name": "Hero Artifact 3D Model Asset (Shotel Sword)",
-      "description": "Source/author hero Shotel curved sword .glb with Draco compression, KTX2 textures, and camera default framing.",
-      "spec_reference": "docs/adwa_lens_architecture.md Section 1.2 Step 4 & docs/PHASES_AND_ROLES.md Stream A Phase 1",
-      "status": "in_progress",
-      "claimed_by": "Stream-A-Lead",
-      "claimed_at": "2026-07-24T10:00:00Z",
-      "estimated_hours": 4,
-      "dependencies": [
-        "FEAT-004"
-      ],
-      "deliverables": [
-        "frontend/public/models/shotel_sword.glb"
-      ],
-      "verification_criteria": [
-        "shotel_sword.glb loads progressively in model-viewer without console errors"
-      ]
-    },
-    {
-      "id": "FEAT-006",
-      "priority_rank": 6,
-      "stream": "Stream C — Adwa UI/UX",
-      "name": "Landing Screen & Onboarding Permission Priming Modal",
-      "description": "Build full-bleed landing screen with hero video/model loop, English, Amharic, and supported foreign languages (e.g., Spanish) language toggle, and soft in-app permission priming modal.",
-      "spec_reference": "docs/adwa_lens_architecture.md Section 2 'Screen 1 — Landing / Onboarding'",
-      "status": "completed",
-      "claimed_by": "Worker-1-Landing",
-      "claimed_at": "2026-07-24T12:40:00Z",
-      "estimated_hours": 3,
-      "dependencies": [
-        "FEAT-001",
-        "FEAT-002"
-      ],
-      "deliverables": [
-        "frontend/src/components/screens/Landing.jsx"
-      ],
-      "verification_criteria": [
-        "Landing screen renders Start My Tour CTA and language selector (EN, AM, ES)",
-        "Switching language alters UI text and Voice AI system prompt/TTS language parameters cleanly without runtime audio stream errors",
-        "Permission priming modal triggers before browser media permission dialogs"
-      ]
-    },
-    {
-      "id": "FEAT-007",
-      "priority_rank": 7,
-      "stream": "Stream B — Vision AI & Voice RAG",
-      "name": "Gemini 2.0 Flash Vision Proxy & Camera Heuristic Gate",
-      "description": "Implement /api/vision-scan Fastify proxy forcing strict JSON catalog match, plus client-side brightness/blur pre-scan checks in useCameraScanner.js.",
-      "spec_reference": "docs/adwa_lens_architecture.md Section 4.1 'Gemini Flash Vision JSON'",
-      "status": "in_progress",
-      "claimed_by": "Stream-B-Lead",
-      "claimed_at": "2026-07-24T10:30:00Z",
-      "estimated_hours": 4,
-      "dependencies": [
-        "FEAT-003",
-        "FEAT-004"
-      ],
-      "deliverables": [
-        "backend/routes/vision-scan.js",
-        "frontend/src/hooks/useCameraScanner.js",
-        "frontend/src/components/screens/CameraScanner.jsx"
-      ],
-      "verification_criteria": [
-        "Camera scanner sends base64 frame to Fastify vision proxy",
-        "Gemini response parses exhibit_id and confidence score",
-        "Low light / blur triggers UI hints before calling API"
-      ]
-    },
-    {
-      "id": "FEAT-008",
-      "priority_rank": 8,
-      "stream": "Stream A — WebGL/3D Asset Lead",
-      "name": "3D WebGL Inspection Hub with Dynamic Hotspots",
-      "description": "Build InspectionHub.jsx using model-viewer/Three.js with auto-rotate handoff, pinch-zoom orbit, and multi-tab hotspot drawer.",
-      "spec_reference": "docs/adwa_lens_architecture.md Section 2 'Screen 5 — 3D WebGL Inspection'",
-      "status": "completed",
-      "claimed_by": "Codex / Stream A",
-      "claimed_at": "2026-07-24T13:08:04Z",
-      "estimated_hours": 4,
-      "dependencies": [
-        "FEAT-004",
-        "FEAT-005"
-      ],
-      "deliverables": [
-        "frontend/src/components/screens/InspectionHub.jsx"
-      ],
-      "verification_criteria": [
-        "InspectionHub displays 3D model with interactive hotspot pins",
-        "Tapping hotspot opens Material | Craft | Usage drawer tabs"
-      ]
-    },
-    {
-      "id": "FEAT-009",
-      "priority_rank": 9,
-      "stream": "Stream B — Vision AI & Voice RAG",
-      "name": "Voice Guide RAG Pipeline (Kids Persona MVP)",
-      "description": "Implement Groq Whisper STT -> Groq Llama 3.3 70B RAG -> ElevenLabs TTS pipeline with browser speechSynthesis fallback for Kids Explorer persona.",
-      "spec_reference": "docs/adwa_lens_architecture.md Section 4.2 & Section 4.5",
-      "status": "in_progress",
-      "claimed_by": "Stream-B-Lead",
-      "claimed_at": "2026-07-24T11:00:00Z",
-      "estimated_hours": 5,
-      "dependencies": [
-        "FEAT-003",
-        "FEAT-004"
-      ],
-      "deliverables": [
-        "backend/routes/stt.js",
-        "backend/routes/ask-guide.js",
-        "backend/routes/tts-stream.js",
-        "frontend/src/hooks/useVoiceGuide.js",
-        "frontend/src/components/screens/VoiceGuideOverlay.jsx"
-      ],
-      "verification_criteria": [
-        "Mic input transcribes text via Whisper STT route",
-        "Llama RAG generates persona-conditioned answer streaming to TTS",
-        "Browser speechSynthesis fires if ElevenLabs fails"
-      ]
-    },
-    {
-      "id": "FEAT-010",
-      "priority_rank": 10,
-      "stream": "Stream D — Audio & Haptics",
-      "name": "Negarit Drum Direct Mesh Tap, Strike Button & Haptics",
-      "description": "Build Negarit Drum interactive audio mechanics: direct 3D mesh raycast tap, Strike UI mallet button, Web Audio synth tones, and navigator.vibrate haptic sync.",
-      "spec_reference": "docs/adwa_lens_architecture.md Section 2 'Screen 6' & docs/GOVERNANCE.md Section 4.3",
-      "status": "completed",
-      "claimed_by": "Stream D",
-      "claimed_at": "2026-07-24T14:25:45Z",
-      "estimated_hours": 4,
-      "dependencies": [
-        "FEAT-004",
-        "FEAT-008"
-      ],
-      "deliverables": [
-        "frontend/src/lib/haptics.js",
-        "frontend/src/components/screens/SensoryHub.jsx"
-      ],
-      "verification_criteria": [
-        "Tapping drum mesh or clicking Strike button plays Web Audio drum tone",
-        "Hit triggers navigator.vibrate pulse and visual audio-wave canvas animation"
-      ]
-    },
-    {
-      "id": "FEAT-011",
-      "priority_rank": 11,
-      "stream": "Stream C — Adwa UI/UX",
-      "name": "Post-Tour Memory Deck Recap & Visited Exhibit Shelf",
-      "description": "Build MemoryDeck.jsx displaying recap cards for visited exhibits, AR snapshot thumbnails, and digital badge shelf.",
-      "spec_reference": "docs/adwa_lens_architecture.md Section 2 'Screen 8 — Post-Tour Memory Deck'",
-      "status": "completed",
-      "claimed_by": "Antigravity",
-      "claimed_at": "2026-07-25T18:55:00+03:00",
-      "estimated_hours": 3,
-      "dependencies": [
-        "FEAT-002"
-      ],
-      "deliverables": [
-        "frontend/src/components/screens/MemoryDeck.jsx"
-      ],
-      "verification_criteria": [
-        "Memory Deck lists visited exhibits populated from useSessionStore",
-        "Share / export button triggers card preview"
-      ]
-    },
-    {
-      "id": "FEAT-012",
-      "priority_rank": 12,
-      "stream": "Stream C — Adwa UI/UX",
-      "name": "Adaptive Itinerary Planner Wizard & Crowd Feed",
-      "description": "Build card-stack wizard with time budget, interest chips, party type, accessibility options, and route generator with simulated crowd density.",
-      "spec_reference": "docs/adwa_lens_architecture.md Section 2 'Screen 2 — Itinerary Planner'",
-      "status": "completed",
-      "claimed_by": "Antigravity",
-      "claimed_at": "2026-07-24T17:22:42+03:00",
-      "estimated_hours": 4,
-      "dependencies": [
-        "FEAT-002"
-      ],
-      "deliverables": [
-        "frontend/src/components/screens/ItineraryPlanner.jsx"
-      ],
-      "verification_criteria": [
-        "Wizard choices update session store partyType, timeBudgetMinutes, and interests",
-        "Generates multi-stop itinerary card list"
-      ]
-    },
-    {
-      "id": "FEAT-013",
-      "priority_rank": 13,
-      "stream": "Stream C — Adwa UI/UX",
-      "name": "Indoor 2D SVG Map & Live Route Navigation",
-      "description": "Build LiveNavigation.jsx top-down 2D SVG floor map with color-coded walking route line, crowd warning chip, and manual 'I am here' checkpoint check-in.",
-      "spec_reference": "docs/adwa_lens_architecture.md Section 2 'Screen 3 — Live Navigation'",
-      "status": "completed",
-      "claimed_by": "Cursor-Grok / Stream C",
-      "claimed_at": "2026-07-25T10:52:00+03:00",
-      "estimated_hours": 4,
-      "dependencies": [
-        "FEAT-012"
-      ],
-      "deliverables": [
-        "frontend/src/components/screens/LiveNavigation.jsx"
-      ],
-      "verification_criteria": [
-        "SVG map renders user location dot and route path",
-        "Tapping 'I am here' updates current stop index in session store"
-      ]
-    },
-    {
-      "id": "FEAT-014",
-      "priority_rank": 14,
-      "stream": "Stream A — WebGL/3D Asset Lead",
-      "name": "Hero Artifact 3D Exploded View Transformation",
-      "description": "Implement GSAP transform tween / morph targets separating shotel_sword.glb into blade, hilt, and sheath layers upon button toggle.",
-      "spec_reference": "docs/adwa_lens_architecture.md Section 2 'Screen 5' & docs/PHASES_AND_ROLES.md Stream A Phase 2",
-      "status": "completed",
-      "claimed_by": "Antigravity / Stream A",
-      "claimed_at": "2026-07-25T11:00:00Z",
-      "estimated_hours": 4,
-      "dependencies": [
-        "FEAT-005",
-        "FEAT-008"
-      ],
-      "deliverables": [
-        "frontend/src/components/screens/InspectionHub.jsx"
-      ],
-      "verification_criteria": [
-        "Tapping Exploded View toggle animates mesh node separation with text labels"
-      ]
-    },
-    {
-      "id": "FEAT-015",
-      "priority_rank": 15,
-      "stream": "Stream B — Vision AI & Voice RAG",
-      "name": "Multi-Persona Engine (Scholar & Royal) & Mid-Tour Switch",
-      "description": "Expand persona engine with History Scholar and Royal Roleplay prompts in personas.js and UI persona switcher chips in VoiceGuideOverlay.jsx.",
-      "spec_reference": "docs/adwa_lens_architecture.md Section 4.2 & Section 2 Screen 7",
-      "status": "completed",
-      "claimed_by": "Antigravity",
-      "claimed_at": "2026-07-25T18:45:00+03:00",
-      "estimated_hours": 3,
-      "dependencies": [
-        "FEAT-009"
-      ],
-      "deliverables": [
-        "backend/lib/personas.js",
-        "frontend/src/components/screens/VoiceGuideOverlay.jsx"
-      ],
-      "verification_criteria": [
-        "Switching avatar chip immediately alters system prompt tone and TTS voice ID"
-      ]
-    },
-    {
-      "id": "FEAT-016",
-      "priority_rank": 16,
-      "stream": "Stream D — Audio & Haptics",
-      "name": "Embilta & Meleket Blowing Mechanics & Airflow Overlay",
-      "description": "Build wind instrument blowing interaction: mic breath autocorrelation pitch/amplitude detection in pitchDetection.js, interactive Blow button, and visual airflow particle shader.",
-      "spec_reference": "docs/adwa_lens_architecture.md Section 4.4 & docs/GOVERNANCE.md Section 4.4-4.5",
-      "status": "completed",
-      "claimed_by": "Cursor / Stream D",
-      "claimed_at": "2026-07-25T15:43:00+03:00",
-      "estimated_hours": 5,
-      "dependencies": [
-        "FEAT-004",
-        "FEAT-008"
-      ],
-      "deliverables": [
-        "frontend/src/lib/pitchDetection.js",
-        "frontend/src/components/screens/SensoryHub.jsx"
-      ],
-      "verification_criteria": [
-        "Blowing into mic or clicking Blow button sounds ceremonial tone for Embilta and Meleket",
-        "Triggers glowing airflow particle overlay on 3D instrument model"
-      ]
-    },
-    {
-      "id": "FEAT-017",
-      "priority_rank": 17,
-      "stream": "Stream D — Audio & Haptics",
-      "name": "Blade Swipe Clash SFX & Particle Canvas Burst",
-      "description": "Implement touch swipe gesture across crossed Shotel blade models triggering metallic clash sample and lightweight canvas spark particle burst.",
-      "spec_reference": "docs/adwa_lens_architecture.md Section 2 'Screen 6 — Blades'",
-      "status": "unlocked",
-      "claimed_by": null,
-      "claimed_at": null,
-      "estimated_hours": 3,
-      "dependencies": [
-        "FEAT-005",
-        "FEAT-010"
-      ],
-      "deliverables": [
-        "frontend/src/components/screens/SensoryHub.jsx"
-      ],
-      "verification_criteria": [
-        "Swiping across blades triggers metallic clash audio and spark particle burst animation"
-      ]
-    },
-    {
-      "id": "FEAT-018",
-      "priority_rank": 18,
-      "stream": "Stream D — Audio & Haptics",
-      "name": "Interactive Quiz Engine & Digital Badge Unlock",
-      "description": "Build multiple-choice quiz engine (3-5 questions on visited exhibits) and digital badge unlock logic integrated into MemoryDeck.jsx.",
-      "spec_reference": "docs/adwa_lens_architecture.md Section 2 'Screen 8 — Quiz & Badges'",
-      "status": "completed",
-      "claimed_by": "Antigravity",
-      "claimed_at": "2026-07-25T21:25:00+03:00",
-      "estimated_hours": 4,
-      "dependencies": [
-        "FEAT-011"
-      ],
-      "deliverables": [
-        "frontend/src/components/screens/MemoryDeck.jsx"
-      ],
-      "verification_criteria": [
-        "Quiz generates questions dynamically from visited exhibit IDs",
-        "Correct answers unlock digital badges on badge shelf"
-      ]
-    },
-    {
-      "id": "FEAT-019",
-      "priority_rank": 19,
-      "stream": "Stream A — WebGL/3D Asset Lead",
-      "name": "Empress Taytu Monument 3D Asset & Hotspots",
-      "description": "Integrate taytu_statue.glb model with multi-hotspot annotations for Royal Braided Hairstyle (Albaso), Ceremonial Kaba & Dress, Sheathed Royal Sword, and Strategic Command Gesture.",
-      "spec_reference": "docs/GOVERNANCE.md Section 4.2 & docs/PHASES_AND_ROLES.md Section 1",
-      "status": "completed",
-      "claimed_by": "Antigravity",
-      "claimed_at": "2026-07-25T21:57:07+03:00",
-      "estimated_hours": 4,
-      "dependencies": [
-        "FEAT-004",
-        "FEAT-008"
-      ],
-      "deliverables": [
-        "frontend/public/models/taytu_statue.glb",
-        "frontend/src/components/screens/InspectionHub.jsx"
-      ],
-      "verification_criteria": [
-        "Monument 3D model loads and displays all 4 royal hotspot pins with content drawers"
-      ]
-    },
-    {
-      "id": "FEAT-020",
-      "priority_rank": 20,
-      "stream": "Stream A — WebGL/3D Asset Lead",
-      "name": "Embilta & Meleket Instrument 3D Models Integration",
-      "description": "Integrate embilta.glb and meleket.glb models into InspectionHub and SensoryHub with blowhole and mouthpiece hotspot pins.",
-      "spec_reference": "docs/GOVERNANCE.md Section 4.4-4.5 & docs/PHASES_AND_ROLES.md Section 1",
-      "status": "unlocked",
-      "claimed_by": null,
-      "claimed_at": null,
-      "estimated_hours": 4,
-      "dependencies": [
-        "FEAT-004",
-        "FEAT-008"
-      ],
-      "deliverables": [
-        "frontend/public/models/embilta.glb",
-        "frontend/public/models/meleket.glb"
-      ],
-      "verification_criteria": [
-        "Embilta and Meleket models load in 3D canvas with active sensory mode triggers"
-      ]
-    },
-    {
-      "id": "FEAT-021",
-      "priority_rank": 21,
-      "stream": "Stream A — WebGL/3D Asset Lead",
-      "name": "Low-End Device 3D LOD & Pre-rendered Fallback",
-      "description": "Add low-poly LOD variant loading and non-WebGL2 image sequence fallback for older mobile browsers.",
-      "spec_reference": "docs/adwa_lens_architecture.md Section 1.3 & Section 3",
-      "status": "unlocked",
-      "claimed_by": null,
-      "claimed_at": null,
-      "estimated_hours": 3,
-      "dependencies": [
-        "FEAT-008"
-      ],
-      "deliverables": [
-        "frontend/src/components/screens/InspectionHub.jsx"
-      ],
-      "verification_criteria": [
-        "WebGL failure gracefully displays pre-rendered layer image sequence fallback"
-      ]
-    },
-    {
-      "id": "FEAT-022",
-      "priority_rank": 22,
-      "stream": "Stream B — Vision AI & Voice RAG",
-      "name": "Offline Service Worker & Top-20 Exhibit Pre-Cache",
-      "description": "Build Service Worker caching top 20 exhibit JSON files, static persona scripts, and browser speechSynthesis offline fallback.",
-      "spec_reference": "docs/adwa_lens_architecture.md Section 1.3 'Offline Contingency'",
-      "status": "completed",
-      "claimed_by": "Antigravity",
-      "claimed_at": "2026-07-25T21:52:00+03:00",
-      "estimated_hours": 4,
-      "dependencies": [
-        "FEAT-002",
-        "FEAT-004"
-      ],
-      "deliverables": [
-        "frontend/public/sw.js",
-        "frontend/src/hooks/useNetworkStatus.js"
-      ],
-      "verification_criteria": [
-        "Disconnecting network serves pre-cached exhibit JSON and static persona scripts"
-      ]
-    },
-    {
-      "id": "FEAT-023",
-      "priority_rank": 23,
-      "stream": "Stream B — Vision AI & Voice RAG",
-      "name": "AI Prompt Safety Guardrails & Off-Topic Redirection",
-      "description": "Implement prompt guardrails in backend/lib/personas.js politely redirecting off-topic or inappropriate user questions back to exhibit context.",
-      "spec_reference": "docs/adwa_lens_architecture.md Section 3 Edge Case Handling",
-      "status": "completed",
-      "claimed_by": "Antigravity",
-      "claimed_at": "2026-07-25T23:02:00+03:00",
-      "estimated_hours": 2,
-      "dependencies": [
-        "FEAT-009"
-      ],
-      "deliverables": [
-        "backend/lib/personas.js",
-        "backend/routes/ask-guide.js"
-      ],
-      "verification_criteria": [
-        "Off-topic question triggers polite in-character persona redirection to museum topics"
-      ]
-    },
-    {
-      "id": "FEAT-024",
-      "priority_rank": 24,
-      "stream": "Stream C — Adwa UI/UX",
-      "name": "Accessibility & Ergonomics Pass",
-      "description": "Perform WCAG contrast check, thumb-reachable CTA layout optimization, and sticky voice avatar captions overlay.",
-      "spec_reference": "docs/adwa_lens_architecture.md Section 2 Screen 7 & docs/PHASES_AND_ROLES.md Stream C Phase 3",
-      "status": "unlocked",
-      "claimed_by": null,
-      "claimed_at": null,
-      "estimated_hours": 3,
-      "dependencies": [
-        "FEAT-001",
-        "FEAT-006"
-      ],
-      "deliverables": [
-        "frontend/src/styles/index.css",
-        "frontend/src/components/screens/VoiceGuideOverlay.jsx"
-      ],
-      "verification_criteria": [
-        "Text passes contrast ratio checks and voice captions remain visible in sound-off mode"
-      ]
-    },
-    {
-      "id": "FEAT-025",
-      "priority_rank": 25,
-      "stream": "Stream Bootstrap — Core",
-      "name": "End-to-End Demo Path Validation & Rehearsal Pipeline",
-      "description": "Validate unbroken execution of the complete 8-screen hero demo path per hackathon judging narrative arc.",
-      "spec_reference": "docs/adwa_lens_architecture.md Section 5.4 'Judging-Moment Narrative Arc'",
-      "status": "unlocked",
-      "claimed_by": null,
-      "claimed_at": null,
-      "estimated_hours": 3,
-      "dependencies": [
-        "FEAT-006",
-        "FEAT-007",
-        "FEAT-008",
-        "FEAT-009",
-        "FEAT-010",
-        "FEAT-011"
-      ],
-      "deliverables": [
-        "frontend/src/App.jsx"
-      ],
-      "verification_criteria": [
-        "Full demo flow runs smoothly: Landing -> Planner -> LiveNav -> CameraScan -> InspectionHub -> VoiceGuide -> SensoryHub -> MemoryDeck"
-      ]
-    },
-    {
-      "id": "FEAT-026",
-      "priority_rank": 26,
-      "stream": "Stream B — Platform Resilience",
-      "name": "Offline-First Core Tour Experience",
-      "description": "Provide a complete degraded-network tour using IndexedDB-cached exhibit content, curated local guide answers, queued session events, and browser speech synthesis so core exhibit discovery and personalized storytelling remain usable without the RAG service.",
-      "spec_reference": "Critical product requirement — offline-first core experience",
-      "status": "unlocked",
-      "claimed_by": null,
-      "claimed_at": null,
-      "estimated_hours": 12,
-      "dependencies": ["FEAT-002", "FEAT-004", "FEAT-009", "FEAT-022"],
-      "deliverables": ["frontend/src/lib/offlineTourCache.js", "frontend/src/hooks/useOfflineGuide.js", "frontend/public/sw.js"],
-      "verification_criteria": ["A previously visited exhibit opens with its metadata, narrative, and persona-appropriate fallback answers while offline", "Guide requests fall back to local curated content and browser speech synthesis without an error screen", "Tour progress and analytics events queue locally and synchronize after connectivity returns"]
-    },
-    {
-      "id": "FEAT-027",
-      "priority_rank": 27,
-      "stream": "Stream B — Platform Resilience",
-      "name": "Provider Failure Handling & Graceful Degradation UX",
-      "description": "Define normalized provider-failure states and user-facing recovery paths for Gemini Vision, Groq RAG, ElevenLabs, microphone/camera permissions, timeouts, and mid-conversation network loss.",
-      "spec_reference": "Critical product requirement — robust error handling and graceful degradation",
-      "status": "unlocked",
-      "claimed_by": null,
-      "claimed_at": null,
-      "estimated_hours": 8,
-      "dependencies": ["FEAT-003", "FEAT-007", "FEAT-009"],
-      "deliverables": ["backend/lib/errors.js", "frontend/src/components/ui/ServiceFallbackNotice.jsx", "frontend/src/lib/serviceFallbacks.js"],
-      "verification_criteria": ["Gemini Vision failure offers manual exhibit selection and retry without losing the tour state", "ElevenLabs quota or stream failure switches to captions and browser speech synthesis", "Network loss during a guide response preserves the transcript and presents a clear retry/offline option"]
-    },
-    {
-      "id": "FEAT-028",
-      "priority_rank": 28,
-      "stream": "Stream C — Identity & Sessions",
-      "name": "Persistent Cross-Device Visitor Sessions",
-      "description": "Allow visitors to save and resume a tour across devices using a privacy-preserving accountless recovery link or optional sign-in, with synchronized itinerary, persona, visited exhibits, badges, and preferences.",
-      "spec_reference": "High-priority product requirement — user session persistence across devices",
-      "status": "completed",
-      "claimed_by": "Codex / Stream C",
-      "claimed_at": "2026-07-25T16:00:00+03:00",
-      "estimated_hours": 12,
-      "dependencies": ["FEAT-002", "FEAT-003"],
-      "deliverables": ["backend/routes/sessions.js", "frontend/src/lib/sessionSync.js", "frontend/src/components/screens/ResumeTour.jsx"],
-      "verification_criteria": ["Visitor can create a recovery link or sign in and resume an interrupted tour on a second device", "Itinerary, persona, visited exhibits, badges, and accessibility preferences restore correctly", "Expired or invalid recovery links show a safe, actionable recovery state"]
-    },
-    {
-      "id": "FEAT-029",
-      "priority_rank": 29,
-      "stream": "Stream E — Museum Operations",
-      "name": "Museum Content Management System",
-      "description": "Provide authenticated museum-staff workflows to create, review, publish, version, and roll back exhibit metadata, stories, translations, media, hotspot content, and 3D-model references without developer intervention.",
-      "spec_reference": "High-priority product requirement — admin and content management",
-      "status": "completed",
-      "claimed_by": "Cursor / Stream E",
-      "claimed_at": "2026-07-26T01:55:00+03:00",
-      "estimated_hours": 24,
-      "dependencies": ["FEAT-003", "FEAT-004"],
-      "deliverables": ["backend/routes/admin-content.js", "backend/lib/contentSchema.js", "frontend/src/components/admin/ContentManager.jsx"],
-      "verification_criteria": ["Authorized staff can edit and publish exhibit copy and persona stories from an admin interface", "Content changes are validated, versioned, and reversible", "Published content is served to the visitor experience without a frontend deployment"]
-    },
-    {
-      "id": "FEAT-030",
-      "priority_rank": 30,
-      "stream": "Stream E — Museum Operations",
-      "name": "Privacy-Safe Visitor Analytics & Insights Dashboard",
-      "description": "Instrument privacy-safe visitor events and provide museum staff a dashboard for exhibit popularity, route drop-off, persona selection, feature use, session duration, and service-failure trends.",
-      "spec_reference": "High-priority product requirement — analytics and insights dashboard",
-      "status": "completed",
-      "claimed_by": "Cursor / Stream E",
-      "claimed_at": "2026-07-26T01:55:00+03:00",
-      "estimated_hours": 16,
-      "dependencies": ["FEAT-003", "FEAT-028"],
-      "deliverables": ["backend/routes/analytics.js", "frontend/src/lib/analytics.js", "frontend/src/components/admin/AnalyticsDashboard.jsx"],
-      "verification_criteria": ["Dashboard reports popular exhibits, drop-off points, persona usage, and time spent for a selectable date range", "Analytics exclude raw audio, camera frames, and unnecessary personal data", "Offline events are queued and deduplicated when sent after reconnection"]
-    }
-  ],
-  "phase_feature_locks": {"_comment": "Feature claiming system. Before building any feature, an agent or developer MUST claim it here via a PR that updates this file. Prevents two agents building the same thing. Claimed features show agent_id and branch. Released = merged to develop.",
-  "_instructions": "To claim: set status='claimed', add your agent_id, branch, and claimed_at. To release: set status='released', add released_at after your PR merges. Allowed status values are only unclaimed, claimed, or released.",
-  "phase_1": {
-    "auth_and_bff_proxy_foundation": {"description": "Establish Fastify BFF authentication boundaries, environment configuration, provider-key protection, and normalized API error responses.", "status": "unclaimed", "agent_id": null, "branch": null, "claimed_at": null, "released_at": null, "plan_ref": "docs/phases/PHASE_1_MVP.md § 1.1"},
-    "frontend_application_shell_and_routing": {"description": "Create the React application shell, screen routing model, navigation layout, and shared loading and error states.", "status": "unclaimed", "agent_id": null, "branch": null, "claimed_at": null, "released_at": null, "plan_ref": "docs/phases/PHASE_1_MVP.md § 1.2"},
-    "shared_contracts_and_personas": {"description": "Define shared contracts for exhibits, personas, API errors, and request-response payloads.", "status": "unclaimed", "agent_id": null, "branch": null, "claimed_at": null, "released_at": null, "plan_ref": "docs/phases/PHASE_1_MVP.md § 1.3"},
-    "core_health_and_developer_documentation": {"description": "Add health endpoints, local development instructions, architecture references, and contract-change documentation.", "status": "unclaimed", "agent_id": null, "branch": null, "claimed_at": null, "released_at": null, "plan_ref": "docs/phases/PHASE_1_MVP.md § 1.4"}
-  },
-  "phase_2": {
-    "gemini_vision_scan_pipeline": {"description": "Implement camera image submission from the frontend through Fastify to Gemini Vision and return validated exhibit identification.", "status": "unclaimed", "agent_id": null, "branch": null, "claimed_at": null, "released_at": null, "plan_ref": "docs/phases/PHASE_2_AI.md § 2.1"},
-    "webgl_artifact_viewer": {"description": "Implement model-viewer and Three.js artifact inspection with hotspot metadata and graceful rendering states.", "status": "unclaimed", "agent_id": null, "branch": null, "claimed_at": null, "released_at": null, "plan_ref": "docs/phases/PHASE_2_AI.md § 2.2"},
-    "voice_guide_stt_and_llm_pipeline": {"description": "Implement browser audio capture, Groq speech-to-text, persona-conditioned guide prompting, and streamed assistant responses.", "status": "unclaimed", "agent_id": null, "branch": null, "claimed_at": null, "released_at": null, "plan_ref": "docs/phases/PHASE_2_AI.md § 2.3"},
-    "elevenlabs_audio_streaming": {"description": "Implement Fastify-proxied ElevenLabs text-to-speech streaming, caption synchronization, and audio playback controls.", "status": "unclaimed", "agent_id": null, "branch": null, "claimed_at": null, "released_at": null, "plan_ref": "docs/phases/PHASE_2_AI.md § 2.4"},
-    "rag_retrieval_contract_and_ingestion": {"description": "Implement verified-history ingestion, local retrieval chunk contracts, and BFF prompt augmentation for grounded guide responses.", "status": "unclaimed", "agent_id": null, "branch": null, "claimed_at": null, "released_at": null, "plan_ref": "docs/phases/PHASE_2_AI.md § 2.5"}
-  },
-  "phase_3": {
-    "indexeddb_exhibit_and_session_cache": {"description": "Cache exhibit metadata, visited exhibits, and essential session state in IndexedDB for degraded-network operation.", "status": "unclaimed", "agent_id": null, "branch": null, "claimed_at": null, "released_at": null, "plan_ref": "docs/phases/PHASE_3_POLISH.md § 3.1"},
-    "offline_voice_and_tts_fallback": {"description": "Add fallback guide scripts and browser speech synthesis when streaming speech or network services are unavailable.", "status": "unclaimed", "agent_id": null, "branch": null, "claimed_at": null, "released_at": null, "plan_ref": "docs/phases/PHASE_3_POLISH.md § 3.2"},
-    "cultural_theme_and_accessibility": {"description": "Apply the Adwa cultural design system, responsive layouts, captions, contrast checks, and keyboard accessibility.", "status": "unclaimed", "agent_id": null, "branch": null, "claimed_at": null, "released_at": null, "plan_ref": "docs/phases/PHASE_3_POLISH.md § 3.3"},
-    "sensory_haptics_and_memory_deck": {"description": "Implement instrument interactions, haptic and visual fallbacks, quiz logic, badges, and post-tour memory recap.", "status": "unclaimed", "agent_id": null, "branch": null, "claimed_at": null, "released_at": null, "plan_ref": "docs/phases/PHASE_3_POLISH.md § 3.4"}
-  },
-  "phase_4": {
-    "docker_multi_service_containerization": {"description": "Provide pinned, reproducible frontend, backend, and local RAG service containers with persistent named volumes.", "status": "unclaimed", "agent_id": null, "branch": null, "claimed_at": null, "released_at": null, "plan_ref": "docs/phases/PHASE_4_SCALE.md § 4.1"},
-    "performance_and_load_testing": {"description": "Define and execute load tests for BFF routes, streaming behavior, retrieval latency, and browser rendering performance.", "status": "unclaimed", "agent_id": null, "branch": null, "claimed_at": null, "released_at": null, "plan_ref": "docs/phases/PHASE_4_SCALE.md § 4.2"},
-    "monitoring_and_observability": {"description": "Add structured logs, request correlation, health checks, service metrics, and provider failure visibility.", "status": "unclaimed", "agent_id": null, "branch": null, "claimed_at": null, "released_at": null, "plan_ref": "docs/phases/PHASE_4_SCALE.md § 4.3"},
-    "security_and_release_hardening": {"description": "Complete dependency auditing, secret handling review, API rate limiting, production configuration, and release verification.", "status": "unclaimed", "agent_id": null, "branch": null, "claimed_at": null, "released_at": null, "plan_ref": "docs/phases/PHASE_4_SCALE.md § 4.4"}
-  }
-  }
+    "schema_version":  "2.0",
+    "project_name":  "Adwa AI Companion \u0026 Heritage Platform",
+    "purpose":  "Canonical PR-governed feature ownership register.",
+    "last_updated":  "2026-07-27T00:00:00+03:00",
+    "total_features":  46,
+    "status_values":  [
+                          "unclaimed",
+                          "claimed",
+                          "released"
+                      ],
+    "migration_note":  "Merged feature-lock.json into this retained canonical feature_lock.json on 2026-07-27. Legacy feature details remain in legacy_metadata.",
+    "features":  [
+                     {
+                         "id":  "FEAT-001",
+                         "key":  "legacy_feat_001",
+                         "name":  "Design System Tokens \u0026 CSS Utilities",
+                         "description":  "Establish Imperial Gold, Adwa Emerald, Adwa Crimson, Obsidian, Wanza Wood, and Parchment design system tokens in Tailwind \u0026 index.css.",
+                         "phase":  "legacy_mvp",
+                         "status":  "released",
+                         "agent_id":  "Stream-C-Lead",
+                         "branch":  null,
+                         "claimed_at":  "2026-07-24T09:00:00Z",
+                         "released_at":  null,
+                         "plan_ref":  "docs/adwa_lens_architecture.md Section 1 \u0027Design System\u0027 \u0026 docs/PHASES_AND_ROLES.md Stream C Phase 1",
+                         "legacy_metadata":  {
+                                                 "priority_rank":  1,
+                                                 "stream":  "Stream C Ã¢â‚¬â€ Adwa UI/UX",
+                                                 "legacy_status":  "completed",
+                                                 "estimated_hours":  2,
+                                                 "dependencies":  [
+
+                                                                  ],
+                                                 "deliverables":  [
+                                                                      "frontend/tailwind.config.js",
+                                                                      "frontend/src/styles/index.css"
+                                                                  ],
+                                                 "verification_criteria":  [
+                                                                               "Tailwind config exports all custom color tokens",
+                                                                               "No raw hex colors used in component styling"
+                                                                           ]
+                                             }
+                     },
+                     {
+                         "id":  "FEAT-002",
+                         "key":  "legacy_feat_002",
+                         "name":  "Central Session \u0026 Exhibit State Stores",
+                         "description":  "Implement Zustand state stores for user session, party type, persona selection, itinerary, visited exhibit IDs, and network status.",
+                         "phase":  "legacy_mvp",
+                         "status":  "released",
+                         "agent_id":  "Stream-C-Lead",
+                         "branch":  null,
+                         "claimed_at":  "2026-07-24T09:15:00Z",
+                         "released_at":  null,
+                         "plan_ref":  "docs/adwa_lens_architecture.md Section 1.1 \u0027App State Manager\u0027 \u0026 docs/AGENT_INSTRUCTIONS.md Rule 1",
+                         "legacy_metadata":  {
+                                                 "priority_rank":  2,
+                                                 "stream":  "Stream C Ã¢â‚¬â€ Adwa UI/UX",
+                                                 "legacy_status":  "completed",
+                                                 "estimated_hours":  2,
+                                                 "dependencies":  [
+                                                                      "FEAT-001"
+                                                                  ],
+                                                 "deliverables":  [
+                                                                      "frontend/src/stores/useSessionStore.js",
+                                                                      "frontend/src/stores/useExhibitStore.js"
+                                                                  ],
+                                                 "verification_criteria":  [
+                                                                               "Zustand store manages persona (kids|scholar|royal), itinerary array, and visited exhibit IDs",
+                                                                               "resetSession resets store cleanly"
+                                                                           ]
+                                             }
+                     },
+                     {
+                         "id":  "FEAT-003",
+                         "key":  "legacy_feat_003",
+                         "name":  "Fastify BFF Gateway Proxy \u0026 Error Handling",
+                         "description":  "Build Fastify server gateway with CORS, environment variable API keys, and error normalization middleware.",
+                         "phase":  "legacy_mvp",
+                         "status":  "released",
+                         "agent_id":  "Stream-B-Lead",
+                         "branch":  null,
+                         "claimed_at":  "2026-07-24T09:30:00Z",
+                         "released_at":  null,
+                         "plan_ref":  "docs/adwa_lens_architecture.md Section 1.1 \u0027BFF Gateway\u0027 \u0026 docs/AGENT_INSTRUCTIONS.md Rule 5",
+                         "legacy_metadata":  {
+                                                 "priority_rank":  3,
+                                                 "stream":  "Stream B Ã¢â‚¬â€ Vision AI \u0026 Voice RAG",
+                                                 "legacy_status":  "completed",
+                                                 "estimated_hours":  2,
+                                                 "dependencies":  [
+
+                                                                  ],
+                                                 "deliverables":  [
+                                                                      "backend/index.js",
+                                                                      "backend/lib/errors.js"
+                                                                  ],
+                                                 "verification_criteria":  [
+                                                                               "Fastify listens on port 8787 with CORS enabled",
+                                                                               "/api/health endpoint returns status ok",
+                                                                               "Errors are normalized via normalizeError"
+                                                                           ]
+                                             }
+                     },
+                     {
+                         "id":  "FEAT-004",
+                         "key":  "legacy_feat_004",
+                         "name":  "Exhibit Metadata Schemas \u0026 Catalog Definitions",
+                         "description":  "Create strict metadata JSON definitions for all 5 catalog exhibits: shotel_sword, menelik_taytu_statue, negarit_drum, embilta, and meleket.",
+                         "phase":  "legacy_mvp",
+                         "status":  "released",
+                         "agent_id":  "Stream-A-Lead",
+                         "branch":  null,
+                         "claimed_at":  "2026-07-24T09:45:00Z",
+                         "released_at":  null,
+                         "plan_ref":  "docs/PHASES_AND_ROLES.md Section 1 \u0027Complete Artifact Roster\u0027 \u0026 docs/GOVERNANCE.md Section 4",
+                         "legacy_metadata":  {
+                                                 "priority_rank":  4,
+                                                 "stream":  "Stream A Ã¢â‚¬â€ WebGL/3D Asset Lead",
+                                                 "legacy_status":  "completed",
+                                                 "estimated_hours":  3,
+                                                 "dependencies":  [
+                                                                      "FEAT-002"
+                                                                  ],
+                                                 "deliverables":  [
+                                                                      "frontend/public/exhibits/shotel_sword.json",
+                                                                      "frontend/public/exhibits/menelik_taytu_statue.json",
+                                                                      "frontend/public/exhibits/negarit_drum.json",
+                                                                      "frontend/public/exhibits/embilta.json",
+                                                                      "frontend/public/exhibits/meleket.json"
+                                                                  ],
+                                                 "verification_criteria":  [
+                                                                               "All 5 exhibit JSON files contain valid exhibit_id, glb_url, hotspot_json, persona_scripts, and audio_profile fields"
+                                                                           ]
+                                             }
+                     },
+                     {
+                         "id":  "FEAT-005",
+                         "key":  "legacy_feat_005",
+                         "name":  "Hero Artifact 3D Model Asset (Shotel Sword)",
+                         "description":  "Source/author hero Shotel curved sword .glb with Draco compression, KTX2 textures, and camera default framing.",
+                         "phase":  "legacy_mvp",
+                         "status":  "claimed",
+                         "agent_id":  "Stream-A-Lead",
+                         "branch":  null,
+                         "claimed_at":  "2026-07-24T10:00:00Z",
+                         "released_at":  null,
+                         "plan_ref":  "docs/adwa_lens_architecture.md Section 1.2 Step 4 \u0026 docs/PHASES_AND_ROLES.md Stream A Phase 1",
+                         "legacy_metadata":  {
+                                                 "priority_rank":  5,
+                                                 "stream":  "Stream A Ã¢â‚¬â€ WebGL/3D Asset Lead",
+                                                 "legacy_status":  "in_progress",
+                                                 "estimated_hours":  4,
+                                                 "dependencies":  [
+                                                                      "FEAT-004"
+                                                                  ],
+                                                 "deliverables":  [
+                                                                      "frontend/public/models/shotel_sword.glb"
+                                                                  ],
+                                                 "verification_criteria":  [
+                                                                               "shotel_sword.glb loads progressively in model-viewer without console errors"
+                                                                           ]
+                                             }
+                     },
+                     {
+                         "id":  "FEAT-006",
+                         "key":  "legacy_feat_006",
+                         "name":  "Landing Screen \u0026 Onboarding Permission Priming Modal",
+                         "description":  "Build full-bleed landing screen with hero video/model loop, English, Amharic, and supported foreign languages (e.g., Spanish) language toggle, and soft in-app permission priming modal.",
+                         "phase":  "legacy_mvp",
+                         "status":  "released",
+                         "agent_id":  "Worker-1-Landing",
+                         "branch":  null,
+                         "claimed_at":  "2026-07-24T12:40:00Z",
+                         "released_at":  null,
+                         "plan_ref":  "docs/adwa_lens_architecture.md Section 2 \u0027Screen 1 Ã¢â‚¬â€ Landing / Onboarding\u0027",
+                         "legacy_metadata":  {
+                                                 "priority_rank":  6,
+                                                 "stream":  "Stream C Ã¢â‚¬â€ Adwa UI/UX",
+                                                 "legacy_status":  "completed",
+                                                 "estimated_hours":  3,
+                                                 "dependencies":  [
+                                                                      "FEAT-001",
+                                                                      "FEAT-002"
+                                                                  ],
+                                                 "deliverables":  [
+                                                                      "frontend/src/components/screens/Landing.jsx"
+                                                                  ],
+                                                 "verification_criteria":  [
+                                                                               "Landing screen renders Start My Tour CTA and language selector (EN, AM, ES)",
+                                                                               "Switching language alters UI text and Voice AI system prompt/TTS language parameters cleanly without runtime audio stream errors",
+                                                                               "Permission priming modal triggers before browser media permission dialogs"
+                                                                           ]
+                                             }
+                     },
+                     {
+                         "id":  "FEAT-007",
+                         "key":  "legacy_feat_007",
+                         "name":  "Gemini 2.0 Flash Vision Proxy \u0026 Camera Heuristic Gate",
+                         "description":  "Implement /api/vision-scan Fastify proxy forcing strict JSON catalog match, plus client-side brightness/blur pre-scan checks in useCameraScanner.js.",
+                         "phase":  "legacy_mvp",
+                         "status":  "claimed",
+                         "agent_id":  "Stream-B-Lead",
+                         "branch":  null,
+                         "claimed_at":  "2026-07-24T10:30:00Z",
+                         "released_at":  null,
+                         "plan_ref":  "docs/adwa_lens_architecture.md Section 4.1 \u0027Gemini Flash Vision JSON\u0027",
+                         "legacy_metadata":  {
+                                                 "priority_rank":  7,
+                                                 "stream":  "Stream B Ã¢â‚¬â€ Vision AI \u0026 Voice RAG",
+                                                 "legacy_status":  "in_progress",
+                                                 "estimated_hours":  4,
+                                                 "dependencies":  [
+                                                                      "FEAT-003",
+                                                                      "FEAT-004"
+                                                                  ],
+                                                 "deliverables":  [
+                                                                      "backend/routes/vision-scan.js",
+                                                                      "frontend/src/hooks/useCameraScanner.js",
+                                                                      "frontend/src/components/screens/CameraScanner.jsx"
+                                                                  ],
+                                                 "verification_criteria":  [
+                                                                               "Camera scanner sends base64 frame to Fastify vision proxy",
+                                                                               "Gemini response parses exhibit_id and confidence score",
+                                                                               "Low light / blur triggers UI hints before calling API"
+                                                                           ]
+                                             }
+                     },
+                     {
+                         "id":  "FEAT-008",
+                         "key":  "legacy_feat_008",
+                         "name":  "3D WebGL Inspection Hub with Dynamic Hotspots",
+                         "description":  "Build InspectionHub.jsx using model-viewer/Three.js with auto-rotate handoff, pinch-zoom orbit, and multi-tab hotspot drawer.",
+                         "phase":  "legacy_mvp",
+                         "status":  "released",
+                         "agent_id":  "Codex / Stream A",
+                         "branch":  null,
+                         "claimed_at":  "2026-07-24T13:08:04Z",
+                         "released_at":  null,
+                         "plan_ref":  "docs/adwa_lens_architecture.md Section 2 \u0027Screen 5 Ã¢â‚¬â€ 3D WebGL Inspection\u0027",
+                         "legacy_metadata":  {
+                                                 "priority_rank":  8,
+                                                 "stream":  "Stream A Ã¢â‚¬â€ WebGL/3D Asset Lead",
+                                                 "legacy_status":  "completed",
+                                                 "estimated_hours":  4,
+                                                 "dependencies":  [
+                                                                      "FEAT-004",
+                                                                      "FEAT-005"
+                                                                  ],
+                                                 "deliverables":  [
+                                                                      "frontend/src/components/screens/InspectionHub.jsx"
+                                                                  ],
+                                                 "verification_criteria":  [
+                                                                               "InspectionHub displays 3D model with interactive hotspot pins",
+                                                                               "Tapping hotspot opens Material | Craft | Usage drawer tabs"
+                                                                           ]
+                                             }
+                     },
+                     {
+                         "id":  "FEAT-009",
+                         "key":  "legacy_feat_009",
+                         "name":  "Voice Guide RAG Pipeline (Kids Persona MVP)",
+                         "description":  "Implement Groq Whisper STT -\u003e Groq Llama 3.3 70B RAG -\u003e ElevenLabs TTS pipeline with browser speechSynthesis fallback for Kids Explorer persona.",
+                         "phase":  "legacy_mvp",
+                         "status":  "claimed",
+                         "agent_id":  "Stream-B-Lead",
+                         "branch":  null,
+                         "claimed_at":  "2026-07-24T11:00:00Z",
+                         "released_at":  null,
+                         "plan_ref":  "docs/adwa_lens_architecture.md Section 4.2 \u0026 Section 4.5",
+                         "legacy_metadata":  {
+                                                 "priority_rank":  9,
+                                                 "stream":  "Stream B Ã¢â‚¬â€ Vision AI \u0026 Voice RAG",
+                                                 "legacy_status":  "in_progress",
+                                                 "estimated_hours":  5,
+                                                 "dependencies":  [
+                                                                      "FEAT-003",
+                                                                      "FEAT-004"
+                                                                  ],
+                                                 "deliverables":  [
+                                                                      "backend/routes/stt.js",
+                                                                      "backend/routes/ask-guide.js",
+                                                                      "backend/routes/tts-stream.js",
+                                                                      "frontend/src/hooks/useVoiceGuide.js",
+                                                                      "frontend/src/components/screens/VoiceGuideOverlay.jsx"
+                                                                  ],
+                                                 "verification_criteria":  [
+                                                                               "Mic input transcribes text via Whisper STT route",
+                                                                               "Llama RAG generates persona-conditioned answer streaming to TTS",
+                                                                               "Browser speechSynthesis fires if ElevenLabs fails"
+                                                                           ]
+                                             }
+                     },
+                     {
+                         "id":  "FEAT-010",
+                         "key":  "legacy_feat_010",
+                         "name":  "Negarit Drum Direct Mesh Tap, Strike Button \u0026 Haptics",
+                         "description":  "Build Negarit Drum interactive audio mechanics: direct 3D mesh raycast tap, Strike UI mallet button, Web Audio synth tones, and navigator.vibrate haptic sync.",
+                         "phase":  "legacy_mvp",
+                         "status":  "released",
+                         "agent_id":  "Stream D",
+                         "branch":  null,
+                         "claimed_at":  "2026-07-24T14:25:45Z",
+                         "released_at":  null,
+                         "plan_ref":  "docs/adwa_lens_architecture.md Section 2 \u0027Screen 6\u0027 \u0026 docs/GOVERNANCE.md Section 4.3",
+                         "legacy_metadata":  {
+                                                 "priority_rank":  10,
+                                                 "stream":  "Stream D Ã¢â‚¬â€ Audio \u0026 Haptics",
+                                                 "legacy_status":  "completed",
+                                                 "estimated_hours":  4,
+                                                 "dependencies":  [
+                                                                      "FEAT-004",
+                                                                      "FEAT-008"
+                                                                  ],
+                                                 "deliverables":  [
+                                                                      "frontend/src/lib/haptics.js",
+                                                                      "frontend/src/components/screens/SensoryHub.jsx"
+                                                                  ],
+                                                 "verification_criteria":  [
+                                                                               "Tapping drum mesh or clicking Strike button plays Web Audio drum tone",
+                                                                               "Hit triggers navigator.vibrate pulse and visual audio-wave canvas animation"
+                                                                           ]
+                                             }
+                     },
+                     {
+                         "id":  "FEAT-011",
+                         "key":  "legacy_feat_011",
+                         "name":  "Post-Tour Memory Deck Recap \u0026 Visited Exhibit Shelf",
+                         "description":  "Build MemoryDeck.jsx displaying recap cards for visited exhibits, AR snapshot thumbnails, and digital badge shelf.",
+                         "phase":  "legacy_mvp",
+                         "status":  "released",
+                         "agent_id":  "Antigravity",
+                         "branch":  null,
+                         "claimed_at":  "2026-07-25T18:55:00+03:00",
+                         "released_at":  null,
+                         "plan_ref":  "docs/adwa_lens_architecture.md Section 2 \u0027Screen 8 Ã¢â‚¬â€ Post-Tour Memory Deck\u0027",
+                         "legacy_metadata":  {
+                                                 "priority_rank":  11,
+                                                 "stream":  "Stream C Ã¢â‚¬â€ Adwa UI/UX",
+                                                 "legacy_status":  "completed",
+                                                 "estimated_hours":  3,
+                                                 "dependencies":  [
+                                                                      "FEAT-002"
+                                                                  ],
+                                                 "deliverables":  [
+                                                                      "frontend/src/components/screens/MemoryDeck.jsx"
+                                                                  ],
+                                                 "verification_criteria":  [
+                                                                               "Memory Deck lists visited exhibits populated from useSessionStore",
+                                                                               "Share / export button triggers card preview"
+                                                                           ]
+                                             }
+                     },
+                     {
+                         "id":  "FEAT-012",
+                         "key":  "legacy_feat_012",
+                         "name":  "Adaptive Itinerary Planner Wizard \u0026 Crowd Feed",
+                         "description":  "Build card-stack wizard with time budget, interest chips, party type, accessibility options, and route generator with simulated crowd density.",
+                         "phase":  "legacy_mvp",
+                         "status":  "released",
+                         "agent_id":  "Antigravity",
+                         "branch":  null,
+                         "claimed_at":  "2026-07-24T17:22:42+03:00",
+                         "released_at":  null,
+                         "plan_ref":  "docs/adwa_lens_architecture.md Section 2 \u0027Screen 2 Ã¢â‚¬â€ Itinerary Planner\u0027",
+                         "legacy_metadata":  {
+                                                 "priority_rank":  12,
+                                                 "stream":  "Stream C Ã¢â‚¬â€ Adwa UI/UX",
+                                                 "legacy_status":  "completed",
+                                                 "estimated_hours":  4,
+                                                 "dependencies":  [
+                                                                      "FEAT-002"
+                                                                  ],
+                                                 "deliverables":  [
+                                                                      "frontend/src/components/screens/ItineraryPlanner.jsx"
+                                                                  ],
+                                                 "verification_criteria":  [
+                                                                               "Wizard choices update session store partyType, timeBudgetMinutes, and interests",
+                                                                               "Generates multi-stop itinerary card list"
+                                                                           ]
+                                             }
+                     },
+                     {
+                         "id":  "FEAT-013",
+                         "key":  "legacy_feat_013",
+                         "name":  "Indoor 2D SVG Map \u0026 Live Route Navigation",
+                         "description":  "Build LiveNavigation.jsx top-down 2D SVG floor map with color-coded walking route line, crowd warning chip, and manual \u0027I am here\u0027 checkpoint check-in.",
+                         "phase":  "legacy_mvp",
+                         "status":  "released",
+                         "agent_id":  "Cursor-Grok / Stream C",
+                         "branch":  null,
+                         "claimed_at":  "2026-07-25T10:52:00+03:00",
+                         "released_at":  null,
+                         "plan_ref":  "docs/adwa_lens_architecture.md Section 2 \u0027Screen 3 Ã¢â‚¬â€ Live Navigation\u0027",
+                         "legacy_metadata":  {
+                                                 "priority_rank":  13,
+                                                 "stream":  "Stream C Ã¢â‚¬â€ Adwa UI/UX",
+                                                 "legacy_status":  "completed",
+                                                 "estimated_hours":  4,
+                                                 "dependencies":  [
+                                                                      "FEAT-012"
+                                                                  ],
+                                                 "deliverables":  [
+                                                                      "frontend/src/components/screens/LiveNavigation.jsx"
+                                                                  ],
+                                                 "verification_criteria":  [
+                                                                               "SVG map renders user location dot and route path",
+                                                                               "Tapping \u0027I am here\u0027 updates current stop index in session store"
+                                                                           ]
+                                             }
+                     },
+                     {
+                         "id":  "FEAT-014",
+                         "key":  "legacy_feat_014",
+                         "name":  "Hero Artifact 3D Exploded View Transformation",
+                         "description":  "Implement GSAP transform tween / morph targets separating shotel_sword.glb into blade, hilt, and sheath layers upon button toggle.",
+                         "phase":  "legacy_mvp",
+                         "status":  "released",
+                         "agent_id":  "Antigravity / Stream A",
+                         "branch":  null,
+                         "claimed_at":  "2026-07-25T11:00:00Z",
+                         "released_at":  null,
+                         "plan_ref":  "docs/adwa_lens_architecture.md Section 2 \u0027Screen 5\u0027 \u0026 docs/PHASES_AND_ROLES.md Stream A Phase 2",
+                         "legacy_metadata":  {
+                                                 "priority_rank":  14,
+                                                 "stream":  "Stream A Ã¢â‚¬â€ WebGL/3D Asset Lead",
+                                                 "legacy_status":  "completed",
+                                                 "estimated_hours":  4,
+                                                 "dependencies":  [
+                                                                      "FEAT-005",
+                                                                      "FEAT-008"
+                                                                  ],
+                                                 "deliverables":  [
+                                                                      "frontend/src/components/screens/InspectionHub.jsx"
+                                                                  ],
+                                                 "verification_criteria":  [
+                                                                               "Tapping Exploded View toggle animates mesh node separation with text labels"
+                                                                           ]
+                                             }
+                     },
+                     {
+                         "id":  "FEAT-015",
+                         "key":  "legacy_feat_015",
+                         "name":  "Multi-Persona Engine (Scholar \u0026 Royal) \u0026 Mid-Tour Switch",
+                         "description":  "Expand persona engine with History Scholar and Royal Roleplay prompts in personas.js and UI persona switcher chips in VoiceGuideOverlay.jsx.",
+                         "phase":  "legacy_mvp",
+                         "status":  "released",
+                         "agent_id":  "Antigravity",
+                         "branch":  null,
+                         "claimed_at":  "2026-07-25T18:45:00+03:00",
+                         "released_at":  null,
+                         "plan_ref":  "docs/adwa_lens_architecture.md Section 4.2 \u0026 Section 2 Screen 7",
+                         "legacy_metadata":  {
+                                                 "priority_rank":  15,
+                                                 "stream":  "Stream B Ã¢â‚¬â€ Vision AI \u0026 Voice RAG",
+                                                 "legacy_status":  "completed",
+                                                 "estimated_hours":  3,
+                                                 "dependencies":  [
+                                                                      "FEAT-009"
+                                                                  ],
+                                                 "deliverables":  [
+                                                                      "backend/lib/personas.js",
+                                                                      "frontend/src/components/screens/VoiceGuideOverlay.jsx"
+                                                                  ],
+                                                 "verification_criteria":  [
+                                                                               "Switching avatar chip immediately alters system prompt tone and TTS voice ID"
+                                                                           ]
+                                             }
+                     },
+                     {
+                         "id":  "FEAT-016",
+                         "key":  "legacy_feat_016",
+                         "name":  "Embilta \u0026 Meleket Blowing Mechanics \u0026 Airflow Overlay",
+                         "description":  "Build wind instrument blowing interaction: mic breath autocorrelation pitch/amplitude detection in pitchDetection.js, interactive Blow button, and visual airflow particle shader.",
+                         "phase":  "legacy_mvp",
+                         "status":  "released",
+                         "agent_id":  "Cursor / Stream D",
+                         "branch":  null,
+                         "claimed_at":  "2026-07-25T15:43:00+03:00",
+                         "released_at":  null,
+                         "plan_ref":  "docs/adwa_lens_architecture.md Section 4.4 \u0026 docs/GOVERNANCE.md Section 4.4-4.5",
+                         "legacy_metadata":  {
+                                                 "priority_rank":  16,
+                                                 "stream":  "Stream D Ã¢â‚¬â€ Audio \u0026 Haptics",
+                                                 "legacy_status":  "completed",
+                                                 "estimated_hours":  5,
+                                                 "dependencies":  [
+                                                                      "FEAT-004",
+                                                                      "FEAT-008"
+                                                                  ],
+                                                 "deliverables":  [
+                                                                      "frontend/src/lib/pitchDetection.js",
+                                                                      "frontend/src/components/screens/SensoryHub.jsx"
+                                                                  ],
+                                                 "verification_criteria":  [
+                                                                               "Blowing into mic or clicking Blow button sounds ceremonial tone for Embilta and Meleket",
+                                                                               "Triggers glowing airflow particle overlay on 3D instrument model"
+                                                                           ]
+                                             }
+                     },
+                     {
+                         "id":  "FEAT-017",
+                         "key":  "legacy_feat_017",
+                         "name":  "Blade Swipe Clash SFX \u0026 Particle Canvas Burst",
+                         "description":  "Implement touch swipe gesture across crossed Shotel blade models triggering metallic clash sample and lightweight canvas spark particle burst.",
+                         "phase":  "legacy_mvp",
+                         "status":  "unclaimed",
+                         "agent_id":  null,
+                         "branch":  null,
+                         "claimed_at":  null,
+                         "released_at":  null,
+                         "plan_ref":  "docs/adwa_lens_architecture.md Section 2 \u0027Screen 6 Ã¢â‚¬â€ Blades\u0027",
+                         "legacy_metadata":  {
+                                                 "priority_rank":  17,
+                                                 "stream":  "Stream D Ã¢â‚¬â€ Audio \u0026 Haptics",
+                                                 "legacy_status":  "unlocked",
+                                                 "estimated_hours":  3,
+                                                 "dependencies":  [
+                                                                      "FEAT-005",
+                                                                      "FEAT-010"
+                                                                  ],
+                                                 "deliverables":  [
+                                                                      "frontend/src/components/screens/SensoryHub.jsx"
+                                                                  ],
+                                                 "verification_criteria":  [
+                                                                               "Swiping across blades triggers metallic clash audio and spark particle burst animation"
+                                                                           ]
+                                             }
+                     },
+                     {
+                         "id":  "FEAT-018",
+                         "key":  "legacy_feat_018",
+                         "name":  "Interactive Quiz Engine \u0026 Digital Badge Unlock",
+                         "description":  "Build multiple-choice quiz engine (3-5 questions on visited exhibits) and digital badge unlock logic integrated into MemoryDeck.jsx.",
+                         "phase":  "legacy_mvp",
+                         "status":  "released",
+                         "agent_id":  "Antigravity",
+                         "branch":  null,
+                         "claimed_at":  "2026-07-25T21:25:00+03:00",
+                         "released_at":  null,
+                         "plan_ref":  "docs/adwa_lens_architecture.md Section 2 \u0027Screen 8 Ã¢â‚¬â€ Quiz \u0026 Badges\u0027",
+                         "legacy_metadata":  {
+                                                 "priority_rank":  18,
+                                                 "stream":  "Stream D Ã¢â‚¬â€ Audio \u0026 Haptics",
+                                                 "legacy_status":  "completed",
+                                                 "estimated_hours":  4,
+                                                 "dependencies":  [
+                                                                      "FEAT-011"
+                                                                  ],
+                                                 "deliverables":  [
+                                                                      "frontend/src/components/screens/MemoryDeck.jsx"
+                                                                  ],
+                                                 "verification_criteria":  [
+                                                                               "Quiz generates questions dynamically from visited exhibit IDs",
+                                                                               "Correct answers unlock digital badges on badge shelf"
+                                                                           ]
+                                             }
+                     },
+                     {
+                         "id":  "FEAT-019",
+                         "key":  "legacy_feat_019",
+                         "name":  "Empress Taytu Monument 3D Asset \u0026 Hotspots",
+                         "description":  "Integrate taytu_statue.glb model with multi-hotspot annotations for Royal Braided Hairstyle (Albaso), Ceremonial Kaba \u0026 Dress, Sheathed Royal Sword, and Strategic Command Gesture.",
+                         "phase":  "legacy_mvp",
+                         "status":  "released",
+                         "agent_id":  "Antigravity",
+                         "branch":  null,
+                         "claimed_at":  "2026-07-25T21:57:07+03:00",
+                         "released_at":  null,
+                         "plan_ref":  "docs/GOVERNANCE.md Section 4.2 \u0026 docs/PHASES_AND_ROLES.md Section 1",
+                         "legacy_metadata":  {
+                                                 "priority_rank":  19,
+                                                 "stream":  "Stream A Ã¢â‚¬â€ WebGL/3D Asset Lead",
+                                                 "legacy_status":  "completed",
+                                                 "estimated_hours":  4,
+                                                 "dependencies":  [
+                                                                      "FEAT-004",
+                                                                      "FEAT-008"
+                                                                  ],
+                                                 "deliverables":  [
+                                                                      "frontend/public/models/taytu_statue.glb",
+                                                                      "frontend/src/components/screens/InspectionHub.jsx"
+                                                                  ],
+                                                 "verification_criteria":  [
+                                                                               "Monument 3D model loads and displays all 4 royal hotspot pins with content drawers"
+                                                                           ]
+                                             }
+                     },
+                     {
+                         "id":  "FEAT-020",
+                         "key":  "legacy_feat_020",
+                         "name":  "Embilta \u0026 Meleket Instrument 3D Models Integration",
+                         "description":  "Integrate embilta.glb and meleket.glb models into InspectionHub and SensoryHub with blowhole and mouthpiece hotspot pins.",
+                         "phase":  "legacy_mvp",
+                         "status":  "unclaimed",
+                         "agent_id":  null,
+                         "branch":  null,
+                         "claimed_at":  null,
+                         "released_at":  null,
+                         "plan_ref":  "docs/GOVERNANCE.md Section 4.4-4.5 \u0026 docs/PHASES_AND_ROLES.md Section 1",
+                         "legacy_metadata":  {
+                                                 "priority_rank":  20,
+                                                 "stream":  "Stream A Ã¢â‚¬â€ WebGL/3D Asset Lead",
+                                                 "legacy_status":  "unlocked",
+                                                 "estimated_hours":  4,
+                                                 "dependencies":  [
+                                                                      "FEAT-004",
+                                                                      "FEAT-008"
+                                                                  ],
+                                                 "deliverables":  [
+                                                                      "frontend/public/models/embilta.glb",
+                                                                      "frontend/public/models/meleket.glb"
+                                                                  ],
+                                                 "verification_criteria":  [
+                                                                               "Embilta and Meleket models load in 3D canvas with active sensory mode triggers"
+                                                                           ]
+                                             }
+                     },
+                     {
+                         "id":  "FEAT-021",
+                         "key":  "legacy_feat_021",
+                         "name":  "Low-End Device 3D LOD \u0026 Pre-rendered Fallback",
+                         "description":  "Add low-poly LOD variant loading and non-WebGL2 image sequence fallback for older mobile browsers.",
+                         "phase":  "legacy_mvp",
+                         "status":  "unclaimed",
+                         "agent_id":  null,
+                         "branch":  null,
+                         "claimed_at":  null,
+                         "released_at":  null,
+                         "plan_ref":  "docs/adwa_lens_architecture.md Section 1.3 \u0026 Section 3",
+                         "legacy_metadata":  {
+                                                 "priority_rank":  21,
+                                                 "stream":  "Stream A Ã¢â‚¬â€ WebGL/3D Asset Lead",
+                                                 "legacy_status":  "unlocked",
+                                                 "estimated_hours":  3,
+                                                 "dependencies":  [
+                                                                      "FEAT-008"
+                                                                  ],
+                                                 "deliverables":  [
+                                                                      "frontend/src/components/screens/InspectionHub.jsx"
+                                                                  ],
+                                                 "verification_criteria":  [
+                                                                               "WebGL failure gracefully displays pre-rendered layer image sequence fallback"
+                                                                           ]
+                                             }
+                     },
+                     {
+                         "id":  "FEAT-022",
+                         "key":  "legacy_feat_022",
+                         "name":  "Offline Service Worker \u0026 Top-20 Exhibit Pre-Cache",
+                         "description":  "Build Service Worker caching top 20 exhibit JSON files, static persona scripts, and browser speechSynthesis offline fallback.",
+                         "phase":  "legacy_mvp",
+                         "status":  "released",
+                         "agent_id":  "Antigravity",
+                         "branch":  null,
+                         "claimed_at":  "2026-07-25T21:52:00+03:00",
+                         "released_at":  null,
+                         "plan_ref":  "docs/adwa_lens_architecture.md Section 1.3 \u0027Offline Contingency\u0027",
+                         "legacy_metadata":  {
+                                                 "priority_rank":  22,
+                                                 "stream":  "Stream B Ã¢â‚¬â€ Vision AI \u0026 Voice RAG",
+                                                 "legacy_status":  "completed",
+                                                 "estimated_hours":  4,
+                                                 "dependencies":  [
+                                                                      "FEAT-002",
+                                                                      "FEAT-004"
+                                                                  ],
+                                                 "deliverables":  [
+                                                                      "frontend/public/sw.js",
+                                                                      "frontend/src/hooks/useNetworkStatus.js"
+                                                                  ],
+                                                 "verification_criteria":  [
+                                                                               "Disconnecting network serves pre-cached exhibit JSON and static persona scripts"
+                                                                           ]
+                                             }
+                     },
+                     {
+                         "id":  "FEAT-023",
+                         "key":  "legacy_feat_023",
+                         "name":  "AI Prompt Safety Guardrails \u0026 Off-Topic Redirection",
+                         "description":  "Implement prompt guardrails in backend/lib/personas.js politely redirecting off-topic or inappropriate user questions back to exhibit context.",
+                         "phase":  "legacy_mvp",
+                         "status":  "released",
+                         "agent_id":  "Antigravity",
+                         "branch":  null,
+                         "claimed_at":  "2026-07-25T23:02:00+03:00",
+                         "released_at":  null,
+                         "plan_ref":  "docs/adwa_lens_architecture.md Section 3 Edge Case Handling",
+                         "legacy_metadata":  {
+                                                 "priority_rank":  23,
+                                                 "stream":  "Stream B Ã¢â‚¬â€ Vision AI \u0026 Voice RAG",
+                                                 "legacy_status":  "completed",
+                                                 "estimated_hours":  2,
+                                                 "dependencies":  [
+                                                                      "FEAT-009"
+                                                                  ],
+                                                 "deliverables":  [
+                                                                      "backend/lib/personas.js",
+                                                                      "backend/routes/ask-guide.js"
+                                                                  ],
+                                                 "verification_criteria":  [
+                                                                               "Off-topic question triggers polite in-character persona redirection to museum topics"
+                                                                           ]
+                                             }
+                     },
+                     {
+                         "id":  "FEAT-024",
+                         "key":  "legacy_feat_024",
+                         "name":  "Accessibility \u0026 Ergonomics Pass",
+                         "description":  "Perform WCAG contrast check, thumb-reachable CTA layout optimization, and sticky voice avatar captions overlay.",
+                         "phase":  "legacy_mvp",
+                         "status":  "unclaimed",
+                         "agent_id":  null,
+                         "branch":  null,
+                         "claimed_at":  null,
+                         "released_at":  null,
+                         "plan_ref":  "docs/adwa_lens_architecture.md Section 2 Screen 7 \u0026 docs/PHASES_AND_ROLES.md Stream C Phase 3",
+                         "legacy_metadata":  {
+                                                 "priority_rank":  24,
+                                                 "stream":  "Stream C Ã¢â‚¬â€ Adwa UI/UX",
+                                                 "legacy_status":  "unlocked",
+                                                 "estimated_hours":  3,
+                                                 "dependencies":  [
+                                                                      "FEAT-001",
+                                                                      "FEAT-006"
+                                                                  ],
+                                                 "deliverables":  [
+                                                                      "frontend/src/styles/index.css",
+                                                                      "frontend/src/components/screens/VoiceGuideOverlay.jsx"
+                                                                  ],
+                                                 "verification_criteria":  [
+                                                                               "Text passes contrast ratio checks and voice captions remain visible in sound-off mode"
+                                                                           ]
+                                             }
+                     },
+                     {
+                         "id":  "FEAT-025",
+                         "key":  "legacy_feat_025",
+                         "name":  "End-to-End Demo Path Validation \u0026 Rehearsal Pipeline",
+                         "description":  "Validate unbroken execution of the complete 8-screen hero demo path per hackathon judging narrative arc.",
+                         "phase":  "legacy_mvp",
+                         "status":  "unclaimed",
+                         "agent_id":  null,
+                         "branch":  null,
+                         "claimed_at":  null,
+                         "released_at":  null,
+                         "plan_ref":  "docs/adwa_lens_architecture.md Section 5.4 \u0027Judging-Moment Narrative Arc\u0027",
+                         "legacy_metadata":  {
+                                                 "priority_rank":  25,
+                                                 "stream":  "Stream Bootstrap Ã¢â‚¬â€ Core",
+                                                 "legacy_status":  "unlocked",
+                                                 "estimated_hours":  3,
+                                                 "dependencies":  [
+                                                                      "FEAT-006",
+                                                                      "FEAT-007",
+                                                                      "FEAT-008",
+                                                                      "FEAT-009",
+                                                                      "FEAT-010",
+                                                                      "FEAT-011"
+                                                                  ],
+                                                 "deliverables":  [
+                                                                      "frontend/src/App.jsx"
+                                                                  ],
+                                                 "verification_criteria":  [
+                                                                               "Full demo flow runs smoothly: Landing -\u003e Planner -\u003e LiveNav -\u003e CameraScan -\u003e InspectionHub -\u003e VoiceGuide -\u003e SensoryHub -\u003e MemoryDeck"
+                                                                           ]
+                                             }
+                     },
+                     {
+                         "id":  "FEAT-026",
+                         "key":  "legacy_feat_026",
+                         "name":  "Offline-First Core Tour Experience",
+                         "description":  "Provide a complete degraded-network tour using IndexedDB-cached exhibit content, curated local guide answers, queued session events, and browser speech synthesis so core exhibit discovery and personalized storytelling remain usable without the RAG service.",
+                         "phase":  "legacy_mvp",
+                         "status":  "unclaimed",
+                         "agent_id":  null,
+                         "branch":  null,
+                         "claimed_at":  null,
+                         "released_at":  null,
+                         "plan_ref":  "Critical product requirement Ã¢â‚¬â€ offline-first core experience",
+                         "legacy_metadata":  {
+                                                 "priority_rank":  26,
+                                                 "stream":  "Stream B Ã¢â‚¬â€ Platform Resilience",
+                                                 "legacy_status":  "unlocked",
+                                                 "estimated_hours":  12,
+                                                 "dependencies":  [
+                                                                      "FEAT-002",
+                                                                      "FEAT-004",
+                                                                      "FEAT-009",
+                                                                      "FEAT-022"
+                                                                  ],
+                                                 "deliverables":  [
+                                                                      "frontend/src/lib/offlineTourCache.js",
+                                                                      "frontend/src/hooks/useOfflineGuide.js",
+                                                                      "frontend/public/sw.js"
+                                                                  ],
+                                                 "verification_criteria":  [
+                                                                               "A previously visited exhibit opens with its metadata, narrative, and persona-appropriate fallback answers while offline",
+                                                                               "Guide requests fall back to local curated content and browser speech synthesis without an error screen",
+                                                                               "Tour progress and analytics events queue locally and synchronize after connectivity returns"
+                                                                           ]
+                                             }
+                     },
+                     {
+                         "id":  "FEAT-027",
+                         "key":  "legacy_feat_027",
+                         "name":  "Provider Failure Handling \u0026 Graceful Degradation UX",
+                         "description":  "Define normalized provider-failure states and user-facing recovery paths for Gemini Vision, Groq RAG, ElevenLabs, microphone/camera permissions, timeouts, and mid-conversation network loss.",
+                         "phase":  "legacy_mvp",
+                         "status":  "unclaimed",
+                         "agent_id":  null,
+                         "branch":  null,
+                         "claimed_at":  null,
+                         "released_at":  null,
+                         "plan_ref":  "Critical product requirement Ã¢â‚¬â€ robust error handling and graceful degradation",
+                         "legacy_metadata":  {
+                                                 "priority_rank":  27,
+                                                 "stream":  "Stream B Ã¢â‚¬â€ Platform Resilience",
+                                                 "legacy_status":  "unlocked",
+                                                 "estimated_hours":  8,
+                                                 "dependencies":  [
+                                                                      "FEAT-003",
+                                                                      "FEAT-007",
+                                                                      "FEAT-009"
+                                                                  ],
+                                                 "deliverables":  [
+                                                                      "backend/lib/errors.js",
+                                                                      "frontend/src/components/ui/ServiceFallbackNotice.jsx",
+                                                                      "frontend/src/lib/serviceFallbacks.js"
+                                                                  ],
+                                                 "verification_criteria":  [
+                                                                               "Gemini Vision failure offers manual exhibit selection and retry without losing the tour state",
+                                                                               "ElevenLabs quota or stream failure switches to captions and browser speech synthesis",
+                                                                               "Network loss during a guide response preserves the transcript and presents a clear retry/offline option"
+                                                                           ]
+                                             }
+                     },
+                     {
+                         "id":  "FEAT-028",
+                         "key":  "legacy_feat_028",
+                         "name":  "Persistent Cross-Device Visitor Sessions",
+                         "description":  "Allow visitors to save and resume a tour across devices using a privacy-preserving accountless recovery link or optional sign-in, with synchronized itinerary, persona, visited exhibits, badges, and preferences.",
+                         "phase":  "legacy_mvp",
+                         "status":  "released",
+                         "agent_id":  "Codex / Stream C",
+                         "branch":  null,
+                         "claimed_at":  "2026-07-25T16:00:00+03:00",
+                         "released_at":  null,
+                         "plan_ref":  "High-priority product requirement Ã¢â‚¬â€ user session persistence across devices",
+                         "legacy_metadata":  {
+                                                 "priority_rank":  28,
+                                                 "stream":  "Stream C Ã¢â‚¬â€ Identity \u0026 Sessions",
+                                                 "legacy_status":  "completed",
+                                                 "estimated_hours":  12,
+                                                 "dependencies":  [
+                                                                      "FEAT-002",
+                                                                      "FEAT-003"
+                                                                  ],
+                                                 "deliverables":  [
+                                                                      "backend/routes/sessions.js",
+                                                                      "frontend/src/lib/sessionSync.js",
+                                                                      "frontend/src/components/screens/ResumeTour.jsx"
+                                                                  ],
+                                                 "verification_criteria":  [
+                                                                               "Visitor can create a recovery link or sign in and resume an interrupted tour on a second device",
+                                                                               "Itinerary, persona, visited exhibits, badges, and accessibility preferences restore correctly",
+                                                                               "Expired or invalid recovery links show a safe, actionable recovery state"
+                                                                           ]
+                                             }
+                     },
+                     {
+                         "id":  "FEAT-029",
+                         "key":  "legacy_feat_029",
+                         "name":  "Museum Content Management System",
+                         "description":  "Provide authenticated museum-staff workflows to create, review, publish, version, and roll back exhibit metadata, stories, translations, media, hotspot content, and 3D-model references without developer intervention.",
+                         "phase":  "legacy_mvp",
+                         "status":  "released",
+                         "agent_id":  "Cursor / Stream E",
+                         "branch":  null,
+                         "claimed_at":  "2026-07-26T01:55:00+03:00",
+                         "released_at":  null,
+                         "plan_ref":  "High-priority product requirement Ã¢â‚¬â€ admin and content management",
+                         "legacy_metadata":  {
+                                                 "priority_rank":  29,
+                                                 "stream":  "Stream E Ã¢â‚¬â€ Museum Operations",
+                                                 "legacy_status":  "completed",
+                                                 "estimated_hours":  24,
+                                                 "dependencies":  [
+                                                                      "FEAT-003",
+                                                                      "FEAT-004"
+                                                                  ],
+                                                 "deliverables":  [
+                                                                      "backend/routes/admin-content.js",
+                                                                      "backend/lib/contentSchema.js",
+                                                                      "frontend/src/components/admin/ContentManager.jsx"
+                                                                  ],
+                                                 "verification_criteria":  [
+                                                                               "Authorized staff can edit and publish exhibit copy and persona stories from an admin interface",
+                                                                               "Content changes are validated, versioned, and reversible",
+                                                                               "Published content is served to the visitor experience without a frontend deployment"
+                                                                           ]
+                                             }
+                     },
+                     {
+                         "id":  "FEAT-030",
+                         "key":  "legacy_feat_030",
+                         "name":  "Privacy-Safe Visitor Analytics \u0026 Insights Dashboard",
+                         "description":  "Instrument privacy-safe visitor events and provide museum staff a dashboard for exhibit popularity, route drop-off, persona selection, feature use, session duration, and service-failure trends.",
+                         "phase":  "legacy_mvp",
+                         "status":  "released",
+                         "agent_id":  "Cursor / Stream E",
+                         "branch":  null,
+                         "claimed_at":  "2026-07-26T01:55:00+03:00",
+                         "released_at":  null,
+                         "plan_ref":  "High-priority product requirement Ã¢â‚¬â€ analytics and insights dashboard",
+                         "legacy_metadata":  {
+                                                 "priority_rank":  30,
+                                                 "stream":  "Stream E Ã¢â‚¬â€ Museum Operations",
+                                                 "legacy_status":  "completed",
+                                                 "estimated_hours":  16,
+                                                 "dependencies":  [
+                                                                      "FEAT-003",
+                                                                      "FEAT-028"
+                                                                  ],
+                                                 "deliverables":  [
+                                                                      "backend/routes/analytics.js",
+                                                                      "frontend/src/lib/analytics.js",
+                                                                      "frontend/src/components/admin/AnalyticsDashboard.jsx"
+                                                                  ],
+                                                 "verification_criteria":  [
+                                                                               "Dashboard reports popular exhibits, drop-off points, persona usage, and time spent for a selectable date range",
+                                                                               "Analytics exclude raw audio, camera frames, and unnecessary personal data",
+                                                                               "Offline events are queued and deduplicated when sent after reconnection"
+                                                                           ]
+                                             }
+                     },
+                     {
+                         "id":  "fastify_bff_api_proxy",
+                         "key":  "fastify_bff_api_proxy",
+                         "name":  "Fastify Bff Api Proxy",
+                         "description":  "Fastify backend-for-frontend gateway with CORS, provider credential isolation, request proxying, and normalised API errors.",
+                         "phase":  "phase_1",
+                         "status":  "released",
+                         "agent_id":  "mvp-core-team",
+                         "branch":  "release/mvp-base-stack",
+                         "claimed_at":  "2026-07-24T09:00:00Z",
+                         "released_at":  "2026-07-26T00:00:00Z",
+                         "plan_ref":  "docs/ARCHITECTURE.md#bff"
+                     },
+                     {
+                         "id":  "react_vite_layout_screen_router",
+                         "key":  "react_vite_layout_screen_router",
+                         "name":  "React Vite Layout Screen Router",
+                         "description":  "React 18 and Vite application shell with responsive layout primitives and client screen routing for the museum journey.",
+                         "phase":  "phase_1",
+                         "status":  "released",
+                         "agent_id":  "mvp-core-team",
+                         "branch":  "release/mvp-base-stack",
+                         "claimed_at":  "2026-07-24T09:00:00Z",
+                         "released_at":  "2026-07-26T00:00:00Z",
+                         "plan_ref":  "docs/ARCHITECTURE.md#frontend"
+                     },
+                     {
+                         "id":  "fastapi_chromadb_rag_endpoint",
+                         "key":  "fastapi_chromadb_rag_endpoint",
+                         "name":  "Fastapi Chromadb Rag Endpoint",
+                         "description":  "Local FastAPI retrieval endpoint backed by ChromaDB for grounded heritage-guide context and similarity search.",
+                         "phase":  "phase_1",
+                         "status":  "released",
+                         "agent_id":  "mvp-core-team",
+                         "branch":  "release/mvp-base-stack",
+                         "claimed_at":  "2026-07-24T09:00:00Z",
+                         "released_at":  "2026-07-26T00:00:00Z",
+                         "plan_ref":  "docs/ARCHITECTURE.md#rag"
+                     },
+                     {
+                         "id":  "core_persona_schema_definitions",
+                         "key":  "core_persona_schema_definitions",
+                         "name":  "Core Persona Schema Definitions",
+                         "description":  "Shared contract definitions for guide personas, exhibit metadata, and structured cross-service responses.",
+                         "phase":  "phase_1",
+                         "status":  "released",
+                         "agent_id":  "mvp-core-team",
+                         "branch":  "release/mvp-base-stack",
+                         "claimed_at":  "2026-07-24T09:00:00Z",
+                         "released_at":  "2026-07-26T00:00:00Z",
+                         "plan_ref":  "docs/ARCHITECTURE.md#shared-contracts"
+                     },
+                     {
+                         "id":  "qr_scanner_primary_access",
+                         "key":  "qr_scanner_primary_access",
+                         "name":  "Qr Scanner Primary Access",
+                         "description":  "Camera QR reader that resolves an exhibit identifier to catalogued metadata instantly, without AI API overhead.",
+                         "phase":  "phase_2",
+                         "status":  "unclaimed",
+                         "agent_id":  null,
+                         "branch":  null,
+                         "claimed_at":  null,
+                         "released_at":  null,
+                         "plan_ref":  "docs/PHASES_AND_ROLES.md#phase-2-qr"
+                     },
+                     {
+                         "id":  "perceptual_hash_vision_cache",
+                         "key":  "perceptual_hash_vision_cache",
+                         "name":  "Perceptual Hash Vision Cache",
+                         "description":  "Fastify perceptual image hashing and ChromaDB cache lookup that returns a verified prior recognition before Gemini is invoked.",
+                         "phase":  "phase_2",
+                         "status":  "unclaimed",
+                         "agent_id":  null,
+                         "branch":  null,
+                         "claimed_at":  null,
+                         "released_at":  null,
+                         "plan_ref":  "docs/PHASES_AND_ROLES.md#phase-2-vision-cache"
+                     },
+                     {
+                         "id":  "gemini_vision_fallback_scan",
+                         "key":  "gemini_vision_fallback_scan",
+                         "name":  "Gemini Vision Fallback Scan",
+                         "description":  "Gemini Vision proxy used on cache miss, enforcing a validated structured JSON response containing exhibit match and confidence.",
+                         "phase":  "phase_2",
+                         "status":  "unclaimed",
+                         "agent_id":  null,
+                         "branch":  null,
+                         "claimed_at":  null,
+                         "released_at":  null,
+                         "plan_ref":  "docs/PHASES_AND_ROLES.md#phase-2-gemini"
+                     },
+                     {
+                         "id":  "groq_voice_agent_pipeline",
+                         "key":  "groq_voice_agent_pipeline",
+                         "name":  "Groq Voice Agent Pipeline",
+                         "description":  "Groq Whisper speech-to-text and Groq Llama streaming dialogue orchestration grounded through the guide retrieval flow.",
+                         "phase":  "phase_2",
+                         "status":  "unclaimed",
+                         "agent_id":  null,
+                         "branch":  null,
+                         "claimed_at":  null,
+                         "released_at":  null,
+                         "plan_ref":  "docs/PHASES_AND_ROLES.md#phase-2-voice"
+                     },
+                     {
+                         "id":  "elevenlabs_audio_stream",
+                         "key":  "elevenlabs_audio_stream",
+                         "name":  "Elevenlabs Audio Stream",
+                         "description":  "Server-sent-events client and playback path for low-latency ElevenLabs audio responses, with interruption-safe lifecycle handling.",
+                         "phase":  "phase_2",
+                         "status":  "unclaimed",
+                         "agent_id":  null,
+                         "branch":  null,
+                         "claimed_at":  null,
+                         "released_at":  null,
+                         "plan_ref":  "docs/PHASES_AND_ROLES.md#phase-2-audio"
+                     },
+                     {
+                         "id":  "virtual_tour_3d_viewer",
+                         "key":  "virtual_tour_3d_viewer",
+                         "name":  "Virtual Tour 3D Viewer",
+                         "description":  "Three.js and @google/model-viewer canvas for interactive, high-fidelity exhibit inspection and remote virtual-tour scenes.",
+                         "phase":  "phase_3",
+                         "status":  "unclaimed",
+                         "agent_id":  null,
+                         "branch":  null,
+                         "claimed_at":  null,
+                         "released_at":  null,
+                         "plan_ref":  "docs/PHASES_AND_ROLES.md#phase-3-viewer"
+                     },
+                     {
+                         "id":  "draco_asset_loader",
+                         "key":  "draco_asset_loader",
+                         "name":  "Draco Asset Loader",
+                         "description":  "Compressed .glb asset loading pipeline with Draco decoding, progressive loading states, and visible progress feedback.",
+                         "phase":  "phase_3",
+                         "status":  "unclaimed",
+                         "agent_id":  null,
+                         "branch":  null,
+                         "claimed_at":  null,
+                         "released_at":  null,
+                         "plan_ref":  "docs/PHASES_AND_ROLES.md#phase-3-assets"
+                     },
+                     {
+                         "id":  "tour_recap_generator",
+                         "key":  "tour_recap_generator",
+                         "name":  "Tour Recap Generator",
+                         "description":  "End-of-tour generator that synthesises visited exhibits into a reviewable and downloadable visitor record.",
+                         "phase":  "phase_3",
+                         "status":  "unclaimed",
+                         "agent_id":  null,
+                         "branch":  null,
+                         "claimed_at":  null,
+                         "released_at":  null,
+                         "plan_ref":  "docs/PHASES_AND_ROLES.md#phase-3-recap"
+                     },
+                     {
+                         "id":  "multilingual_translation_layer",
+                         "key":  "multilingual_translation_layer",
+                         "name":  "Multilingual Translation Layer",
+                         "description":  "Shared i18n dictionary and persona-aware strings for Amharic, Afaan Oromo, and English guide experiences.",
+                         "phase":  "phase_3",
+                         "status":  "unclaimed",
+                         "agent_id":  null,
+                         "branch":  null,
+                         "claimed_at":  null,
+                         "released_at":  null,
+                         "plan_ref":  "docs/PHASES_AND_ROLES.md#phase-3-i18n"
+                     },
+                     {
+                         "id":  "indexeddb_offline_fallback",
+                         "key":  "indexeddb_offline_fallback",
+                         "name":  "Indexeddb Offline Fallback",
+                         "description":  "IndexedDB storage for critical text metadata and local assets so core exhibit access works in zero-connectivity zones.",
+                         "phase":  "phase_4",
+                         "status":  "unclaimed",
+                         "agent_id":  null,
+                         "branch":  null,
+                         "claimed_at":  null,
+                         "released_at":  null,
+                         "plan_ref":  "docs/PHASES_AND_ROLES.md#phase-4-offline"
+                     },
+                     {
+                         "id":  "browser_tts_degradation",
+                         "key":  "browser_tts_degradation",
+                         "name":  "Browser Tts Degradation",
+                         "description":  "Automatic window.speechSynthesis fallback when an audio stream times out, fails, or cannot be started.",
+                         "phase":  "phase_4",
+                         "status":  "unclaimed",
+                         "agent_id":  null,
+                         "branch":  null,
+                         "claimed_at":  null,
+                         "released_at":  null,
+                         "plan_ref":  "docs/PHASES_AND_ROLES.md#phase-4-tts"
+                     },
+                     {
+                         "id":  "docker_production_hardening",
+                         "key":  "docker_production_hardening",
+                         "name":  "Docker Production Hardening",
+                         "description":  "Multi-stage image builds, least-privilege runtime configuration, health checks, and persistent-volume rules for production deployment.",
+                         "phase":  "phase_4",
+                         "status":  "unclaimed",
+                         "agent_id":  null,
+                         "branch":  null,
+                         "claimed_at":  null,
+                         "released_at":  null,
+                         "plan_ref":  "docs/PHASES_AND_ROLES.md#phase-4-containers"
+                     }
+                 ]
 }

@@ -3,7 +3,10 @@ import cors from "@fastify/cors";
 import cookie from "@fastify/cookie";
 import rateLimit from "@fastify/rate-limit";
 import multipart from "@fastify/multipart";
+import fastifyStatic from "@fastify/static";
 import dotenv from "dotenv";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 import visionScanRoute from "./routes/vision-scan.js";
 import sttRoute from "./routes/stt.js";
 import askGuideRoute from "./routes/ask-guide.js";
@@ -18,6 +21,8 @@ import { disconnectPrisma } from "./lib/prisma.js";
 dotenv.config();
 
 const app = Fastify({ logger: true, bodyLimit: 10 * 1024 * 1024 });
+const backendDir = path.dirname(fileURLToPath(import.meta.url));
+const frontendDist = path.resolve(backendDir, "../frontend/dist");
 
 await app.register(cors, {
   origin: process.env.CORS_ORIGIN || "http://localhost:5173",
@@ -52,6 +57,15 @@ await app.register(multipart, {
   }
 });
 
+// Production images place the Vite build at /app/frontend/dist. Disable the
+// plugin's wildcard route so the fallback below can return index.html for SPA
+// navigation while API paths continue to return a proper JSON 404.
+await app.register(fastifyStatic, {
+  root: frontendDist,
+  prefix: "/",
+  wildcard: false
+});
+
 app.register(visionScanRoute, { prefix: "/api" });
 app.register(sttRoute, { prefix: "/api" });
 app.register(askGuideRoute, { prefix: "/api" });
@@ -63,6 +77,13 @@ app.register(adminContentRoute, { prefix: "/api" });
 app.register(analyticsRoute, { prefix: "/api" });
 
 app.get("/api/health", async () => ({ status: "ok", service: "adwa-lens-bff" }));
+
+app.get("/*", async (request, reply) => {
+  if (request.url.startsWith("/api/")) {
+    return reply.code(404).send({ error: "Not Found" });
+  }
+  return reply.sendFile("index.html");
+});
 
 app.addHook("onClose", async () => {
   await disconnectPrisma();

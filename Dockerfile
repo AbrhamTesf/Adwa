@@ -1,9 +1,12 @@
 # ---- Base — installs root (orchestration), frontend/, and backend/ deps ----
-FROM node:20-alpine AS base
+FROM node:22-alpine AS base
 WORKDIR /app
-COPY package.json ./
-COPY frontend/package.json ./frontend/package.json
-COPY backend/package.json ./backend/package.json
+COPY package.json package-lock.json ./
+COPY frontend/package.json frontend/package-lock.json ./frontend/
+COPY backend/package.json backend/package-lock.json ./backend/
+# The backend postinstall runs `prisma generate`, so the schema must exist
+# before dependencies are installed in this stage.
+COPY backend/prisma ./backend/prisma
 RUN npm install
 RUN npm --prefix frontend install
 RUN npm --prefix backend install
@@ -20,7 +23,7 @@ COPY . .
 RUN npm run build
 
 # ---- Production (static client served by fastify from backend/) ----
-FROM node:20-alpine AS prod
+FROM node:22-alpine AS prod
 WORKDIR /app
 # The backend sources are copied before installing because the install runs
 # `prisma generate`, which needs prisma/schema.prisma to already be present.

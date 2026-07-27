@@ -1,20 +1,22 @@
-## Summary
+# Pull Request
 
-Describe the change and its visitor or developer impact.
+<!-- Title format: Conventional Commits, e.g. `feat(frontend): add camera QR scanner` or `fix(bff): resolve vision proxy timeout`. -->
 
-## Validation
+## Description
 
-- [ ] `npm run build --prefix frontend`
-- [ ] Relevant unit or integration tests added or updated
-- [ ] Lint and formatting checks pass
-- [ ] No secrets, generated artifacts, or large binaries were added unintentionally
+<!-- Provide a clear, concise summary of the changes introduced in this PR. -->
 
-## Screenshots / demo
+## Linked Feature Lock
 
-Add screenshots or a short recording for UI changes.
+- **Feature Key from `feature_lock.json`:** `[e.g., qr_scanner_primary_access]`
+- **PR Type:** [ ] Feature Claim / [ ] Feature Release / [ ] Bug Fix / [ ] Documentation
 
-## Checklist
+## Strict Contribution Checklist
 
-- [ ] Related issue linked
-- [ ] Documentation updated where needed
-- [ ] Feature lock updated where applicable
+Please review and check all items before requesting a review:
+
+- [ ] **Feature Lock Updated:** I have updated `feature_lock.json` (status is `claimed` or `released`, with my ID and branch name).
+- [ ] **Directory Boundaries Respected:** My code strictly stays within its intended path (`frontend/`, `backend/`, `shared/`, or `docs/`).
+- [ ] **3D Asset Constraints:** If introducing 3D models (`.glb`), they use Draco compression and are strictly under 15 MB.
+- [ ] **Docker Context Verified:** I have verified the affected stack builds and runs cleanly with `docker compose up --build`.
+- [ ] **No Exposed Secrets:** I have confirmed no local `.env` variables or secret keys (Gemini, Groq, ElevenLabs) are included in this PR.

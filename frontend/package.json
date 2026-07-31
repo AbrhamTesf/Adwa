@@ -22,7 +22,7 @@
     "zustand": "^4.5.2"
   },
   "devDependencies": {
-    "@gltf-transform/cli": "^4.4.1",
+    "@gltf-transform/cli": "^4.4.2",
     "@gltf-transform/core": "^4.4.1",
     "@gltf-transform/extensions": "^4.4.1",
     "@gltf-transform/functions": "^4.4.1",
